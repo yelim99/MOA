@@ -1,8 +1,5 @@
 ###### 내가 따로 추가 ######
 .env
-application.properties
-application.yml
-application.yaml
 /src/main/generated/**
 #########################
 
