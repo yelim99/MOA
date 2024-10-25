@@ -1,4 +1,17 @@
 spring:
+
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui.html
+      operationsSorter: method
+      tagsSorter: alpha
+    group-configs:
+      - group: public
+        paths-to-match: /api/public/**
+      - group: private
+        paths-to-match: /api/private/**
   application:
     name: a602
   config:
@@ -18,6 +31,31 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+    security:
+      oauth2:
+        client:
+          registration:
+            kakao:
+              client-id: ${KAKAO_CLIENT}
+              client-secret: ${KAKAO_SECRET}
+              redirect-uri: ${KAKAO_URI}
+              client-authentication-method: client_secret_post
+              # kakao는 토큰을 발급 요청 메서드가 post
+              authorization-grant-type: authorization_code
+              scope:
+                - profile_nickname
+                - profile_image
+                - account-email
+              client-name: kakao
+
+          # kakao는 provide 필수
+          provider:
+            kakao:
+              authorization-uri: https://kauth.kakao.com/oauth/authorize
+              token-uri: https://kauth.kakao.com/oauth/token
+              user-info-uri: https://kapi.kakao.com/v2/user/me
+              user-name-attribute: id
+
 
 logging:
   level:
