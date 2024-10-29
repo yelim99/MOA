@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        ENV_FILE_PATH = '/home/ubuntu/.env'  // .env 파일의 경로를 변수로 설정
+    }
+
     stages {
         stage('Checkout SCM') {
             steps {
@@ -8,28 +12,6 @@ pipeline {
                 checkout scm
             }
         }
-        
-        // stage('Prepare SonarQube Analysis') {
-        //     steps {
-        //         echo 'Setting executable permissions for gradlew...'
-        //         sh '''
-        //             cd backend
-        //             chmod +x gradlew  # gradlew 파일에 실행 권한 부여
-        //         '''
-        //     }
-        // }
-
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         echo 'Running SonarQube analysis...'
-        //         withSonarQubeEnv('SonarQube'){  // SonarQube 인스턴스 이름을 사용
-        //             sh '''
-        //                 cd backend
-        //                 ./gradlew sonar
-        //             '''
-        //         }
-        //     }
-        // }
 
         stage('Build JAR') {
             steps {
@@ -47,7 +29,7 @@ pipeline {
                 echo 'Deploying with Docker Compose...'
                 sh '''
                     # 새로운 이미지를 빌드하고 모든 컨테이너 실행
-                    docker-compose up -d --build
+                    docker-compose --env-file ${ENV_FILE_PATH} up -d --build
                 '''
             }
         }
