@@ -5,7 +5,7 @@ FROM amazoncorretto:17
 WORKDIR /app
 
 # Step 3: 빌드된 JAR 파일을 Docker 이미지에 복사
-COPY build/libs/moa.jar /app/moa.jar
+COPY build/libs/a602-0.0.1-SNAPSHOT.jar /app/moa.jar
 
 # Step 4: 컨테이너 포트 노출
 EXPOSE 8081
