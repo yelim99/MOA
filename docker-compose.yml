@@ -8,8 +8,8 @@ services:
       - /var/jenkins_home/workspace/SpringServer/.env
     environment:
       TZ: Asia/Seoul
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: moa
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}  # root 비밀번호 설정
+      MYSQL_DATABASE: moa                 # 기본 데이터베이스 설정
     ports:
       - "3306:3306"
     volumes:
