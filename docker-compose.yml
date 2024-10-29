@@ -42,5 +42,6 @@ services:
     command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
     restart: always
 
+# Jenkins workspace 경로로 env_file 경로 설정
 env_file:
-  - /home/ubuntu/.env
+  - /var/jenkins_home/workspace/SpringServer/.env

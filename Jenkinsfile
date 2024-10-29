@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        ENV_FILE_SOURCE = '/home/ubuntu/.env'          // 원본 .env 파일 경로
+        ENV_FILE_SOURCE = '/home/ubuntu/.env'  // 원본 .env 파일 경로
         ENV_FILE_TARGET = '/var/jenkins_home/workspace/SpringServer/.env'  // Jenkins workspace 내 복사될 경로
     }
 
