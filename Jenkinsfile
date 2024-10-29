@@ -1,23 +1,11 @@
 pipeline {
     agent any
 
-    environment {
-        ENV_FILE_SOURCE = '/home/ubuntu/.env'  // 원본 .env 파일 경로
-        ENV_FILE_TARGET = '/var/jenkins_home/workspace/SpringServer/.env'  // Jenkins workspace 내 복사될 경로
-    }
-
     stages {
         stage('Checkout SCM') {
             steps {
                 echo 'Checking out SCM...'
                 checkout scm
-            }
-        }
-
-        stage('Copy .env File') {
-            steps {
-                echo 'Copying .env file to workspace...'
-                sh "cp ${ENV_FILE_SOURCE} ${ENV_FILE_TARGET}"
             }
         }
 
@@ -36,7 +24,7 @@ pipeline {
             steps {
                 echo 'Deploying with Docker Compose...'
                 sh '''
-                    docker-compose --env-file ${ENV_FILE_TARGET} up -d --build
+                    docker-compose --env-file /var/jenkins_home/workspace/SpringServer/.env up -d --build
                 '''
             }
         }
