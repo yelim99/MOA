@@ -4,6 +4,8 @@ services:
   mysql:
     image: mysql:8.0
     container_name: mysql
+    env_file:
+      - /var/jenkins_home/workspace/SpringServer/.env
     environment:
       TZ: Asia/Seoul
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
@@ -19,6 +21,8 @@ services:
     image: backend
     build: ./backend
     container_name: moa
+    env_file:
+      - /var/jenkins_home/workspace/SpringServer/.env
     environment:
       TZ: Asia/Seoul
       SPRING_DATASOURCE_URL: ${DB_URL}
@@ -41,6 +45,3 @@ services:
       - "6379:6379"
     command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
     restart: always
-
-env_file:
-  - /var/jenkins_home/workspace/SpringServer/.env
