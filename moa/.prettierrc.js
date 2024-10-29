@@ -1,5 +1,5 @@
 module.exports = {
-  arrowParens: 'avoid', // 화살표 함수의 매개변수가 하나일 경우 괄호 생략
+  arrowParens: 'always', // 화살표 함수 매개변수 항상 괄호로 감싸도록 설정
   // bracketSameLine: true,
   bracketSpacing: false, // 중괄호와 내부 텍스트 사이에 공백 추가
   singleQuote: true, // 작은 따옴표 사용
