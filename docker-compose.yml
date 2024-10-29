@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   mysql:
     image: mysql:8.0
@@ -16,7 +17,7 @@ services:
 
   springboot:
     image: backend
-    build: ./backend  # backend 디렉토리에서 Dockerfile을 사용해 이미지 빌드
+    build: ./backend
     container_name: moa
     environment:
       TZ: Asia/Seoul
@@ -27,7 +28,6 @@ services:
       SPRING_REDIS_PORT: 6379
     ports:
       - "8081:8081"
-
     depends_on:
       - mysql
       - redis
@@ -38,6 +38,9 @@ services:
     environment:
       TZ: Asia/Seoul
     ports:
-      - "6379:6379"  # 호스트와 컨테이너 간의 포트 매핑
-    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]  # 모든 IP에서 접근 허용 및 보호 모드 비활성화
-    restart: always  # 컨테이너가 종료되면 자동 재시작
+      - "6379:6379"
+    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
+    restart: always
+
+env_file:
+  - /home/ubuntu/.env
