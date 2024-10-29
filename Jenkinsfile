@@ -9,6 +9,13 @@ pipeline {
             }
         }
 
+        stage('Copy .env File') {
+            steps {
+                echo 'Copying .env file to workspace...'
+                sh 'cp /home/ubuntu/.env /var/jenkins_home/workspace/SpringServer/.env || true'
+            }
+        }
+
         stage('Build JAR') {
             steps {
                 echo 'Building JAR file...'
