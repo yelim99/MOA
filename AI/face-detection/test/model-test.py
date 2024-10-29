@@ -9,10 +9,10 @@ GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 
 # 사용할 YOLOv8 모델을 설정한다. 
-model = YOLO('../model/yolov8n.pt')
+model = YOLO('../model/face-detection.pt')
 
 # 테스트할 이미지 경로 설정 (여기에 테스트할 이미지 경로를 입력하세요)
-image_path = './img/workshop1.jpg'
+image_path = './img/test2.jpg'
 
 # 시작 시간 기록
 start = datetime.datetime.now()
@@ -37,8 +37,8 @@ for data in detection.boxes.data.tolist():
     
     # 사각형 및 텍스트 그리기
     cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), GREEN, 2)
-    cv2.putText(frame, f'Conf: {round(confidence, 2)}%', 
-                (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 1)
+    # cv2.putText(frame, f'Conf: {round(confidence, 2)}%', 
+    #             (xmin, ymin - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 1)
 
 # 종료 시간 기록 및 처리 시간 계산
 end = datetime.datetime.now()
@@ -49,7 +49,7 @@ print(f'Time to process the image: {total_time * 1000:.0f} milliseconds')
 print(f'FPS: {1 / total_time:.2f}')
 
 # 창 크기 설정 및 이미지 크기 조정
-frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # 이미지 크기 50% 축소
+# frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)  # 이미지 크기 50% 축소
 cv2.namedWindow('Processed Image', cv2.WINDOW_NORMAL)
 cv2.resizeWindow('Processed Image', 640, 480)  # 창 크기 설정
 
