@@ -12,7 +12,7 @@ pipeline {
         stage('Copy .env File') {
             steps {
                 echo 'Copying .env file to workspace...'
-                sh 'cp /home/ubuntu/.env /var/jenkins_home/workspace/SpringServer/.env || true'
+                sh 'cp /home/ubuntu/.env /var/jenkins_home/workspace/SpringServer/ || true'
             }
         }
 
