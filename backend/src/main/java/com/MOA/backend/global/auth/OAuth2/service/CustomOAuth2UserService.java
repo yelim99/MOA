@@ -27,43 +27,45 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        // 기본 OAuth2UserService 객체 생성
         OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
+
+        // OAuth2UserService를 사용하여 OAuth2User 정보를 가져온다.
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
+        // 클라이언트 등록 ID(google, naver, kakao)와 사용자 이름 속성을 가져온다.
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        // OAuth2Attribute에서 사용자 정보를 가져옵니다.
-        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
-        Map<String, Object> userAttribute = oAuth2Attribute.converToMap();
-        String email = (String) userAttribute.get("email");
-        String nickname = (String) userAttribute.get("nickname");
-        String picture = (String) userAttribute.get("picture");
 
-        // 사용자 존재 여부 확인
-        Optional<User> findUser = userService.findByUserEmail(email);
+        // OAuth2UserService를 사용하여 가져온 OAuth2User 정보로 OAuth2Attribute 객체를 만든다.
+        OAuth2Attribute oAuth2Attribute =
+                OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        // 사용자가 없으면 새로운 사용자 저장
-        if (findUser.isEmpty()) {
-            log.info("새 사용자 저장: 이메일 = {}", email);
-            User newUser = new User();
-            newUser.setUserEmail(email);
-            newUser.setUserName(nickname);
-            newUser.setUserImage(picture);
-            userService.saveUser(newUser);  // 새로운 사용자 저장
+        // OAuth2Attribute의 속성값들을 Map으로 반환 받는다.
+        Map<String, Object> memberAttribute = oAuth2Attribute.convertToMap();
 
-            userAttribute.put("isNewUser", true);  // 신규 사용자 플래그 추가
-        } else {
-            log.info("기존 사용자 정보 불러오기: 이메일 = {}", email);
-            userAttribute.put("isNewUser", false);  // 기존 사용자 플래그 추가
+        // 사용자 email(또는 id) 정보를 가져온다.
+        String email = (String) memberAttribute.get("email");
+        // 이메일로 가입된 회원인지 조회한다.
+        Optional<User> findMember = userService.findByUserEmail(email);
+
+        if (findMember.isEmpty()) {
+            // 회원이 존재하지 않을 경우, exist 값을 false로 설정
+            memberAttribute.put("exist", false);
+            // 기본 권한으로 ROLE_USER를 사용해 DefaultOAuth2User 객체를 반환
+            return new DefaultOAuth2User(
+                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), // 기본 권한 고정
+                    memberAttribute, "email");
         }
 
-        // 사용자 정보로 OAuth2User 반환
+        // 회원이 존재할 경우, exist 값을 true로 설정
+        memberAttribute.put("exist", true);
+        // 권한 없이 DefaultOAuth2User 객체를 반환
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
-                userAttribute, "email");
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), // 기본 권한 고정
+                memberAttribute, "email");
+
     }
 }
-
-

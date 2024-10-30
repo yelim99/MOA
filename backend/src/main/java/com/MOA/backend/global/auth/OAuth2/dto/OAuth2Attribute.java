@@ -23,7 +23,6 @@ public class OAuth2Attribute {
     public static OAuth2Attribute of(String provider, String attributeKey,
                                      Map<String, Object> attributes) {
         switch (provider) {
-
             case "kakao":
                 return ofKakao(provider, "email", attributes);
             default:
@@ -47,7 +46,7 @@ public class OAuth2Attribute {
                 .build();
     }
 
-    public Map<String, Object> converToMap() {
+    public Map<String, Object> convertToMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("id", attributeKey);
         map.put("key", attributeKey);
