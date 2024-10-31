@@ -27,9 +27,19 @@ public class User extends BaseEntity {
     @Column(name = "user_image")
     private String userImage;
 
+    @Column(name = "role", nullable = false)
+    private String role = "ROLE_USER";
+
     @Lob
     @Column()
     private byte[] faceEmbedding;
+
+    public User(String userName, String userEmail, String userImage) {
+        this.userName = userName;
+        this.userEmail = userEmail;
+        this.userImage = userImage;
+        this.role = "ROLE_USER";
+    }
 
     public void setOAuthUserInfo(String userName, String userEmail, String userImage) {
         this.userName = userName;
