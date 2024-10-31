@@ -21,15 +21,6 @@ pipeline {
             }
         }
 
-        stage('Prepare Environment') {
-            steps {
-                echo 'Copying .env file to Jenkins workspace...'
-                sh '''
-                    cp /home/ubuntu/config/.env /var/jenkins_home/workspace/backend_pipeline/.env || true
-                '''
-            }
-        }
-
         stage('Deploy with Docker Compose') {
             steps {
                 echo 'Deploying with Docker Compose...'
