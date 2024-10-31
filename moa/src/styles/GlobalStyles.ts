@@ -2,7 +2,7 @@
 import {css} from 'styled-components/native';
 
 export const GlobalStyles = css`
-  color: ${({theme}) => theme.colors.text};
-  font-family: 'Roboto';
-  font-size: 16px;
+  font-family: 'SCDream5';
+  font-size: ${({theme}) => theme.fontSize.regular};
+  color: ${({theme}) => theme.colors.black};
 `;

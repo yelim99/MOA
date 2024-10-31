@@ -125,15 +125,18 @@
 // // export default App;
 // export {default} from './.storybook';
 import React from 'react';
+import {ThemeProvider} from 'styled-components';
 import {SafeAreaView, Text, View} from 'react-native';
 
 const App = () => {
   return (
-    <SafeAreaView>
-      <View>
-        <Text>Welcome to the Main App</Text>
-      </View>
-    </SafeAreaView>
+    <ThemeProvider>
+      <SafeAreaView>
+        <View>
+          <Text>Welcome to the Main App</Text>
+        </View>
+      </SafeAreaView>
+    </ThemeProvider>
   );
 };
 
