@@ -23,10 +23,9 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                echo 'Ensuring /app directory exists and copying .env file...'
+                echo 'Copying .env file to Jenkins workspace...'
                 sh '''
-                    mkdir -p /app  # 이미 있으면 무시하고, 없으면 생성
-                    cp /home/ubuntu/config/.env /app/.env || true  # /app/.env 경로로 복사
+                    cp /home/ubuntu/config/.env /var/jenkins_home/workspace/backend_pipeline/.env || true
                 '''
             }
         }
