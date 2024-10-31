@@ -1,23 +1,31 @@
 import React from 'react';
-import Icon from 'react-native-vector-icons/Entypo';
+import EntypoIcon from 'react-native-vector-icons/Entypo';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import styled, {useTheme} from 'styled-components/native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
+import {StyleSheet} from 'react-native';
+
+const styles = StyleSheet.create({
+  shadow: {
+    elevation: 10,
+  },
+});
 
 const Container = styled.View`
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  border-top-width: 1px;
-  border-top-color: ${({theme}) => theme.colors.deepgray};
-  background-color: ${({theme}) => theme.colors.lightgray};
 `;
 
 const BoxContainer = styled.View`
+  height: 85px;
   flex-direction: row;
   align-items: center;
-  justify-content: space-around;
-  padding: 10px 0;
+  justify-content: space-between;
+  padding: 0 15%;
+  background-color: ${({theme}) => theme.colors.white};
+  margin-top: 10px;
 `;
 
 interface NavButtonProps {
@@ -32,10 +40,25 @@ const NavButtonContainer = styled.TouchableOpacity<NavButtonProps>`
 `;
 
 const NavButtonText = styled.Text<NavButtonProps>`
-  font-weight: 500;
+  font-family: ${({isActive}) => (isActive ? 'SCDream6' : 'SCDream4')};
   font-size: 15px;
   color: ${({theme, isActive}) =>
     isActive ? theme.colors.maindarkorange : theme.colors.deepgray};
+`;
+
+const ShareButton = styled.TouchableOpacity`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({theme}) => theme.colors.maindarkorange};
+  width: 70px;
+  height: 70px;
+  border-radius: 50px;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-35px, -35px);
+  z-index: 1;
 `;
 
 const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
@@ -43,7 +66,10 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
 
   return (
     <Container>
-      <BoxContainer>
+      <ShareButton>
+        <FeatherIcon name={'upload'} size={30} color={theme.colors.white} />
+      </ShareButton>
+      <BoxContainer style={styles.shadow}>
         {state.routes.map((route, index) => {
           const isFocused = state.index === index;
 
@@ -65,7 +91,7 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
               onPress={onPress}
               isActive={isFocused}
             >
-              <Icon
+              <EntypoIcon
                 name={route.name === 'Home' ? 'folder-images' : 'emoji-happy'}
                 size={30}
                 color={

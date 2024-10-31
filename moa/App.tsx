@@ -1,26 +1,31 @@
 import React from 'react';
 import styled, {ThemeProvider} from 'styled-components/native';
 import {theme} from './src/styles/theme';
-import {SafeAreaView} from 'react-native';
 import Navigation from './src/components/common/Navigation';
 import {NavigationContainer} from '@react-navigation/native';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {
+  createBottomTabNavigator,
+  BottomTabBarProps,
+} from '@react-navigation/bottom-tabs';
 import Home from './src/screens/Home';
 import MyPage from './src/screens/MyPage';
-import {GlobalStyles} from './src/styles/GlobalStyles';
 
 const Tab = createBottomTabNavigator();
 
+const CustomTabBar: React.FC<BottomTabBarProps> = (props) => (
+  <Navigation {...props} />
+);
+
 const StyledSafeAreaView = styled.SafeAreaView`
-  ${GlobalStyles};
+  flex: 1;
 `;
 
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
-      <StyledSafeAreaView style={{flex: 1}}>
+      <StyledSafeAreaView>
         <NavigationContainer>
-          <Tab.Navigator tabBar={(props) => <Navigation {...props} />}>
+          <Tab.Navigator tabBar={CustomTabBar}>
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="MyPage" component={MyPage} />
           </Tab.Navigator>
