@@ -1,32 +1,22 @@
 version: '3.8'
 services:
+  redis:
+      image: redis
+      container_name: redis
+      environment:
+        TZ: Asia/Seoul
+      ports:
+        - "6379:6379"  # 호스트와 컨테이너 간의 포트 매핑
+      command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]  # 모든 IP에서 접근 허용 및 보호 모드 비활성화
+      restart: always  # 컨테이너가 종료되면 자동 재시작
   springboot:
     image: backend
-    build: ./backend
-    container_name: moa
-    env_file:
-      - /var/jenkins_home/workspace/SpringServer/.env  # Jenkins에서 사용하는 .env 파일 경로
-    volumes:
-      - /var/jenkins_home/workspace/SpringServer/.env:/app/.env  # Spring Boot가 접근할 수 있도록 마운트
+    build: ./backend  # backend 디렉토리에서 Dockerfile을 사용해 이미지 빌드
+    container_name: backend
+    env_file: /home/ubuntu/config/.env
     environment:
       TZ: Asia/Seoul
-      SPRING_DATASOURCE_URL: ${DB_URL}
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
     ports:
       - "8081:8081"
     depends_on:
-      - mysql
       - redis
-
-  redis:
-    image: redis:6.2
-    container_name: redis
-    environment:
-      TZ: Asia/Seoul
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--bind", "0.0.0.0", "--protected-mode", "no"]
-    restart: always

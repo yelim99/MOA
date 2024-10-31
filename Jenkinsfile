@@ -9,13 +9,6 @@ pipeline {
             }
         }
 
-        stage('Copy .env File') {
-            steps {
-                echo 'Copying .env file to workspace...'
-                sh 'cp ../home/ubuntu/.env /var/jenkins_home/workspace/SpringServer/ || true'
-            }
-        }
-
         stage('Build JAR') {
             steps {
                 echo 'Building JAR file...'
@@ -31,7 +24,7 @@ pipeline {
             steps {
                 echo 'Deploying with Docker Compose...'
                 sh '''
-                    docker-compose --env-file /var/jenkins_home/workspace/SpringServer/.env up -d --build
+                    docker-compose up -d --build
                 '''
             }
         }
