@@ -2,6 +2,7 @@
 // 값 자체 정의
 // ThemeProvider 적용: App.tsx에서 ThemeProvider로 theme을 주입하여 앱 전체에서 사용할 수 있도록 설정
 // props.theme.colors.primary 등으로 접근
+import 'styled-components';
 export const theme = {
   colors: {
     maindarkorange: '#FF8521',
@@ -39,3 +40,4 @@ export const theme = {
     extrabold: '900',
   },
 };
+export type ThemeType = typeof theme;

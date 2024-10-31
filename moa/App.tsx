@@ -125,12 +125,13 @@
 // // export default App;
 // export {default} from './.storybook';
 import React from 'react';
-import {ThemeProvider} from 'styled-components';
+import {ThemeProvider} from 'styled-components/native';
+import {theme} from './src/styles/theme';
 import {SafeAreaView, Text, View} from 'react-native';
 
 const App = () => {
   return (
-    <ThemeProvider>
+    <ThemeProvider theme={theme}>
       <SafeAreaView>
         <View>
           <Text>Welcome to the Main App</Text>
