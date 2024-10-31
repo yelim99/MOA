@@ -68,3 +68,10 @@ application {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar {
+    archiveBaseName.set('moa')    // JAR 파일의 기본 이름 설정
+    archiveVersion.set('1.0')         // 버전 설정
+    archiveClassifier.set('release')  // 선택적: 분류자 설정 (필요 없으면 생략 가능)
+    archiveFileName.set('moa.jar') // 전체 파일 이름 지정 (선택 사항)
+}
