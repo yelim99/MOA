@@ -56,9 +56,14 @@ spring:
             user-name-attribute: id
 
   data:
+    rest:
+      base-path: /api
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
+    mongodb:
+      uri: ${MONGODB_CONNECTION_STRING}
+      database: ${MONGODB_DATABASE}
 
 
 
