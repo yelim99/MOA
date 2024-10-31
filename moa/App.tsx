@@ -134,10 +134,10 @@ import Test from './src/components/Test';
 
 const Container = styled.View`
   background-color: ${({theme}) => theme.colors.lightblue};
+  padding: 10px;
 `;
 const StyledText = styled.Text`
   ${GlobalStyles};
-  font-family: 'SCDream5';
 `;
 const App = () => {
   return (
@@ -147,7 +147,8 @@ const App = () => {
           <View>
             <Test></Test>
             <StyledText>
-              글씨 크기랑 색은 적용되는데, font-family는 적용안됨
+              글씨 크기랑 색은 Container컴포넌트를 통해 적용되고, 텍스트 관련은
+              GlobalStyles로 적용됨!!
             </StyledText>
           </View>
         </Container>
