@@ -125,15 +125,35 @@
 // // export default App;
 // export {default} from './.storybook';
 import React from 'react';
+import {ThemeProvider} from 'styled-components/native';
+import {theme} from './src/styles/theme';
 import {SafeAreaView, Text, View} from 'react-native';
+import {GlobalStyles} from './src/styles/GlobalStyles';
+import styled from 'styled-components/native';
+import Test from './src/components/Test';
 
+const Container = styled.View`
+  background-color: ${({theme}) => theme.colors.lightblue};
+  padding: 10px;
+`;
+const StyledText = styled.Text`
+  ${GlobalStyles};
+`;
 const App = () => {
   return (
-    <SafeAreaView>
-      <View>
-        <Text>Welcome to the Main App</Text>
-      </View>
-    </SafeAreaView>
+    <ThemeProvider theme={theme}>
+      <SafeAreaView>
+        <Container>
+          <View>
+            <Test></Test>
+            <StyledText>
+              글씨 크기랑 색은 Container컴포넌트를 통해 적용되고, 텍스트 관련은
+              GlobalStyles로 적용됨!!
+            </StyledText>
+          </View>
+        </Container>
+      </SafeAreaView>
+    </ThemeProvider>
   );
 };
 

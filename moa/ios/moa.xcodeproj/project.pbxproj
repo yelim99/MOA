@@ -14,6 +14,15 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		7699B88040F8A987B510C191 /* libPods-moa-moaTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-moa-moaTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		CAF859F4483343FDBED4138C /* SCDream1.otf in Resources */ = {isa = PBXBuildFile; fileRef = 40F2FA936A3A4D8491F674B3 /* SCDream1.otf */; };
+		7DBBB0F02DA945B7989C0B9B /* SCDream2.otf in Resources */ = {isa = PBXBuildFile; fileRef = F1C2FC229D4541DEA02582B3 /* SCDream2.otf */; };
+		E7F1D4BD8CFC47769E7034B1 /* SCDream3.otf in Resources */ = {isa = PBXBuildFile; fileRef = 5CF27853FD384FF19AB5F2AF /* SCDream3.otf */; };
+		1E4DAED739844BC6A978AFE8 /* SCDream4.otf in Resources */ = {isa = PBXBuildFile; fileRef = 03FEF8EA120F45C289396B08 /* SCDream4.otf */; };
+		91138D28EDAD4D45B12AD0B2 /* SCDream5.otf in Resources */ = {isa = PBXBuildFile; fileRef = 850F1EF647DF45568DCDCF87 /* SCDream5.otf */; };
+		A16C07ED162943A0A7AB53EE /* SCDream6.otf in Resources */ = {isa = PBXBuildFile; fileRef = E1EAE6513E9A49CFA53EF503 /* SCDream6.otf */; };
+		2F0AA2FC8ACC4791AC9B4758 /* SCDream7.otf in Resources */ = {isa = PBXBuildFile; fileRef = 41FA92992E8A488982AAAADC /* SCDream7.otf */; };
+		97274CCC019B442999DC02B1 /* SCDream8.otf in Resources */ = {isa = PBXBuildFile; fileRef = B0EE47D4C8054037AF287363 /* SCDream8.otf */; };
+		73FFEF0EC97C46F7A8BFB4F0 /* SCDream9.otf in Resources */ = {isa = PBXBuildFile; fileRef = 47BD5BD3CDE548249E20EB81 /* SCDream9.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +54,15 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = moa/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-moa-moaTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-moa-moaTests.release.xcconfig"; path = "Target Support Files/Pods-moa-moaTests/Pods-moa-moaTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		40F2FA936A3A4D8491F674B3 /* SCDream1.otf */ = {isa = PBXFileReference; name = "SCDream1.otf"; path = "../src/assets/fonts/SCDream1.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		F1C2FC229D4541DEA02582B3 /* SCDream2.otf */ = {isa = PBXFileReference; name = "SCDream2.otf"; path = "../src/assets/fonts/SCDream2.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5CF27853FD384FF19AB5F2AF /* SCDream3.otf */ = {isa = PBXFileReference; name = "SCDream3.otf"; path = "../src/assets/fonts/SCDream3.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		03FEF8EA120F45C289396B08 /* SCDream4.otf */ = {isa = PBXFileReference; name = "SCDream4.otf"; path = "../src/assets/fonts/SCDream4.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		850F1EF647DF45568DCDCF87 /* SCDream5.otf */ = {isa = PBXFileReference; name = "SCDream5.otf"; path = "../src/assets/fonts/SCDream5.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		E1EAE6513E9A49CFA53EF503 /* SCDream6.otf */ = {isa = PBXFileReference; name = "SCDream6.otf"; path = "../src/assets/fonts/SCDream6.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		41FA92992E8A488982AAAADC /* SCDream7.otf */ = {isa = PBXFileReference; name = "SCDream7.otf"; path = "../src/assets/fonts/SCDream7.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		B0EE47D4C8054037AF287363 /* SCDream8.otf */ = {isa = PBXFileReference; name = "SCDream8.otf"; path = "../src/assets/fonts/SCDream8.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		47BD5BD3CDE548249E20EB81 /* SCDream9.otf */ = {isa = PBXFileReference; name = "SCDream9.otf"; path = "../src/assets/fonts/SCDream9.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +142,7 @@
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
+				7E95F6AA18EE45BC8E06E3C5 /* Resources */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -149,6 +168,23 @@
 			);
 			path = Pods;
 			sourceTree = "<group>";
+		};
+		7E95F6AA18EE45BC8E06E3C5 /* Resources */ = {
+			isa = "PBXGroup";
+			children = (
+				40F2FA936A3A4D8491F674B3 /* SCDream1.otf */,
+				F1C2FC229D4541DEA02582B3 /* SCDream2.otf */,
+				5CF27853FD384FF19AB5F2AF /* SCDream3.otf */,
+				03FEF8EA120F45C289396B08 /* SCDream4.otf */,
+				850F1EF647DF45568DCDCF87 /* SCDream5.otf */,
+				E1EAE6513E9A49CFA53EF503 /* SCDream6.otf */,
+				41FA92992E8A488982AAAADC /* SCDream7.otf */,
+				B0EE47D4C8054037AF287363 /* SCDream8.otf */,
+				47BD5BD3CDE548249E20EB81 /* SCDream9.otf */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+			path = "";
 		};
 /* End PBXGroup section */
 
@@ -245,6 +281,15 @@
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				CAF859F4483343FDBED4138C /* SCDream1.otf in Resources */,
+				7DBBB0F02DA945B7989C0B9B /* SCDream2.otf in Resources */,
+				E7F1D4BD8CFC47769E7034B1 /* SCDream3.otf in Resources */,
+				1E4DAED739844BC6A978AFE8 /* SCDream4.otf in Resources */,
+				91138D28EDAD4D45B12AD0B2 /* SCDream5.otf in Resources */,
+				A16C07ED162943A0A7AB53EE /* SCDream6.otf in Resources */,
+				2F0AA2FC8ACC4791AC9B4758 /* SCDream7.otf in Resources */,
+				97274CCC019B442999DC02B1 /* SCDream8.otf in Resources */,
+				73FFEF0EC97C46F7A8BFB4F0 /* SCDream9.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
