@@ -2,6 +2,14 @@ pipeline {
     agent any
 
     stages {
+        
+        steps {
+            echo 'Copying .env file...'
+            sh '''
+                cp /home/ubuntu/config/.env /app/.env || true
+            '''
+        }
+
         stage('Checkout SCM') {
             steps {
                 echo 'Checking out SCM...'
