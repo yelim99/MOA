@@ -23,9 +23,10 @@ pipeline {
 
         stage('Prepare Environment') {
             steps {
-                echo 'Copying .env file...'
+                echo 'Ensuring /app directory exists and copying .env file...'
                 sh '''
-                    cp /home/ubuntu/config/.env /app/.env || true
+                    mkdir -p /app  # 이미 있으면 무시하고, 없으면 생성
+                    cp /home/ubuntu/config/.env /app/.env || true  # /app/.env 경로로 복사
                 '''
             }
         }
