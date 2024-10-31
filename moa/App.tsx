@@ -9,6 +9,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 import Home from './src/screens/Home';
 import MyPage from './src/screens/MyPage';
+import AppHeader from './src/components/common/header/AppHeader';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,7 +27,13 @@ const App = () => {
       <StyledSafeAreaView>
         <NavigationContainer>
           <Tab.Navigator tabBar={CustomTabBar}>
-            <Tab.Screen name="Home" component={Home} />
+            <Tab.Screen
+              name="Home"
+              component={Home}
+              options={{
+                header: ({navigation}) => <AppHeader navigation={navigation} />,
+              }}
+            />
             <Tab.Screen name="MyPage" component={MyPage} />
           </Tab.Navigator>
         </NavigationContainer>
