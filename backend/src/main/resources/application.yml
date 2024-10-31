@@ -17,7 +17,7 @@ spring:
     name: a602
   config:
     import:
-      - file:.env[.properties]
+      - optional:file:.env[.properties] # 로컬에서 .env 파일을 참조하도록 optional 설정
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -46,8 +46,6 @@ spring:
               - profile_image
               - account_email
             client-name: kakao
-
-        # kakao는 provide 필수
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -63,9 +61,6 @@ spring:
     mongodb:
       uri: ${MONGODB_CONNECTION_STRING}
       database: ${MONGODB_DATABASE}
-
-
-
 logging:
   level:
     org:
