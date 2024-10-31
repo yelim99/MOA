@@ -3,13 +3,6 @@ pipeline {
 
     stages {
         
-        steps {
-            echo 'Copying .env file...'
-            sh '''
-                cp /home/ubuntu/config/.env /app/.env || true
-            '''
-        }
-
         stage('Checkout SCM') {
             steps {
                 echo 'Checking out SCM...'
@@ -24,6 +17,15 @@ pipeline {
                     cd backend
                     chmod +x gradlew  # gradlew 파일에 실행 권한 부여
                     ./gradlew clean bootJar --no-build-cache -x test
+                '''
+            }
+        }
+
+        stage('Prepare Environment') {
+            steps {
+                echo 'Copying .env file...'
+                sh '''
+                    cp /home/ubuntu/config/.env /app/.env || true
                 '''
             }
         }
