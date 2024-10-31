@@ -128,14 +128,29 @@ import React from 'react';
 import {ThemeProvider} from 'styled-components/native';
 import {theme} from './src/styles/theme';
 import {SafeAreaView, Text, View} from 'react-native';
+import {GlobalStyles} from './src/styles/GlobalStyles';
+import styled from 'styled-components/native';
+import Test from './src/components/Test';
 
+const Container = styled.View`
+  background-color: ${({theme}) => theme.colors.lightblue};
+`;
+const StyledText = styled.Text`
+  ${GlobalStyles};
+  font-family: 'SCDream5';
+`;
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <SafeAreaView>
-        <View>
-          <Text>Welcome to the Main App</Text>
-        </View>
+        <Container>
+          <View>
+            <Test></Test>
+            <StyledText>
+              글씨 크기랑 색은 적용되는데, font-family는 적용안됨
+            </StyledText>
+          </View>
+        </Container>
       </SafeAreaView>
     </ThemeProvider>
   );
