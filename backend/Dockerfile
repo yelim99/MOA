@@ -4,6 +4,8 @@ ENV TZ=Asia/Seoul
 
 WORKDIR /app
 
+COPY /home/ubuntu/config/.env /app/.env
+
 COPY build/libs/moa.jar /app/moa.jar
 
 EXPOSE 8081
