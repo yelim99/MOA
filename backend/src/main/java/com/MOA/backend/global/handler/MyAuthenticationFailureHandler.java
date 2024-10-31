@@ -18,7 +18,7 @@ public class MyAuthenticationFailureHandler implements AuthenticationFailureHand
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
             throws IOException, ServletException {
         log.error("Authentication failed: {}", exception.getMessage());
-
+        exception.printStackTrace();
         // JSON 형식으로 실패 응답
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 상태 코드 설정
         response.setContentType("application/json;charset=UTF-8");

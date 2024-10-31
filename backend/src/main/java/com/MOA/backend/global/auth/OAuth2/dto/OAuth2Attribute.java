@@ -20,19 +20,17 @@ public class OAuth2Attribute {
     private String picture;
     private String provider;
 
-    public static OAuth2Attribute of(String provider, String attributeKey,
-                                     Map<String, Object> attributes) {
+    public static OAuth2Attribute of(String provider, String attributeKey, Map<String, Object> attributes) {
         switch (provider) {
             case "kakao":
-                return ofKakao(provider, "email", attributes);
+                return ofKakao(provider, attributeKey, attributes);
+            // 다른 소셜 로그인 공급자를 추가하고 싶다면 이곳에 추가합니다.
             default:
-                throw new RuntimeException();
-
+                throw new RuntimeException("지원하지 않는 소셜 로그인 공급자입니다.");
         }
     }
 
-    private static OAuth2Attribute ofKakao(String provider, String attributeKey,
-                                           Map<String, Object> attributes) {
+    private static OAuth2Attribute ofKakao(String provider, String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
@@ -41,7 +39,7 @@ public class OAuth2Attribute {
                 .name((String) kakaoProfile.get("nickname"))
                 .picture((String) kakaoProfile.get("profile_image_url"))
                 .provider(provider)
-                .attributes(kakaoAccount)
+                .attributes(attributes) // 전체 속성 추가
                 .attributeKey(attributeKey)
                 .build();
     }
@@ -50,12 +48,10 @@ public class OAuth2Attribute {
         Map<String, Object> map = new HashMap<>();
         map.put("id", attributeKey);
         map.put("key", attributeKey);
+        map.put("name", name);
         map.put("email", email);
-        map.put("nickname", name);
         map.put("picture", picture);
         map.put("provider", provider);
-
         return map;
     }
-
 }

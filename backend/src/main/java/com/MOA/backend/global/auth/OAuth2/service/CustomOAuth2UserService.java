@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Map;
@@ -21,51 +22,46 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserService userService;
 
+    @Transactional
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // 기본 OAuth2UserService 객체 생성
+        // 기본 OAuth2UserService 객체로부터 OAuth2User 정보를 불러옴
         OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
 
-        // OAuth2UserService를 사용하여 OAuth2User 정보를 가져온다.
+        //  위의 서비스에서 정보 불러오기
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
-        // 클라이언트 등록 ID(google, naver, kakao)와 사용자 이름 속성을 가져온다.
+        // 클라이언트 ID (예: google, naver, kakao)와 사용자 속성 이름을 가져옴
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
+
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
+        // OAuth2Attribute를 사용해 사용자 정보 추상화
+        OAuth2Attribute oAuth2Attribute = OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        Map<String, Object> attributes = oAuth2Attribute.convertToMap();
 
-        // OAuth2UserService를 사용하여 가져온 OAuth2User 정보로 OAuth2Attribute 객체를 만든다.
-        OAuth2Attribute oAuth2Attribute =
-                OAuth2Attribute.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
+        // 사용자 이메일로 등록된 사용자 검색
+        String email = (String) attributes.get("email");
+        Optional<User> optionalUser = userService.findByUserEmail(email);
 
-        // OAuth2Attribute의 속성값들을 Map으로 반환 받는다.
-        Map<String, Object> memberAttribute = oAuth2Attribute.convertToMap();
+        if (optionalUser.isEmpty()) {
+            attributes.put("exist", false);
 
-        // 사용자 email(또는 id) 정보를 가져온다.
-        String email = (String) memberAttribute.get("email");
-        // 이메일로 가입된 회원인지 조회한다.
-        Optional<User> findMember = userService.findByUserEmail(email);
-
-        if (findMember.isEmpty()) {
-            // 회원이 존재하지 않을 경우, exist 값을 false로 설정
-            memberAttribute.put("exist", false);
-            // 기본 권한으로 ROLE_USER를 사용해 DefaultOAuth2User 객체를 반환
             return new DefaultOAuth2User(
-                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), // 기본 권한 고정
-                    memberAttribute, "email");
+                    Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                    attributes, "email");
         }
 
-        // 회원이 존재할 경우, exist 값을 true로 설정
-        memberAttribute.put("exist", true);
-        // 권한 없이 DefaultOAuth2User 객체를 반환
+        attributes.put("exist", true);
+
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")), // 기본 권한 고정
-                memberAttribute, "email");
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),
+                attributes, "email");
 
     }
 }
