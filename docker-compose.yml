@@ -13,7 +13,7 @@ services:
     image: backend
     build: ./backend  # backend 디렉토리에서 Dockerfile을 사용해 이미지 빌드
     container_name: backend
-    env_file: ../home/ubuntu/config/.env
+    env_file: /home/ubuntu/config/.env
     environment:
       TZ: Asia/Seoul
     ports:
