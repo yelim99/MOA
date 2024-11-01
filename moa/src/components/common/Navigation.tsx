@@ -92,7 +92,9 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
               isActive={isFocused}
             >
               <EntypoIcon
-                name={route.name === 'Home' ? 'folder-images' : 'emoji-happy'}
+                name={
+                  route.name === 'HomeStack' ? 'folder-images' : 'emoji-happy'
+                }
                 size={30}
                 color={
                   isFocused
@@ -101,7 +103,7 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
                 }
               />
               <NavButtonText isActive={isFocused}>
-                {route.name === 'Home' ? '모아' : '마이'}
+                {route.name === 'HomeStack' ? '모아' : '마이'}
               </NavButtonText>
             </NavButtonContainer>
           );
