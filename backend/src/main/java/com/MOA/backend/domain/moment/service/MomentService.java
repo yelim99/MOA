@@ -30,6 +30,7 @@ public class MomentService {
 
         // TODO: : 리팩토링 필요 : 로그인유저의 정보 가져오기
         User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
+        log.info("loginUser: {}", loginUser);
 
         // TODO: : 리팩토링 필요 : 내가 속한 그룹들의 ID만 가져오는 로직
 
@@ -45,9 +46,11 @@ public class MomentService {
                 .build();
 
         momentRepository.save(moment);
+        log.info("Moment: {}", moment);
+        String hexId = moment.getId().toHexString();
 
         return MomentCreateResponseDto.builder()
-                .momentId(moment.getId().toHexString())
+                .momentId(hexId)
                 .message("순간 생성에 성공하였습니다.")
                 .PIN(moment.getMomentPin())
                 .build();

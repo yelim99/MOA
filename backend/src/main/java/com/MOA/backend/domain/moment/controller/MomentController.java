@@ -17,7 +17,7 @@ public class MomentController {
 
     private final MomentService momentService;
 
-    @PostMapping
+    @PostMapping("")
     public ResponseEntity<MomentCreateResponseDto> createMoment(@RequestBody MomentCreateRequestDto momentCreateRequestDto) {
         MomentCreateResponseDto momentDto = momentService.createMoment(momentCreateRequestDto);
         return ResponseEntity.ok(momentDto);
