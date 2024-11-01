@@ -74,8 +74,6 @@ logging:
       springframework:
         security: DEBUG
         data:
-          web: DEBUG
           redis: DEBUG
-          mongodb: DEBUG
       hibernate:
         SQL: DEBUG
