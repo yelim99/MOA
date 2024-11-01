@@ -3,7 +3,7 @@ import React from 'react';
 import {View} from 'react-native';
 import Button from './Button';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import {IconButton} from './IconButton';
 const ButtonTest = () => {
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -24,14 +24,31 @@ const ButtonTest = () => {
         onPress={() => console.log('다운로드 버튼 눌림')}
       />
 
-      {/* 아이콘만 있는 버튼 예시 */}
-      <Button
-        icon={<Icon name="edit" size={16} color="maindarkorange" />}
-        content="icon"
+      {/* 아이콘 버튼 예시  */}
+      <IconButton
         backcolor="white"
-        onPress={() => console.log('아이콘 버튼 눌림')}
+        iconName="edit"
+        iconSet="Material"
+        onPress={() => console.log('편집 아이콘 버튼 눌렀음')}
+      ></IconButton>
+      <IconButton
+        backcolor="maindarkorange"
+        iconSet="Feather"
+        iconName="external-link"
+        onPress={() => console.log('공유하기 아이콘 버튼 눌렀음')}
       />
-
+      <IconButton
+        backcolor="white"
+        iconSet="Feather"
+        iconName="external-link"
+        onPress={() => console.log('공유하기 아이콘 버튼 눌렀음')}
+      />
+      <IconButton
+        backcolor="white"
+        iconSet="Feather"
+        iconName="more-vertical"
+        onPress={() => console.log('점점점 아이콘 ')}
+      ></IconButton>
       {/* 색상 선택 버튼 예시 */}
       <Button
         content="colorSelect"
