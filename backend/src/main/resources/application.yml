@@ -1,3 +1,7 @@
+server:
+  port: 8081
+  servlet:
+    context-path: /api
 spring:
   jwt:
     secret: ${JWT_SECRET_KEY}
@@ -33,41 +37,45 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            client-id: ${KAKAO_CLIENT}
-            redirect-uri: ${KAKAO_URI}
-            client-secret: ${KAKAO_SECRET}
-            client-authentication-method: client_secret_post
-            authorization-grant-type: authorization_code
-            client-name: kakao
-            scope:
-              - profile_nickname
-              - profile_image
-              - account_email
-        provider:
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id
-
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          kakao:
+#            client-id: ${KAKAO_CLIENT}
+#            redirect-uri: ${KAKAO_URI}
+#            client-secret: ${KAKAO_SECRET}
+#            client-authentication-method: client_secret_post
+#            authorization-grant-type: authorization_code
+#            client-name: kakao
+#            scope:
+#              - profile_nickname
+#              - profile_image
+#              - account_email
+#        provider:
+#          kakao:
+#            authorization-uri: https://kauth.kakao.com/oauth/authorize
+#            token-uri: https://kauth.kakao.com/oauth/token
+#            user-info-uri: https://kapi.kakao.com/v2/user/me
+#            user-name-attribute: id
   data:
-    rest:
-      base-path: /api
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
     mongodb:
       uri: ${MONGODB_CONNECTION_STRING}
       database: ${MONGODB_DATABASE}
+  main:
+    allow-bean-definition-overriding: true
+
 logging:
   level:
     org:
       springframework:
         security: DEBUG
         data:
+          web: DEBUG
           redis: DEBUG
+          mongodb: DEBUG
+      hibernate:
+        SQL: DEBUG
