@@ -15,6 +15,7 @@ import Notification from './src/screens/Notification';
 import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
+import ButtonTest from './src/components/common/button/ButtonTest';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator(); // RootStack 추가
@@ -80,6 +81,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <StyledSafeAreaView>
+        <ButtonTest />
         <NavigationContainer>
           <RootStack.Navigator>
             <RootStack.Screen
