@@ -1,14 +1,14 @@
 // src/components/common/button/Button.tsx
 import React from 'react';
-import { TouchableOpacityProps, StyleProp, ViewStyle } from 'react-native';
-import { StyledButton, ButtonText, ButtonIcon } from './Buttons.styles'
+import {TouchableOpacityProps, StyleProp, ViewStyle} from 'react-native';
+import {StyledButton, ButtonText, ButtonIcon} from './Buttons.styles';
 
 interface ButtonProps extends TouchableOpacityProps {
   text?: string;
   icon?: JSX.Element;
   content?: 'icon' | 'text' | 'colorSelect';
-  size?: 'small' | 'medium' | 'large'; // 텍스트 버튼의 사이즈 
-  backcolor?: 'white' | 'mainlightorange' | 'maindarkorange'; // 배경색
+  size?: 'small' | 'medium' | 'large'; // 텍스트 버튼의 사이즈
+  backcolor?: 'white' | 'mainlightorange' | 'maindarkorange' | string; // 배경색
   textcolor?: 'white' | 'maindarkorange'; // 글자색
   styleOverride?: StyleProp<ViewStyle>;
   onPress?: () => void; //  기능
@@ -36,7 +36,7 @@ const Button: React.FC<ButtonProps> = ({
     >
       {icon && <ButtonIcon>{icon}</ButtonIcon>}
       {content === 'text' && text && (
-        <ButtonText content='text' backcolor={backcolor}>
+        <ButtonText content="text" backcolor={backcolor}>
           {text}
         </ButtonText>
       )}

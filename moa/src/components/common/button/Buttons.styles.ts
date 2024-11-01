@@ -14,7 +14,7 @@ export const StyledButton = styled.TouchableOpacity<{
         : theme.colors.white};
       border-radius: 100%;
       width: 30px;
-      height: 30px;  
+      height: 30px;
       align-items: center;
       justify-content: center;
     `}
@@ -24,8 +24,8 @@ export const StyledButton = styled.TouchableOpacity<{
       background-color: ${backcolor === 'maindarkorange'
         ? theme.colors.maindarkorange
         : backcolor === 'mainlightorange'
-        ? theme.colors.mainlightorange
-        : theme.colors.white};
+          ? theme.colors.mainlightorange
+          : theme.colors.white};
       border-radius: 15px;
       align-items: center;
       justify-content: center;
@@ -41,23 +41,26 @@ export const StyledButton = styled.TouchableOpacity<{
       align-items: center;
       justify-content: center;
     `}
-  ${({size}) =>
+  ${({size, theme}) =>
     size === 'small' &&
     css`
       width: 90px;
-      height: 25px;
+      height: 30px;
+      font-size: ${theme.fontSize.small};
     `}
-  ${({size}) =>
+  ${({size, theme}) =>
     size === 'medium' &&
     css`
       width: 210px;
       height: 40px;
+      font-size: ${theme.fontSize.regular};
     `}
-  ${({size}) =>
+  ${({size, theme}) =>
     size === 'large' &&
     css`
-      width: 410px;
-      height: 60px;
+      width: 350px;
+      height: 50px;
+      font-size: ${theme.fontSize.large};
     `}
   align-items: center;
   flex-direction: row;
@@ -68,15 +71,14 @@ export const ButtonText = styled.Text<{
   content: 'text' | 'icon';
   backcolor?: 'white' | 'mainlightorange' | 'maindarkorange';
 }>`
-  ${({ content, backcolor, theme }) =>
+  ${({content, backcolor, theme}) =>
     content === 'text' &&
     css`
       color: ${backcolor === 'white'
         ? theme.colors.maindarkorange
         : theme.colors.white};
     `}
-  font-size: ${({ theme }) => theme.fontSize.regular};
-  font-weight: ${({ theme }) => theme.fontWeight.bold};
+  font-weight: ${({theme}) => theme.fontWeight.bold};
 `;
 
 export const ButtonIcon = styled.View<{color?: string}>`
