@@ -1,8 +1,8 @@
-import {View, Text} from 'react-native';
+import {TouchableOpacity} from 'react-native';
 import React from 'react';
-import styled from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {theme} from '../../../styles/theme';
+import {HomeScreenNavigationProp} from '../../../types/screen';
 
 const Container = styled.View`
   height: 70px;
@@ -14,29 +14,30 @@ const Container = styled.View`
   padding: 0 10%;
 `;
 
-const ButtonContainer = styled.View`
-  display: flex;
-  align-items: center;
-`;
-
 const Logo = styled.Image`
   width: 50px;
   height: 30px;
 `;
 
-const AppHeader = ({navigation}) => {
+interface AppHeaderProps {
+  navigation: HomeScreenNavigationProp;
+}
+
+const AppHeader: React.FC<AppHeaderProps> = ({navigation}) => {
+  const theme = useTheme();
+
   return (
     <Container>
-      <ButtonContainer>
+      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
         <Logo source={require('../../../assets/images/logo.png')} />
-      </ButtonContainer>
-      <ButtonContainer>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
         <Icon
           name="notifications"
           size={30}
           color={theme.colors.maindarkorange}
         />
-      </ButtonContainer>
+      </TouchableOpacity>
     </Container>
   );
 };
