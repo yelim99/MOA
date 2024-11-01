@@ -2,10 +2,13 @@ package com.MOA.backend.domain.moment.entity;
 
 import com.MOA.backend.global.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +17,11 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class Moment extends BaseEntity {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "momentId")
-    private Long id;
+
+    @Id // MongoDB에서 자동으로 생성하는 ID
+    @Field(name = "momentId")
+    private ObjectId id;
+
     private Long groupId;
     private String momentPin;
     private List<Long> userIds;
