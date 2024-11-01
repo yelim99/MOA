@@ -9,6 +9,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 import Home from './src/screens/Home';
 import MyPage from './src/screens/MyPage';
+import ButtonTest from './src/components/common/button/ButtonTest';
 
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +25,7 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <StyledSafeAreaView>
+        <ButtonTest />
         <NavigationContainer>
           <Tab.Navigator tabBar={CustomTabBar}>
             <Tab.Screen name="Home" component={Home} />
