@@ -1,15 +1,15 @@
 import {Text, View} from 'react-native';
 import React from 'react';
 import styled from 'styled-components/native';
-import PageContainer from '../components/common/ScreenContainer';
+import ScreenContainer from '../components/common/ScreenContainer';
 
 const Home = () => {
   return (
-    <PageContainer>
+    <ScreenContainer>
       <View>
         <Text>Home</Text>
       </View>
-    </PageContainer>
+    </ScreenContainer>
   );
 };
 

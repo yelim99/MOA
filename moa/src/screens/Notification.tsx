@@ -1,14 +1,14 @@
 import {View, Text} from 'react-native';
 import React from 'react';
-import PageContainer from '../components/common/ScreenContainer';
+import ScreenContainer from '../components/common/ScreenContainer';
 
 const Notification = () => {
   return (
-    <PageContainer>
+    <ScreenContainer>
       <View>
         <Text>Notification</Text>
       </View>
-    </PageContainer>
+    </ScreenContainer>
   );
 };
 

@@ -1,4 +1,3 @@
-import {View, Text} from 'react-native';
 import React, {ReactNode} from 'react';
 import styled from 'styled-components/native';
 
@@ -13,8 +12,8 @@ interface PageContainerProps {
   children: ReactNode;
 }
 
-const PageContainer: React.FC<PageContainerProps> = ({children}) => {
+const ScreenContainer: React.FC<PageContainerProps> = ({children}) => {
   return <Container>{children}</Container>;
 };
 
-export default PageContainer;
+export default ScreenContainer;
