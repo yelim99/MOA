@@ -1,11 +1,14 @@
 import {View, Text} from 'react-native';
 import React from 'react';
+import ScreenContainer from '../components/common/ScreenContainer';
 
 const MyPage = () => {
   return (
-    <View>
-      <Text>MyPage</Text>
-    </View>
+    <ScreenContainer>
+      <View>
+        <Text>MyPage</Text>
+      </View>
+    </ScreenContainer>
   );
 };
 

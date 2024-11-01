@@ -3,13 +3,7 @@ import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import styled, {useTheme} from 'styled-components/native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
-import {StyleSheet} from 'react-native';
-
-const styles = StyleSheet.create({
-  shadow: {
-    elevation: 10,
-  },
-});
+import {Shadow} from 'react-native-shadow-2';
 
 const Container = styled.View`
   position: absolute;
@@ -20,10 +14,11 @@ const Container = styled.View`
 
 const BoxContainer = styled.View`
   height: 85px;
+  width: 100%;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 0 15%;
+  padding: 0 10%;
   background-color: ${({theme}) => theme.colors.white};
   margin-top: 10px;
 `;
@@ -69,46 +64,48 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
       <ShareButton>
         <FeatherIcon name={'upload'} size={30} color={theme.colors.white} />
       </ShareButton>
-      <BoxContainer style={styles.shadow}>
-        {state.routes.map((route, index) => {
-          const isFocused = state.index === index;
+      <Shadow distance={10} startColor={'rgba(0, 0, 0, 0.1)'}>
+        <BoxContainer>
+          {state.routes.map((route, index) => {
+            const isFocused = state.index === index;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+            const onPress = () => {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+              });
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
 
-          return (
-            <NavButtonContainer
-              key={route.key}
-              onPress={onPress}
-              isActive={isFocused}
-            >
-              <EntypoIcon
-                name={
-                  route.name === 'HomeStack' ? 'folder-images' : 'emoji-happy'
-                }
-                size={30}
-                color={
-                  isFocused
-                    ? theme.colors.maindarkorange
-                    : theme.colors.deepgray
-                }
-              />
-              <NavButtonText isActive={isFocused}>
-                {route.name === 'HomeStack' ? '모아' : '마이'}
-              </NavButtonText>
-            </NavButtonContainer>
-          );
-        })}
-      </BoxContainer>
+            return (
+              <NavButtonContainer
+                key={route.key}
+                onPress={onPress}
+                isActive={isFocused}
+              >
+                <EntypoIcon
+                  name={
+                    route.name === 'HomeStack' ? 'folder-images' : 'emoji-happy'
+                  }
+                  size={30}
+                  color={
+                    isFocused
+                      ? theme.colors.maindarkorange
+                      : theme.colors.deepgray
+                  }
+                />
+                <NavButtonText isActive={isFocused}>
+                  {route.name === 'HomeStack' ? '모아' : '마이'}
+                </NavButtonText>
+              </NavButtonContainer>
+            );
+          })}
+        </BoxContainer>
+      </Shadow>
     </Container>
   );
 };
