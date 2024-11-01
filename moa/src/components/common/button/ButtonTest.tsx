@@ -1,8 +1,6 @@
 // src/components/common/button/ButtonDemo.tsx
 import React from 'react';
 import {View} from 'react-native';
-import Button from './Button';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import {IconButton} from './IconButton';
 import {TextButton} from './TextButton';
 
@@ -70,13 +68,6 @@ const ButtonTest = () => {
         iconName="more-vertical"
         onPress={() => console.log('점점점 아이콘 ')}
       ></IconButton>
-      {/* 색상 선택 버튼 예시 */}
-      <Button
-        content="colorSelect"
-        size="small"
-        backcolor="#FAE5E3" // lightred
-        onPress={() => console.log('색상 선택 버튼 눌림')}
-      />
     </View>
   );
 };
