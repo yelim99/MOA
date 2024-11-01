@@ -47,6 +47,7 @@ export const StyledButton = styled.TouchableOpacity<{
       width: 90px;
       height: 30px;
       font-size: ${theme.fontSize.small};
+      font-family: ${theme.fontFamily.SCDream6};
     `}
   ${({size, theme}) =>
     size === 'medium' &&
@@ -54,13 +55,15 @@ export const StyledButton = styled.TouchableOpacity<{
       width: 210px;
       height: 40px;
       font-size: ${theme.fontSize.regular};
+      font-family: ${theme.fontFamily.SCDream6};
     `}
-  ${({size, theme}) =>
+      ${({size, theme}) =>
     size === 'large' &&
     css`
       width: 350px;
       height: 50px;
       font-size: ${theme.fontSize.large};
+      font-family: ${theme.fontFamily.SCDream6};
     `}
   align-items: center;
   flex-direction: row;
@@ -77,9 +80,10 @@ export const ButtonText = styled.Text<{
       color: ${backcolor === 'white'
         ? theme.colors.maindarkorange
         : theme.colors.white};
+      font-family: ${theme.fontFamily.SCDream9};
     `}
-  font-weight: ${({theme}) => theme.fontWeight.bold};
 `;
+// font-weight: ${({theme}) => theme.fontWeight.bold};
 
 export const ButtonIcon = styled.View<{color?: string}>`
   color: ${({theme, color}) => color || theme.colors.maindarkorang};
