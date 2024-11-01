@@ -17,6 +17,7 @@ import StackHeader from './src/components/common/header/StackHeader';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
 
 const Tab = createBottomTabNavigator();
+const RootStack = createStackNavigator(); // RootStack 추가
 
 const CustomTabBar: React.FC<BottomTabBarProps> = (props) => (
   <Navigation {...props} />
@@ -32,13 +33,6 @@ const HomeStackScreen: React.FC = () => (
       component={Home}
       options={({navigation}) => ({
         header: () => <AppHeader navigation={navigation} />,
-      })}
-    />
-    <HomeStack.Screen
-      name="Notification"
-      component={Notification}
-      options={({navigation}) => ({
-        header: () => <StackHeader navigation={navigation} />,
       })}
     />
   </HomeStack.Navigator>
@@ -59,6 +53,25 @@ const MyPageStackScreen: React.FC = () => (
   </MyPageStack.Navigator>
 );
 
+// Tab Navigator 구성
+const TabNavigator: React.FC = () => (
+  <Tab.Navigator
+    tabBar={CustomTabBar}
+    screenOptions={{tabBarHideOnKeyboard: true}}
+  >
+    <Tab.Screen
+      name="HomeStack"
+      component={HomeStackScreen}
+      options={{headerShown: false}}
+    />
+    <Tab.Screen
+      name="MyPageStack"
+      component={MyPageStackScreen}
+      options={{headerShown: false}}
+    />
+  </Tab.Navigator>
+);
+
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
 `;
@@ -68,25 +81,20 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <StyledSafeAreaView>
         <NavigationContainer>
-          <Tab.Navigator
-            tabBar={CustomTabBar}
-            screenOptions={{tabBarHideOnKeyboard: true}}
-          >
-            <Tab.Screen
-              name="HomeStack"
-              component={HomeStackScreen}
+          <RootStack.Navigator>
+            <RootStack.Screen
+              name="MainTabs"
+              component={TabNavigator}
+              options={{headerShown: false}}
+            />
+            <RootStack.Screen
+              name="Notification"
+              component={Notification}
               options={{
-                headerShown: false,
+                header: () => <StackHeader title="알림" />,
               }}
             />
-            <Tab.Screen
-              name="MyPageStack"
-              component={MyPageStackScreen}
-              options={{
-                headerShown: false,
-              }}
-            />
-          </Tab.Navigator>
+          </RootStack.Navigator>
         </NavigationContainer>
       </StyledSafeAreaView>
     </ThemeProvider>

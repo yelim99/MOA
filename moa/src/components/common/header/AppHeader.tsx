@@ -2,7 +2,7 @@ import {TouchableOpacity} from 'react-native';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {HomeScreenNavigationProp} from '../../../types/screen';
+import {AppHeaderNavigationProp} from '../../../types/screen';
 
 const Container = styled.View`
   height: 70px;
@@ -20,7 +20,7 @@ const Logo = styled.Image`
 `;
 
 interface AppHeaderProps {
-  navigation: HomeScreenNavigationProp;
+  navigation: AppHeaderNavigationProp;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({navigation}) => {
@@ -34,7 +34,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({navigation}) => {
       <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
         <Icon
           name="notifications"
-          size={30}
+          size={25}
           color={theme.colors.maindarkorange}
         />
       </TouchableOpacity>
