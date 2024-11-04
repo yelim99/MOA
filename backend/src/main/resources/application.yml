@@ -1,0 +1,81 @@
+server:
+  port: 8081
+  ssl:
+    enabled: false
+  servlet:
+    context-path: /api
+spring:
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+  springdoc:
+    api-docs:
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui.html
+      operationsSorter: method
+      tagsSorter: alpha
+    group-configs:
+      - group: public
+        paths-to-match: /api/public/**
+      - group: private
+        paths-to-match: /api/private/**
+  application:
+    name: a602
+  config:
+    import:
+      - optional:file:.env[.properties] # 로컬에서 .env 파일을 참조하도록 optional 설정
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT}
+            redirect-uri: ${KAKAO_URI}
+            client-secret: ${KAKAO_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            client-name: kakao
+            scope:
+              - profile_nickname
+              - profile_image
+              - account_email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+    mongodb:
+      uri: ${MONGODB_CONNECTION_STRING}
+      database: ${MONGODB_DATABASE}
+  main:
+    allow-bean-definition-overriding: true
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        data:
+          redis: DEBUG
+      hibernate:
+        SQL: DEBUG
