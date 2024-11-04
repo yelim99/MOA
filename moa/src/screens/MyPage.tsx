@@ -6,6 +6,7 @@ import {IconButton} from '../components/common/button/IconButton';
 import StyleSheet from 'styled-components/dist/sheet';
 import {TextButton} from '../components/common/button/TextButton';
 import MyInfo from '../components/mypage/MyInfo';
+import FaceImage from '../components/mypage/FaceImage';
 
 interface TextProps {
   variant: 'title' | 'subtitle' | 'body';
@@ -71,14 +72,7 @@ const MyPage = (props: {theme: any}) => {
         <MyInfo></MyInfo>
         <Face>
           <Texts variant="subtitle">얼굴 등록</Texts>
-          <TextButton
-            backcolor="mainlightorange"
-            text="등록하기"
-            iconName="plus"
-            iconSet="Feather"
-            size="small"
-            onPress={() => console.log('등록하기 버튼')}
-          />
+          <FaceImage></FaceImage>
         </Face>
       </View>
     </ScreenContainer>
