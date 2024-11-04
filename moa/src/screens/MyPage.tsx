@@ -22,6 +22,7 @@ const Texts = styled.Text<TextProps>`
           font-size: 22px;
           font-family: ${theme.fontFamily.SCDream8};
           color: ${textColor};
+          margin: 0 0 10px 0;
         `;
       case 'subtitle':
         return css`
@@ -40,6 +41,12 @@ const Texts = styled.Text<TextProps>`
   }}
 `;
 
+// 중간에 선 넣기 나중에 시도
+const Divider = styled.View`
+  border: 1px solid ${(props) => props.theme.colors.lightgray};
+  width: 100%;
+`;
+
 const Face = styled.View`
   width: 350px;
   flex-direction: row;
@@ -47,35 +54,19 @@ const Face = styled.View`
   justify-content: space-between;
 `;
 const MyPage = (props: {theme: any}) => {
-  const DummyData = [
-    {
-      name: '에브리데이',
-      group: 3, // 내 그룹
-      totalDownloads: 1500, // 누적 다운로드 수
-    },
-    {
-      name: '이영희',
-      group: 5, // 내 그룹
-      totalDownloads: 2300, // 누적 다운로드 수
-    },
-    {
-      name: '김철수',
-      group: 1, // 내 그룹
-      totalDownloads: 500, // 누적 다운로드 수
-    },
-  ];
   const theme = useTheme();
   return (
-    <ScreenContainer>
-      <View>
-        <Texts variant="title">마이페이지</Texts>
-        <MyInfo></MyInfo>
+    <View>
+      <ScreenContainer>
+        <View>
+          <Texts variant="title">마이페이지</Texts>
+          <MyInfo></MyInfo>
+        </View>
         <Face>
-          {/* <Texts variant="subtitle">얼굴 등록</Texts> */}
           <FaceImage></FaceImage>
         </Face>
-      </View>
-    </ScreenContainer>
+      </ScreenContainer>
+    </View>
   );
 };
 

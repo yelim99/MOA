@@ -14,7 +14,7 @@ interface TextProps {
 const UserInfo = styled.View`
   border-radius: 15px;
   elevation: 2;
-  height: 100px;
+  height: 120px;
   background-color: ${(props) => props.theme.colors.white};
   margin: 10px 0;
   padding: 30px;
@@ -44,6 +44,7 @@ const Texts = styled.Text<TextProps>`
           font-size: 16px;
           font-family: ${theme.fontFamily.SCDream6};
           color: ${textColor};
+          margin: 0 0 5px 0;
         `;
       case 'body':
       default:
@@ -51,6 +52,7 @@ const Texts = styled.Text<TextProps>`
           font-size: 13px;
           font-family: ${theme.fontFamily.SCDream4};
           color: ${textColor};
+          margin: 0 0 5px 0;
         `;
     }
   }}
