@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import GroupIconButton from '../common/button/GroupIconButton';
 
 const Container = styled.View`
   width: 46%;
@@ -69,6 +70,7 @@ const MyGroupListItem = () => {
           />
           <MemberText>25명</MemberText>
         </MemberLine>
+        <GroupIconButton color="red" iconName="graduation-cap" />
       </BottomLine>
     </Container>
   );
