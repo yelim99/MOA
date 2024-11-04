@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.moment.entity;
 
+import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,5 +46,10 @@ public class Moment {
         this.momentDescription = momentDescription;
         this.momentOwner = momentOwner;
         this.uploadOption = uploadOption;
+    }
+
+    public void update(MomentUpdateRequestDto momentUpdateRequestDto) {
+        this.momentName = momentUpdateRequestDto.getMomentName();
+        this.momentDescription = momentUpdateRequestDto.getMomentDescription();
     }
 }

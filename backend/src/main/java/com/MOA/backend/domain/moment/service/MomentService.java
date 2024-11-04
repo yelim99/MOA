@@ -1,7 +1,9 @@
 package com.MOA.backend.domain.moment.service;
 
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
+import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
+import com.MOA.backend.domain.moment.dto.response.MomentUpdateResponseDto;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.repository.MomentRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
@@ -9,9 +11,7 @@ import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -26,7 +26,6 @@ public class MomentService {
     private final UserService userService;
     private final PinCodeUtil pinCodeUtil;
 
-    @Transactional
     public MomentCreateResponseDto createMoment(MomentCreateRequestDto momentCreateRequestDto) {
 
         // TODO: : 리팩토링 필요 : 로그인유저의 정보 가져오기
@@ -57,8 +56,20 @@ public class MomentService {
                 .build();
     }
 
-    @Transactional
     public void deleteMoment(String momentId) {
         momentRepository.deleteById(momentId);
     }
+
+    public MomentUpdateResponseDto updateMoment(String momentId, MomentUpdateRequestDto momentUpdateCreateDto) {
+        Moment moment = momentRepository.findById(momentId).orElseThrow();
+        moment.update(momentUpdateCreateDto);
+        momentRepository.save(moment);
+
+        return MomentUpdateResponseDto.builder()
+                .momentId(moment.getId().toHexString())
+                .message("순간 수정이 완료되었습니다.")
+                .PIN(moment.getMomentPin())
+                .build();
+    }
+
 }
