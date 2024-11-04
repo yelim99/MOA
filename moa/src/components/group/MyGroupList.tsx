@@ -38,6 +38,12 @@ const MyGroupList = () => {
       iconName: 'briefcase',
     },
     {
+      groupId: 7,
+      groupName: '동호회',
+      color: 'blue',
+      iconName: 'chat',
+    },
+    {
       groupId: 5,
       groupName: '여자친구',
       color: 'pink',

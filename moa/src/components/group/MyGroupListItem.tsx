@@ -3,6 +3,7 @@ import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GroupIconButton from '../common/button/GroupIconButton';
 import {GroupInfo} from '../../types/group';
+import {darkColorMap, lightColorMap} from '../../utils/groupColor';
 
 const Container = styled.TouchableOpacity<{bgColor: string}>`
   width: 46%;
@@ -28,8 +29,8 @@ const ContentText = styled.Text`
   font-family: SCDream4;
 `;
 
-const ContentColor = styled(ContentText)`
-  color: ${({theme}) => theme.colors.darkred};
+const ContentColor = styled(ContentText)<{txtColor: string}>`
+  color: ${({txtColor}) => txtColor};
   font-size: 16px;
 `;
 
@@ -60,20 +61,13 @@ interface MyGroupListItemProps {
 const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
   const theme = useTheme();
 
-  const colorMap: {[key: string]: string} = {
-    red: theme.colors.lightred,
-    yellow: theme.colors.lightyellow,
-    green: theme.colors.lightgreen,
-    blue: theme.colors.lightblue,
-    purple: theme.colors.lightpurple,
-    pink: theme.colors.lightpink,
-  };
-
   return (
-    <Container bgColor={colorMap[groupInfo.color]}>
+    <Container bgColor={lightColorMap[groupInfo.color]}>
       <TopLine>
         <TitleText>어쩌고 모임</TitleText>
-        <ContentColor>사진 527장</ContentColor>
+        <ContentColor txtColor={darkColorMap[groupInfo.color]}>
+          사진 527장
+        </ContentColor>
       </TopLine>
       <BottomLine>
         <MemberLine>
