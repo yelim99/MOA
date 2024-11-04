@@ -2,6 +2,7 @@ import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import FAIcon from 'react-native-vector-icons/FontAwesome6';
+import {darkColorMap} from '../../../utils/groupColor';
 
 const Container = styled.View<{bgColor: string}>`
   width: 30px;
@@ -20,15 +21,6 @@ interface GroupIconButtonProps {
 
 const GroupIconButton = ({color, iconName}: GroupIconButtonProps) => {
   const theme = useTheme();
-
-  const colorMap: {[key: string]: string} = {
-    red: theme.colors.darkred,
-    yellow: theme.colors.darkyellow,
-    green: theme.colors.darkgreen,
-    blue: theme.colors.darkblue,
-    purple: theme.colors.darkpurple,
-    pink: theme.colors.darkpink,
-  };
 
   const renderIcon = () => {
     if (
@@ -49,7 +41,7 @@ const GroupIconButton = ({color, iconName}: GroupIconButtonProps) => {
     return null;
   };
 
-  return <Container bgColor={colorMap[color]}>{renderIcon()}</Container>;
+  return <Container bgColor={darkColorMap[color]}>{renderIcon()}</Container>;
 };
 
 export default GroupIconButton;

@@ -12,6 +12,11 @@ import {createStackNavigator} from '@react-navigation/stack';
 import Home from './src/screens/Home';
 import MyPage from './src/screens/MyPage';
 import Notification from './src/screens/Notification';
+import Add from './src/screens/Add';
+import GroupAdd from './src/screens/group/GroupAdd';
+import GroupDetail from './src/screens/group/GroupDetail';
+import MomentAdd from './src/screens/moment/MomentAdd';
+import MomentDetail from './src/screens/moment/MomentDetail';
 import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
@@ -33,7 +38,28 @@ const HomeStackScreen: React.FC = () => (
       name="Home"
       component={Home}
       options={({navigation}) => ({
-        header: () => <AppHeader navigation={navigation} />,
+        header: () => <AppHeader navigation={navigation} isHome={true} />,
+      })}
+    />
+    <HomeStack.Screen
+      name="Add"
+      component={Add}
+      options={() => ({
+        header: () => <StackHeader title="모아 만들기" />,
+      })}
+    />
+    <HomeStack.Screen
+      name="GroupAdd"
+      component={GroupAdd}
+      options={() => ({
+        header: () => <StackHeader title="그룹 생성" />,
+      })}
+    />
+    <HomeStack.Screen
+      name="MomentAdd"
+      component={MomentAdd}
+      options={() => ({
+        header: () => <StackHeader title="순간 생성" />,
       })}
     />
   </HomeStack.Navigator>
