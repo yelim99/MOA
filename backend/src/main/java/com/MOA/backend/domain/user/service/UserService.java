@@ -25,11 +25,6 @@ public class UserService {
         return userRepository.findByUserEmail(userEmail);
     }
 
-
-    public void save(User user) {
-        userRepository.save(user);
-    }
-
     public void signup(UserSignupRequestDto userSignupRequestDto) {
 
         if (userRepository.findByUserEmail(userSignupRequestDto.getEmail()).isPresent()) {

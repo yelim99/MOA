@@ -29,8 +29,6 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                                 .requestMatchers("**").permitAll() // 토큰 발급을 위한 경로는 인증 필요 없음
-//                        .requestMatchers("/api/moment", "/api/moment", "/moment").permitAll()
-//                        .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll() // 기타 리소스 허용
                                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -39,8 +37,6 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 핸들러
                 );
-
-        // JWT 인증 필터 추가 - UsernamePasswordAuthenticationFilter 앞에 위치
         return http
                 .build();
     }
