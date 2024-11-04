@@ -1,4 +1,3 @@
-/* eslint-disable react-native/no-inline-styles */
 import {
   PanResponder,
   TouchableOpacity,
@@ -64,7 +63,7 @@ const ScrollContainer = styled.ScrollView`
 `;
 
 const ContentContainer = styled.View`
-  padding-bottom: 30px;
+  padding-bottom: 100px;
 `;
 
 const Home = () => {
