@@ -2,7 +2,6 @@ package com.MOA.backend.global.handler;
 
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
 import com.MOA.backend.domain.user.service.UserService;
-import com.MOA.backend.global.auth.jwt.dto.GeneratedToken;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,14 +34,16 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
         // 로그인한 회원 존재 여부를 가져올 때 null 체크 추가
         boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
 
-        GeneratedToken token = jwtUtil.generateToken(email);
-        log.info("jwtToken = {}", token.getAccessToken());
+
 
         if (isExist) {
             // accessToken을 쿼리스트링에 담는 url을 만들어준다.
             String targetUrl = "http://localhost:3000/loginSuccess";
 
-            response.setHeader("Authorization", "Bearer" + token.getAccessToken());
+            String token = jwtUtil.generateAccessToken(email, );
+            log.info("jwtToken = {}", token);
+
+            response.setHeader("Authorization", "Bearer" + token);
 
             // 로그인 확인 페이지로 리다이렉트 시킨다.
             getRedirectStrategy().sendRedirect(request, response, targetUrl);

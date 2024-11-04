@@ -1,28 +1,34 @@
 package com.MOA.backend.domain.user.service;
 
+import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.member.entity.Member;
+import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
+@AllArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
-    // UserService.java
     public Optional<User> findByUserEmail(String userEmail) {
         return userRepository.findByUserEmail(userEmail);
+    }
+
+    public Optional<User> finfByUserId(long id) {
+        return userRepository.findById(id);
     }
 
     public void signup(UserSignupRequestDto userSignupRequestDto) {
@@ -51,4 +57,14 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    public List<Group> getUserGroups(Long userId) {
+
+        List<Member> memberships = memberRepository.findByUserId(userId);
+
+        return memberships.stream()
+                .map(Member::getGroup)
+                .collect(Collectors.toList());
+    }
+
 }

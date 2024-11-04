@@ -1,6 +1,5 @@
 package com.MOA.backend.global.auth.jwt.service;
 
-import com.MOA.backend.global.auth.jwt.dto.GeneratedToken;
 import com.MOA.backend.global.auth.jwt.dto.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -27,18 +26,10 @@ public class JwtUtil {
         secretKey = Base64.getEncoder().encodeToString(jwtProperties.getSecret().getBytes());
     }
 
-    public GeneratedToken generateToken(String email) {
-
-        String accessToken = generateAccessToken(email);
-
-        return new GeneratedToken(accessToken);
-
-
-    }
-
-    public String generateAccessToken(String email) {
+    public String generateAccessToken(String email, Long userId) {
         long tokenPerioid = 1000L * 60L * 30L;
         Claims claims = Jwts.claims().setSubject(email);
+        claims.put("userId", userId);
 
         Date now = new Date();
         return Jwts.builder()
@@ -67,4 +58,11 @@ public class JwtUtil {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Long extractUserId(String token) {
+
+        Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+
+        return claims.get("userId", Long.class);
+
+    }
 }

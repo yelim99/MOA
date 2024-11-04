@@ -1,10 +1,14 @@
 package com.MOA.backend.domain.user.entity;
 
+import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -12,6 +16,14 @@ import lombok.NoArgsConstructor;
 @Data
 @Table(name = "user")
 public class User extends BaseEntity {
+
+
+    public User(String userName, String userEmail, String userImage) {
+        this.userName = userName;
+        this.userEmail = userEmail;
+        this.userImage = userImage;
+        this.role = "ROLE_USER";
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,20 +46,7 @@ public class User extends BaseEntity {
     @Column()
     private byte[] faceEmbedding;
 
-    public User(String userName, String userEmail, String userImage) {
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userImage = userImage;
-        this.role = "ROLE_USER";
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Member> memberships = new ArrayList<>();
 
-    public void setOAuthUserInfo(String userName, String userEmail, String userImage) {
-        this.userName = userName;
-        this.userEmail = userEmail;
-        this.userImage = userImage;
-    }
-
-    public void updateFaceEmbedding(byte[] faceEmbedding) {
-        this.faceEmbedding = faceEmbedding;
-    }
 }

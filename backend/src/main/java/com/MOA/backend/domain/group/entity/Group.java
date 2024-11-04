@@ -1,11 +1,15 @@
 package com.MOA.backend.domain.group.entity;
 
+import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -17,7 +21,7 @@ public class Group extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id", unique = true, nullable = false, updatable = false)
+    @Column(name = "group_id")
     private Long groupId;
 
     @Column(name = "group_pin")
@@ -38,5 +42,7 @@ public class Group extends BaseEntity {
     @Column(name = "group_darkcolor")
     private String groupDarkColor;
 
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Member> members = new ArrayList<>();
 
 }
