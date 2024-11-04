@@ -1,9 +1,17 @@
-import {PanResponder, TouchableOpacity, Animated} from 'react-native';
+/* eslint-disable react-native/no-inline-styles */
+import {
+  PanResponder,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styled from 'styled-components/native';
 import ScreenContainer from '../components/common/ScreenContainer';
 import MyGroupList from '../components/group/MyGroupList';
 import MyMomentList from '../components/moment/MyMomentList';
+
+const screenHeight = Dimensions.get('window').height;
 
 const AnimatedTouchableOpacity =
   Animated.createAnimatedComponent(TouchableOpacity);
@@ -49,6 +57,14 @@ const ToggleText = styled.Text<{isActive: boolean}>`
   font-weight: bold;
   color: ${({theme, isActive}) =>
     isActive ? theme.colors.maindarkorange : theme.colors.deepgray};
+`;
+
+const ScrollContainer = styled.ScrollView`
+  height: ${screenHeight - 250}px;
+`;
+
+const ContentContainer = styled.View`
+  padding-bottom: 30px;
 `;
 
 const Home = () => {
@@ -116,7 +132,11 @@ const Home = () => {
           </OptionButton>
         </OptionContainer>
       </ToggleContainer>
-      {isGroup ? <MyGroupList /> : <MyMomentList />}
+      <ScrollContainer>
+        <ContentContainer>
+          {isGroup ? <MyGroupList /> : <MyMomentList />}
+        </ContentContainer>
+      </ScrollContainer>
     </ScreenContainer>
   );
 };

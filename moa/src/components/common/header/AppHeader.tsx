@@ -19,11 +19,22 @@ const Logo = styled.Image`
   height: 30px;
 `;
 
+const ButtonLine = styled.View`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
+
+const IconButton = styled.TouchableOpacity`
+  margin-left: 10px;
+`;
+
 interface AppHeaderProps {
   navigation: AppHeaderNavigationProp;
+  isHome?: boolean;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({navigation}) => {
+const AppHeader = ({navigation, isHome = false}: AppHeaderProps) => {
   const theme = useTheme();
 
   return (
@@ -31,13 +42,24 @@ const AppHeader: React.FC<AppHeaderProps> = ({navigation}) => {
       <TouchableOpacity onPress={() => navigation.navigate('Home')}>
         <Logo source={require('../../../assets/images/logo.png')} />
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-        <Icon
-          name="notifications"
-          size={25}
-          color={theme.colors.maindarkorange}
-        />
-      </TouchableOpacity>
+      <ButtonLine>
+        {isHome && (
+          <IconButton onPress={() => navigation.navigate('Add')}>
+            <Icon
+              name="add-circle-outline"
+              size={25}
+              color={theme.colors.maindarkorange}
+            />
+          </IconButton>
+        )}
+        <IconButton onPress={() => navigation.navigate('Notification')}>
+          <Icon
+            name="notifications"
+            size={25}
+            color={theme.colors.maindarkorange}
+          />
+        </IconButton>
+      </ButtonLine>
     </Container>
   );
 };
