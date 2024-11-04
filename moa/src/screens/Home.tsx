@@ -132,7 +132,7 @@ const Home = () => {
           </OptionButton>
         </OptionContainer>
       </ToggleContainer>
-      <ScrollContainer contentContainerStyle={{flexGrow: 1}}>
+      <ScrollContainer>
         <ContentContainer>
           {isGroup ? <MyGroupList /> : <MyMomentList />}
         </ContentContainer>
