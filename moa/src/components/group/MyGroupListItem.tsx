@@ -64,7 +64,7 @@ const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
   return (
     <Container bgColor={lightColorMap[groupInfo.color]}>
       <TopLine>
-        <TitleText>어쩌고 모임</TitleText>
+        <TitleText>{groupInfo.groupName}</TitleText>
         <ContentColor txtColor={darkColorMap[groupInfo.color]}>
           사진 527장
         </ContentColor>

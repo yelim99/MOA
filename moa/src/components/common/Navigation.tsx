@@ -13,14 +13,21 @@ const Container = styled.View`
 `;
 
 const BoxContainer = styled.View`
-  height: 85px;
+  height: 80px;
   width: 100%;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding: 0 10%;
   background-color: ${({theme}) => theme.colors.white};
-  margin-top: 10px;
+`;
+
+const StyledShadow = styled(Shadow).attrs({
+  distance: 10,
+  startColor: 'rgba(0, 0, 0, 0.1)',
+})`
+  width: 100%;
+  background-color: ${({theme}) => theme.colors.white};
 `;
 
 interface NavButtonProps {
@@ -64,7 +71,7 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
       <ShareButton>
         <FeatherIcon name={'upload'} size={30} color={theme.colors.white} />
       </ShareButton>
-      <Shadow distance={10} startColor={'rgba(0, 0, 0, 0.1)'}>
+      <StyledShadow>
         <BoxContainer>
           {state.routes.map((route, index) => {
             const isFocused = state.index === index;
@@ -105,7 +112,7 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
             );
           })}
         </BoxContainer>
-      </Shadow>
+      </StyledShadow>
     </Container>
   );
 };
