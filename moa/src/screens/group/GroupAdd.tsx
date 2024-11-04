@@ -65,6 +65,17 @@ const GroupAdd = () => {
     'graduation-cap',
   ];
 
+  const handleGroupPost = async () => {
+    if (
+      groupName === '' ||
+      groupDescription === '' ||
+      groupColor === 'gray' ||
+      groupIcon === ''
+    ) {
+      return;
+    }
+  };
+
   return (
     <ScreenContainer>
       <AddInputBox
@@ -113,6 +124,7 @@ const GroupAdd = () => {
           text="그룹 만들기"
           size="large"
           backcolor="maindarkorange"
+          onPress={handleGroupPost}
         />
       </ButtonContainer>
     </ScreenContainer>
