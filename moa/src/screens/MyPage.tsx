@@ -71,7 +71,7 @@ const MyPage = (props: {theme: any}) => {
         <Texts variant="title">마이페이지</Texts>
         <MyInfo></MyInfo>
         <Face>
-          <Texts variant="subtitle">얼굴 등록</Texts>
+          {/* <Texts variant="subtitle">얼굴 등록</Texts> */}
           <FaceImage></FaceImage>
         </Face>
       </View>
