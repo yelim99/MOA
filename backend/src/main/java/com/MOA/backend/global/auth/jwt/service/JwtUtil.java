@@ -40,6 +40,10 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String remove(String token) {
+        return token.replace("Bearer", "");
+    }
+
     public boolean verifyToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser()
