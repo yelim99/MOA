@@ -15,6 +15,7 @@ import Notification from './src/screens/Notification';
 import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
+import {StatusBar} from 'react-native';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -79,6 +80,7 @@ const StyledSafeAreaView = styled.SafeAreaView`
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <StyledSafeAreaView>
         <NavigationContainer>
           <RootStack.Navigator>
