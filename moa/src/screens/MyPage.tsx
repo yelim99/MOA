@@ -53,7 +53,7 @@ const Face = styled.View`
   align-items: center;
   justify-content: space-between;
 `;
-const MyPage = (props: {theme: any}) => {
+const MyPage = () => {
   const theme = useTheme();
   return (
     <View>
