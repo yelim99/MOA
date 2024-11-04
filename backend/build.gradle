@@ -37,8 +37,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // Spring Security 및 OAuth2 클라이언트
-//    implementation 'org.springframework.boot:spring-boot-starter-security'
-//    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 로그인을 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 로그인을 위한 의존성
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
