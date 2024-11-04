@@ -13,7 +13,7 @@ export const theme = {
     lightyellow: '#FAEFD2',
     lightgreen: '#E4F2EB',
     lightblue: '#D9EAFA',
-    ligthtpurple: '#F0E6F7',
+    lightpurple: '#F0E6F7',
     lightpink: '#FAE6EF',
     darkred: '#F26D68',
     darkyellow: '#FA9923',
