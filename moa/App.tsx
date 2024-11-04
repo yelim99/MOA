@@ -58,18 +58,14 @@ const App = () => {
               name="Bottom"
               component={TabNavigator}
               options={({navigation}) => ({
-                header: () => (
-                  <AppHeader navigation={navigation} isHome={true} />
-                ),
+                header: () => <AppHeader navigation={navigation} />,
               })}
             />
             <RootStack.Screen
               name="Home"
               component={Home}
               options={({navigation}) => ({
-                header: () => (
-                  <AppHeader navigation={navigation} isHome={true} />
-                ),
+                header: () => <AppHeader navigation={navigation} />,
               })}
             />
             <RootStack.Screen
