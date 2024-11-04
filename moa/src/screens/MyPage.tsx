@@ -4,8 +4,11 @@ import ScreenContainer from '../components/common/ScreenContainer';
 import styled, {css, useTheme, DefaultTheme} from 'styled-components/native';
 import {IconButton} from '../components/common/button/IconButton';
 import StyleSheet from 'styled-components/dist/sheet';
+import {TextButton} from '../components/common/button/TextButton';
+
 interface TextProps {
   variant: 'title' | 'subtitle' | 'body';
+  color?: string;
 }
 
 const MyInfo = styled.View`
@@ -27,23 +30,27 @@ const TextInfo = styled.View`
 `;
 
 const Texts = styled.Text<TextProps>`
-  ${({variant, theme}) => {
+  ${({variant, theme, color}) => {
+    const textColor = color || theme.colors.black;
     switch (variant) {
       case 'title':
         return css`
           font-size: 22px;
           font-family: ${theme.fontFamily.SCDream8};
+          color: ${textColor};
         `;
       case 'subtitle':
         return css`
           font-size: 16px;
           font-family: ${theme.fontFamily.SCDream6};
+          color: ${textColor};
         `;
       case 'body':
       default:
         return css`
           font-size: 13px;
           font-family: ${theme.fontFamily.SCDream4};
+          color: ${textColor};
         `;
     }
   }}
@@ -62,10 +69,16 @@ const MyProfile = styled.Image`
   background-color: ${(props) => props.theme.colors.maindarkorange};
 `;
 
+const Face = styled.View`
+  width: 350px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+`;
 const MyPage = (props: {theme: any}) => {
   const DummyData = [
     {
-      name: '홍길동',
+      name: '에브리데이',
       group: 3, // 내 그룹
       totalDownloads: 1500, // 누적 다운로드 수
     },
@@ -87,13 +100,18 @@ const MyPage = (props: {theme: any}) => {
         <Texts variant="title">마이페이지</Texts>
         <MyInfo>
           <TextInfo>
-            <Texts variant="subtitle">{DummyData[0].name}님 안녕하세요!</Texts>
+            <Texts variant="subtitle">
+              <Texts variant="subtitle" color={theme.colors.maindarkorange}>
+                {DummyData[0].name}
+              </Texts>
+              님 안녕하세요!
+            </Texts>
             <Texts variant="body">내 그룹 | {DummyData[0].group} 개</Texts>
             <Texts variant="body">
               누적 다운로드 사진 수 | {DummyData[0].totalDownloads} 장
             </Texts>
           </TextInfo>
-          <MyProfile src="/"></MyProfile>
+          <MyProfile source={{uri: '/'}}></MyProfile>
           <IconButtonStyled>
             <IconButton
               backcolor="white"
@@ -103,6 +121,17 @@ const MyPage = (props: {theme: any}) => {
             ></IconButton>
           </IconButtonStyled>
         </MyInfo>
+        <Face>
+          <Texts variant="subtitle">얼굴 등록</Texts>
+          <TextButton
+            backcolor="mainlightorange"
+            text="등록하기"
+            iconName="plus"
+            iconSet="Feather"
+            size="small"
+            onPress={() => console.log('등록하기 버튼')}
+          />
+        </Face>
       </View>
     </ScreenContainer>
   );
