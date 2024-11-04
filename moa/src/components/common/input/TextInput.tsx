@@ -7,10 +7,18 @@ const InputContainer = styled.TextInput`
   background-color: ${({theme}) => theme.colors.white};
   padding: 10px;
   font-family: SCDream4;
+  font-size: 18px;
+  border-bottom-width: 1px;
+  border-bottom-color: ${({theme}) => theme.colors.maindarkorange};
 `;
 
-const TextInput = () => {
-  return <InputContainer />;
+interface TextInputProps {
+  value?: string;
+  onChangeText?: (text: string) => void;
+}
+
+const TextInput = ({value = '', onChangeText = () => {}}: TextInputProps) => {
+  return <InputContainer value={value} onChangeText={onChangeText} />;
 };
 
 export default TextInput;

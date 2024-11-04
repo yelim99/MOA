@@ -1,14 +1,16 @@
-import {View, Text} from 'react-native';
 import React, {ReactNode} from 'react';
 import styled from 'styled-components/native';
+import TextInput from './TextInput';
 
 const Container = styled.View`
   width: 100%;
-  height: 110px;
+  height: 120px;
   background-color: ${({theme}) => theme.colors.lightgray};
   padding: 20px;
   display: flex;
   justify-content: space-between;
+  border-radius: 10px;
+  margin-bottom: 15px;
 `;
 
 const Label = styled.Text`
@@ -18,14 +20,27 @@ const Label = styled.Text`
 
 interface AddInputBoxProps {
   label: string;
-  children: ReactNode;
+  isText?: boolean;
+  children?: ReactNode;
+  value?: string;
+  onChangeText?: (text: string) => void;
 }
 
-const AddInputBox = ({label, children}: AddInputBoxProps) => {
+const AddInputBox = ({
+  label,
+  isText = true,
+  children,
+  value,
+  onChangeText,
+}: AddInputBoxProps) => {
   return (
     <Container>
       <Label>{label}</Label>
-      {children}
+      {isText ? (
+        <TextInput value={value} onChangeText={onChangeText} />
+      ) : (
+        <>{children}</>
+      )}
     </Container>
   );
 };

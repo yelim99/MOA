@@ -62,10 +62,10 @@ const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
   const theme = useTheme();
 
   return (
-    <Container bgColor={lightColorMap[groupInfo.color]}>
+    <Container bgColor={lightColorMap[groupInfo.groupColor]}>
       <TopLine>
         <TitleText>{groupInfo.groupName}</TitleText>
-        <ContentColor txtColor={darkColorMap[groupInfo.color]}>
+        <ContentColor txtColor={darkColorMap[groupInfo.groupColor]}>
           사진 527장
         </ContentColor>
       </TopLine>
@@ -79,8 +79,8 @@ const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
           <MemberText>25명</MemberText>
         </MemberLine>
         <GroupIconButton
-          color={groupInfo.color}
-          iconName={groupInfo.iconName}
+          color={groupInfo.groupColor}
+          iconName={groupInfo.groupIcon}
         />
       </BottomLine>
     </Container>
