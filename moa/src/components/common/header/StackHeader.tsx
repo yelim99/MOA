@@ -11,8 +11,16 @@ const Container = styled.View`
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
   padding: 0 8%;
+`;
+
+const StyledIcon = styled(Icon)`
+  margin-right: auto;
+`;
+
+const TitleContainer = styled.View`
+  flex: 1;
+  align-items: center;
 `;
 
 const Title = styled.Text`
@@ -31,22 +39,15 @@ export default function StackHeader({title}: StackHeaderProps) {
   return (
     <Container>
       <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Icon
+        <StyledIcon
           name="chevron-back"
           size={30}
           color={theme.colors.maindarkorange}
         />
       </TouchableOpacity>
-      <Title>{title}</Title>
-      <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-        {title === '알림' ? null : (
-          <Icon
-            name="notifications"
-            size={25}
-            color={theme.colors.maindarkorange}
-          />
-        )}
-      </TouchableOpacity>
+      <TitleContainer>
+        <Title>{title}</Title>
+      </TitleContainer>
     </Container>
   );
 }

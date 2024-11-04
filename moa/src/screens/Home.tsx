@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
-  ScrollView,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styled from 'styled-components/native';

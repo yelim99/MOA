@@ -24,24 +24,26 @@ const StyledTextButton = styled.TouchableOpacity<{
     css`
       width: 80px;
       height: 25px;
+      padding: 5px;
     `}
   ${({size}) =>
     size === 'medium' &&
     css`
       width: 160px;
       height: 30px;
+      padding: 5px;
     `}
   ${({size}) =>
     size === 'large' &&
     css`
-      width: 350px;
       height: 50px;
+      width: 320px;
+      padding: 5px 30px;
     `}
   border-radius: 15px;
   align-items: center;
   justify-content: center;
   flex-direction: row;
-  padding: 5px;
 `;
 
 const ButtonText = styled.Text<{

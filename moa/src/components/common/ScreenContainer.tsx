@@ -1,8 +1,9 @@
 import React, {ReactNode} from 'react';
 import styled from 'styled-components/native';
 
-const Container = styled.ScrollView`
+const Container = styled.View`
   width: 100%;
+  flex-grow: 1;
   padding: 5% 8%;
   background-color: ${({theme}) => theme.colors.white};
 `;
