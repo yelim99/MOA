@@ -9,6 +9,7 @@ import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,5 +55,10 @@ public class MomentService {
                 .message("순간 생성에 성공하였습니다.")
                 .PIN(moment.getMomentPin())
                 .build();
+    }
+
+    @Transactional
+    public void deleteMoment(String momentId) {
+        momentRepository.deleteById(momentId);
     }
 }

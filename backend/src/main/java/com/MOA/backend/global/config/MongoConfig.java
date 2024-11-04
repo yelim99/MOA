@@ -21,6 +21,6 @@ public class MongoConfig {
     public void createIndex() {
         mongoTemplate.indexOps("moment")
                 .ensureIndex(new Index().on("createdAt", Sort.Direction.ASC)
-                        .expire(30));
+                        .expire(86400));
     }
 }
