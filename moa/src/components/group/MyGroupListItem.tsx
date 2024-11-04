@@ -2,11 +2,12 @@ import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import GroupIconButton from '../common/button/GroupIconButton';
+import {GroupInfo} from '../../types/group';
 
-const Container = styled.View`
+const Container = styled.TouchableOpacity<{bgColor: string}>`
   width: 46%;
   height: 150px;
-  background-color: ${({theme}) => theme.colors.lightred};
+  background-color: ${({bgColor}) => bgColor};
   padding: 14px;
   border-radius: 20px;
   display: flex;
@@ -52,11 +53,24 @@ const MemberText = styled(ContentText)`
   margin-left: 6px;
 `;
 
-const MyGroupListItem = () => {
+interface MyGroupListItemProps {
+  groupInfo: GroupInfo;
+}
+
+const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
   const theme = useTheme();
 
+  const colorMap: {[key: string]: string} = {
+    red: theme.colors.lightred,
+    yellow: theme.colors.lightyellow,
+    green: theme.colors.lightgreen,
+    blue: theme.colors.lightblue,
+    purple: theme.colors.lightpurple,
+    pink: theme.colors.lightpink,
+  };
+
   return (
-    <Container>
+    <Container bgColor={colorMap[groupInfo.color]}>
       <TopLine>
         <TitleText>어쩌고 모임</TitleText>
         <ContentColor>사진 527장</ContentColor>
@@ -70,7 +84,10 @@ const MyGroupListItem = () => {
           />
           <MemberText>25명</MemberText>
         </MemberLine>
-        <GroupIconButton color="red" iconName="graduation-cap" />
+        <GroupIconButton
+          color={groupInfo.color}
+          iconName={groupInfo.iconName}
+        />
       </BottomLine>
     </Container>
   );

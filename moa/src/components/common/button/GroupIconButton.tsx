@@ -29,6 +29,7 @@ const GroupIconButton = ({color, iconName}: GroupIconButtonProps) => {
     purple: theme.colors.darkpurple,
     pink: theme.colors.darkpink,
   };
+
   const renderIcon = () => {
     if (
       iconName === 'chat' ||
