@@ -64,7 +64,9 @@ const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
   return (
     <Container bgColor={lightColorMap[groupInfo.groupColor]}>
       <TopLine>
-        <TitleText>{groupInfo.groupName}</TitleText>
+        <TitleText numberOfLines={2} ellipsizeMode="tail">
+          {groupInfo.groupName}
+        </TitleText>
         <ContentColor txtColor={darkColorMap[groupInfo.groupColor]}>
           사진 527장
         </ContentColor>
