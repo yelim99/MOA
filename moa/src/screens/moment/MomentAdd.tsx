@@ -30,7 +30,7 @@ const ButtonContainer = styled.View`
 const MomentAdd = () => {
   const [momentName, setMomentName] = useState('');
   const [momentDescription, setMomentDescription] = useState('');
-  const [momentOption, setMomentOption] = useState('0');
+  const [uploadOption, setUploadOption] = useState('0');
 
   const handleMomentPost = async () => {
     if (momentName === '' || momentDescription === '') {
@@ -53,8 +53,8 @@ const MomentAdd = () => {
       <AddInputBox label="멤버 권한 설정" isText={false}>
         <PickerContainer>
           <StyledPicker
-            selectedValue={momentOption}
-            onValueChange={(itemValue) => setMomentOption(itemValue as string)}
+            selectedValue={uploadOption}
+            onValueChange={(itemValue) => setUploadOption(itemValue as string)}
           >
             <Picker.Item label="나의 업로드만 허용" value="0" />
             <Picker.Item label="모든 멤버의 업로드 허용" value="1" />
