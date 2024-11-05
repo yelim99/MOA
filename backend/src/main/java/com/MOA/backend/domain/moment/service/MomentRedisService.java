@@ -23,8 +23,8 @@ public class MomentRedisService {
     public void participateMoment(Long userId, String momentId) {
         String key = USER_PREFIX + userId + ":" + MOMENT_PREFIX + momentId;
         redisTemplate.opsForSet().add(key, momentId);
-//        redisTemplate.expire(key, 86400, TimeUnit.SECONDS);       // 배포용
-        redisTemplate.expire(key, 300, TimeUnit.SECONDS);   // 테스트용
+        redisTemplate.expire(key, 86400, TimeUnit.SECONDS);       // 배포용
+//        redisTemplate.expire(key, 300, TimeUnit.SECONDS);   // 테스트용
     }
 
     // 내가 참여한 순간 조회
