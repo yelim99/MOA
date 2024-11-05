@@ -1,4 +1,3 @@
-import {TouchableOpacity} from 'react-native';
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -31,27 +30,22 @@ const IconButton = styled.TouchableOpacity`
 
 interface AppHeaderProps {
   navigation: AppHeaderNavigationProp;
-  isHome?: boolean;
 }
 
-const AppHeader = ({navigation, isHome = false}: AppHeaderProps) => {
+const AppHeader = ({navigation}: AppHeaderProps) => {
   const theme = useTheme();
 
   return (
     <Container>
-      <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-        <Logo source={require('../../../assets/images/logo.png')} />
-      </TouchableOpacity>
+      <Logo source={require('../../../assets/images/logo.png')} />
       <ButtonLine>
-        {isHome && (
-          <IconButton onPress={() => navigation.navigate('Add')}>
-            <Icon
-              name="add-circle-outline"
-              size={25}
-              color={theme.colors.maindarkorange}
-            />
-          </IconButton>
-        )}
+        <IconButton onPress={() => navigation.navigate('Add')}>
+          <Icon
+            name="add-circle-outline"
+            size={25}
+            color={theme.colors.maindarkorange}
+          />
+        </IconButton>
         <IconButton onPress={() => navigation.navigate('Notification')}>
           <Icon
             name="notifications"
