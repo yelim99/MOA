@@ -20,6 +20,7 @@ import MomentDetail from './src/screens/moment/MomentDetail';
 import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {StatusBar} from 'react-native';
+import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -28,16 +29,57 @@ const CustomTabBar: React.FC<BottomTabBarProps> = (props) => (
   <Navigation {...props} />
 );
 
+// 홈 화면(모아) 스택 구조
+const HomeStack = createStackNavigator<HomeStackParamList>();
+
+const HomeStackScreen: React.FC = () => (
+  <HomeStack.Navigator>
+    <HomeStack.Screen
+      name="Home"
+      component={Home}
+      options={({navigation}) => ({
+        header: () => <AppHeader navigation={navigation} />,
+      })}
+    />
+    <HomeStack.Screen
+      name="GroupDetail"
+      component={GroupDetail}
+      options={() => ({
+        header: () => <StackHeader title="" />,
+      })}
+    />
+  </HomeStack.Navigator>
+);
+
+// 마이페이지 스택 구조
+const MyPageStack = createStackNavigator<MyPageStackParamList>();
+
+const MyPageStackScreen: React.FC = () => (
+  <MyPageStack.Navigator>
+    <MyPageStack.Screen
+      name="MyPage"
+      component={MyPage}
+      options={({navigation}) => ({
+        header: () => <AppHeader navigation={navigation} />,
+      })}
+    />
+  </MyPageStack.Navigator>
+);
+
 // Tab Navigator 구성
 const TabNavigator: React.FC = () => (
   <Tab.Navigator
     tabBar={CustomTabBar}
     screenOptions={{tabBarHideOnKeyboard: true}}
   >
-    <Tab.Screen name="Home" component={Home} options={{headerShown: false}} />
     <Tab.Screen
-      name="MyPage"
-      component={MyPage}
+      name="HomeStack"
+      component={HomeStackScreen}
+      options={{headerShown: false}}
+    />
+    <Tab.Screen
+      name="MyPageStack"
+      component={MyPageStackScreen}
       options={{headerShown: false}}
     />
   </Tab.Navigator>
@@ -57,16 +99,7 @@ const App = () => {
             <RootStack.Screen
               name="Bottom"
               component={TabNavigator}
-              options={({navigation}) => ({
-                header: () => <AppHeader navigation={navigation} />,
-              })}
-            />
-            <RootStack.Screen
-              name="Home"
-              component={Home}
-              options={({navigation}) => ({
-                header: () => <AppHeader navigation={navigation} />,
-              })}
+              options={{headerShown: false}}
             />
             <RootStack.Screen
               name="Add"
@@ -96,13 +129,6 @@ const App = () => {
               options={{
                 header: () => <StackHeader title="알림" />,
               }}
-            />
-            <RootStack.Screen
-              name="MyPage"
-              component={MyPage}
-              options={({navigation}) => ({
-                header: () => <AppHeader navigation={navigation} />,
-              })}
             />
             {/* 여기에 Screen 추가 */}
           </RootStack.Navigator>
