@@ -1,14 +1,14 @@
 package com.MOA.backend.domain.moment.controller;
 
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
+import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
+import com.MOA.backend.domain.moment.dto.response.MomentUpdateResponseDto;
 import com.MOA.backend.domain.moment.service.MomentService;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,9 +17,22 @@ public class MomentController {
 
     private final MomentService momentService;
 
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<MomentCreateResponseDto> createMoment(@RequestBody MomentCreateRequestDto momentCreateRequestDto) {
         MomentCreateResponseDto momentDto = momentService.createMoment(momentCreateRequestDto);
         return ResponseEntity.ok(momentDto);
+    }
+
+    @DeleteMapping("/{moment_id}")
+    public ResponseEntity<?> deleteMoment(@PathVariable(name = "moment_id") String momentId) {
+        momentService.deleteMoment(momentId);
+        return ResponseEntity.ok().body(ObjectId.get().toHexString() + "번 순간이 삭제가 완료되었습니다.");
+    }
+
+    @PatchMapping("/{moment_id}")
+    public ResponseEntity<MomentUpdateResponseDto> updateMoment(@PathVariable(name = "moment_id") String momentId,
+                                                                @RequestBody MomentUpdateRequestDto momentUpdateRequestDto) {
+        MomentUpdateResponseDto momentUpdateResponseDto = momentService.updateMoment(momentId, momentUpdateRequestDto);
+        return ResponseEntity.ok(momentUpdateResponseDto);
     }
 }
