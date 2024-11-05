@@ -2,6 +2,7 @@ package com.MOA.backend.domain.group.entity;
 
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Table(name = "`group`")
 public class Group extends BaseEntity {
 
     @Id
@@ -39,6 +41,7 @@ public class Group extends BaseEntity {
     private String groupColor;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Member> members = new ArrayList<>();
 
 }
