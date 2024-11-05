@@ -3,13 +3,6 @@ pipeline {
 
     stages {
         
-        stage('Prepare SCM') {
-            steps {
-                echo 'Pruning remote branches...'
-                sh 'git remote prune origin'
-            }
-        }
-
         stage('Checkout SCM') {
             steps {
                 echo 'Checking out SCM...'
