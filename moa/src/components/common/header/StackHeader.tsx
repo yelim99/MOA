@@ -8,24 +8,22 @@ import {StackHeaderNavigationProp} from '../../../types/screen';
 const Container = styled.View`
   height: 70px;
   background-color: ${({theme}) => theme.colors.white};
-  display: flex;
   flex-direction: row;
   align-items: center;
+  justify-content: center;
   padding: 0 8%;
+  position: relative;
 `;
 
-const StyledIcon = styled(Icon)`
-  margin-right: auto;
-`;
-
-const TitleContainer = styled.View`
-  flex: 1;
-  align-items: center;
+const IconWrapper = styled.View`
+  position: absolute;
+  left: 8%;
 `;
 
 const Title = styled.Text`
   font-family: 'SCDream5';
   font-size: 20px;
+  max-width: 80%;
 `;
 
 interface StackHeaderProps {
@@ -38,16 +36,16 @@ export default function StackHeader({title}: StackHeaderProps) {
 
   return (
     <Container>
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <StyledIcon
-          name="chevron-back"
-          size={30}
-          color={theme.colors.maindarkorange}
-        />
-      </TouchableOpacity>
-      <TitleContainer>
-        <Title>{title}</Title>
-      </TitleContainer>
+      <IconWrapper>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Icon
+            name="chevron-back"
+            size={30}
+            color={theme.colors.maindarkorange}
+          />
+        </TouchableOpacity>
+      </IconWrapper>
+      <Title numberOfLines={1}>{title}</Title>
     </Container>
   );
 }

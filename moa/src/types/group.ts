@@ -1,5 +1,5 @@
 export type GroupInfo = {
-  groupId: number;
+  groupId: string;
   groupName: string;
   groupColor: string;
   groupIcon: string;

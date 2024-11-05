@@ -41,13 +41,7 @@ const HomeStackScreen: React.FC = () => (
         header: () => <AppHeader navigation={navigation} />,
       })}
     />
-    <HomeStack.Screen
-      name="GroupDetail"
-      component={GroupDetail}
-      options={() => ({
-        header: () => <StackHeader title="" />,
-      })}
-    />
+    <HomeStack.Screen name="GroupDetail" component={GroupDetail} />
   </HomeStack.Navigator>
 );
 
