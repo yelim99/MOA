@@ -2,6 +2,7 @@ package com.MOA.backend.domain.user.entity;
 
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,6 +47,7 @@ public class User extends BaseEntity {
     private byte[] faceEmbedding;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Member> memberships = new ArrayList<>();
 
 }

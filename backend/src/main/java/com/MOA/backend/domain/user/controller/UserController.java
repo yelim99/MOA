@@ -27,7 +27,7 @@ public class UserController {
     @PutMapping
     public ResponseEntity<User> updateUser(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("Authorization") String token,
+            @RequestHeader("AuthorizationJWT") String token,
             @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(jwtUtil.extractUserId(jwtUtil.remove(token)), userDetails);
         return ResponseEntity.ok(updatedUser);
@@ -37,7 +37,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<User> getUserById(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("AuthorizationJWT") String token) {
         Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(jwtUtil.remove(token)));
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -47,16 +47,15 @@ public class UserController {
     @GetMapping("/groups")
     public List<Group> getMyGroups(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("Authorization") String token) {
+            @RequestHeader("AuthorizationJWT") String token) {
         return userService.getUserGroups(jwtUtil.extractUserId(jwtUtil.remove(token)));
     }
 
     @Operation(summary = "테스트 토큰 생성", description = "테스트를 위해 임의의 JWT 토큰을 생성합니다.")
     @GetMapping("/generateToken")
     public ResponseEntity<String> generateTestToken(
-            @Parameter(description = "유저 이메일", required = true) @RequestParam String userEmail,
             @Parameter(description = "유저 ID", required = true) @RequestParam Long userId) {
-        String token = jwtUtil.generateAccessToken(userEmail, userId);
+        String token = jwtUtil.generateAccessToken(userId);
         return ResponseEntity.ok("Bearer " + token);
     }
 }

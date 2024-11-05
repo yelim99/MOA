@@ -41,7 +41,7 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 
         if (isExist) {
             Optional<User> existingUser = userService.findByUserEmail(email);
-            token = jwtUtil.generateAccessToken(email, existingUser.get().getUserId());
+            token = jwtUtil.generateAccessToken(existingUser.get().getUserId());
         } else {
 
             String nickname = oAuth2User.getAttribute("nickname");
@@ -59,16 +59,14 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 
             User createdUser = userService.signup(newUser);
 
-            token = jwtUtil.generateAccessToken(email, createdUser.getUserId());
+            token = jwtUtil.generateAccessToken(createdUser.getUserId());
         }
 
-        response.setHeader("Authorization", "Bearer " + token);
+        response.setHeader("AuthorizationJWT", "Bearer " + token);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write("{\"token\":\"" + token + "\"}");
-//        String targetUrl = "http://localhost:3000/loginSuccess?token=" + token;
 
-//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
 }

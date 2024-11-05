@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.group.controller;
 
+import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
 import com.MOA.backend.domain.group.dto.response.GroupDetailsResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.service.GroupService;
@@ -9,6 +10,7 @@ import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +32,9 @@ public class GroupController {
     @Operation(summary = "그룹 생성", description = "JWT 토큰을 통해 새로운 그룹을 생성합니다.")
     @PostMapping
     public ResponseEntity<Group> createGroup(
-            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
-            @RequestBody Group group) {
-        Group createdGroup = groupService.create(jwtUtil.extractUserId(jwtUtil.remove(token)), group);
+            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("AuthorizationJWT") String token,
+            @Valid @RequestBody GroupCreateDto groupDto) {
+        Group createdGroup = groupService.create(jwtUtil.extractUserId(jwtUtil.remove(token)), groupDto);
         return ResponseEntity.ok(createdGroup);
     }
 
@@ -50,8 +52,8 @@ public class GroupController {
     @PutMapping("/{id}")
     public ResponseEntity<Group> updateGroup(
             @Parameter(description = "그룹 ID", required = true) @PathVariable long id,
-            @RequestBody Group groupDetails) {
-        Group updatedGroup = groupService.update(id, groupDetails);
+            @Valid @RequestBody GroupCreateDto groupDto) {
+        Group updatedGroup = groupService.update(id, groupDto);
         return ResponseEntity.ok(updatedGroup);
     }
 
@@ -66,19 +68,19 @@ public class GroupController {
     @Operation(summary = "그룹 나가기", description = "JWT 토큰을 통해 사용자가 특정 그룹에서 나갑니다.")
     @DeleteMapping("/{id}/leave")
     public ResponseEntity<Void> leaveGroup(
-            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
+            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("AuthorizationJWT") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
-        groupService.leaveGroup(jwtUtil.extractUserId(jwtUtil.remove(token)), id);
+        groupService.leaveGroup(jwtUtil.extractUserId(token), id);
         return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "그룹 가입", description = "JWT 토큰을 통해 사용자가 특정 그룹에 가입합니다.")
     @PostMapping("{id}/join")
     public ResponseEntity<String> joinGroup(
-            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
+            @Parameter(description = "JWT 토큰", required = true) @RequestHeader("AuthorizationJWT") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
         try {
-            groupService.joinGroup(jwtUtil.extractUserId(jwtUtil.remove(token)), id);
+            groupService.joinGroup(jwtUtil.extractUserId(token), id);
             return ResponseEntity.ok("그룹에 가입되었습니다.");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

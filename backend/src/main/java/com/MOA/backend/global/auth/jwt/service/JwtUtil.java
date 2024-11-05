@@ -23,9 +23,9 @@ public class JwtUtil {
         secretKey = Base64.getEncoder().encodeToString(jwtProperties.getSecret().getBytes());
     }
 
-    public String generateAccessToken(String email, Long userId) {
+    public String generateAccessToken(Long userId) {
         long tokenPeriod = 1000L * 60L * 30L;
-        Claims claims = Jwts.claims().setSubject(email);
+        Claims claims = Jwts.claims();
         claims.put("userId", userId);
 
         Date now = new Date();

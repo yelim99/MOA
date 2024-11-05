@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.group.service;
 
+import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
@@ -23,11 +24,23 @@ public class GroupService {
     private final UserRepository userRepository;
 
     // 그룹 생성
-    public Group create(Long userId, Group group) {
+    // 그룹 생성
+    public Group create(Long userId, GroupCreateDto groupDto) {
+        // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
+        Group group = new Group();
+        group.setGroupName(groupDto.getGroupName());
+        group.setGroupPin(groupDto.getPIN());
+        group.setGroupDescription(groupDto.getGroupDescription());
+        group.setGroupColor(groupDto.getColor());
+        group.setGroupIcon(groupDto.getIcon());
+
+        // 그룹을 저장하고 사용자 추가 로직을 수행합니다.
         Group savedGroup = groupRepository.save(group);
         addUserToGroup(userId, savedGroup);
+
         return savedGroup;
     }
+
 
     // 그룹 삭제
     public void delete(Long id) {
@@ -35,17 +48,18 @@ public class GroupService {
     }
 
     // 그룹 업데이트
-    public Group update(Long id, Group newGroup) {
-        Group group = groupRepository.findById(id)
+    public Group update(Long id, GroupCreateDto groupDto) {
+        Group existingGroup = groupRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 그룹을 찾을 수 없습니다." + id));
 
-        group.setGroupName(newGroup.getGroupName());
-        group.setGroupPin(newGroup.getGroupPin());
-        group.setGroupDescription(newGroup.getGroupDescription());
-        group.setGroupIcon(newGroup.getGroupIcon());
-        group.setGroupColor(newGroup.getGroupColor());
+        if (existingGroup.getGroupName() != null) existingGroup.setGroupName(groupDto.getGroupName());
+        if (existingGroup.getGroupPin() != null) existingGroup.setGroupPin(groupDto.getPIN());
+        if (existingGroup.getGroupDescription() != null)
+            existingGroup.setGroupDescription(groupDto.getGroupDescription());
+        if (existingGroup.getGroupColor() != null) existingGroup.setGroupColor(groupDto.getColor());
+        if (existingGroup.getGroupIcon() != null) existingGroup.setGroupIcon(groupDto.getIcon());
 
-        return groupRepository.save(group);
+        return groupRepository.save(existingGroup);
     }
 
     // 그룹 상세 조회
