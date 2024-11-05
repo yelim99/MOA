@@ -14,7 +14,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
-@Table(name = "user")
 public class User extends BaseEntity {
 
 
