@@ -11,6 +11,7 @@
     "storybook-generate": "sb-rn-get-stories"
   },
   "dependencies": {
+    "@react-native-picker/picker": "^2.9.0",
     "@react-native-seoul/kakao-login": "^5.4.1",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
