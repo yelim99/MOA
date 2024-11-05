@@ -4,7 +4,7 @@ import TextInput from './TextInput';
 
 const Container = styled.View`
   width: 100%;
-  height: 120px;
+  min-height: 120px;
   background-color: ${({theme}) => theme.colors.lightgray};
   padding: 20px;
   display: flex;
@@ -16,6 +16,7 @@ const Container = styled.View`
 const Label = styled.Text`
   font-family: SCDream4;
   font-size: 16px;
+  margin-bottom: 20px;
 `;
 
 interface AddInputBoxProps {
