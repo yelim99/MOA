@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.moment.entity;
 
+import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,8 +10,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Document(collection = "moment")
@@ -30,10 +31,10 @@ public class Moment {
     private String uploadOption;
 
     @CreatedDate
-    private LocalDateTime createdAt;
+    private Date createdAt;
 
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
     @Builder
     public Moment(Long groupId, String momentPin, List<Long> userIds, String momentName, String momentDescription,
@@ -45,5 +46,10 @@ public class Moment {
         this.momentDescription = momentDescription;
         this.momentOwner = momentOwner;
         this.uploadOption = uploadOption;
+    }
+
+    public void update(MomentUpdateRequestDto momentUpdateRequestDto) {
+        this.momentName = momentUpdateRequestDto.getMomentName();
+        this.momentDescription = momentUpdateRequestDto.getMomentDescription();
     }
 }

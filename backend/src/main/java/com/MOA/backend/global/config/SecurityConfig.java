@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("**").permitAll() // 토큰 발급을 위한 경로는 인증 필요 없음
+                                .requestMatchers("/**").permitAll() // 토큰 발급을 위한 경로는 인증 필요 없음
                                 .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2
