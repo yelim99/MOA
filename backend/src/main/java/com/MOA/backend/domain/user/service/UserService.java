@@ -25,11 +25,6 @@ public class UserService {
         return userRepository.findByUserEmail(userEmail);
     }
 
-
-    public void save(User user) {
-        userRepository.save(user);
-    }
-
     public void signup(UserSignupRequestDto userSignupRequestDto) {
 
         if (userRepository.findByUserEmail(userSignupRequestDto.getEmail()).isPresent()) {
@@ -44,5 +39,16 @@ public class UserService {
         newUser.setUserImage(userSignupRequestDto.getProfile());
 
         userRepository.save(newUser);
+    }
+
+    // 유저 업데이트
+    public User updateUser(Long id, User userDetails) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다" + id));
+
+        user.setUserName(userDetails.getUserName());
+        user.setUserImage(userDetails.getUserImage());
+
+        return userRepository.save(user);
     }
 }
