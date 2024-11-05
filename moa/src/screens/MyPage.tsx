@@ -48,25 +48,23 @@ const Divider = styled.View`
 `;
 
 const Face = styled.View`
-  width: 350px;
+  width: 100%;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
 `;
+
 const MyPage = () => {
-  const theme = useTheme();
   return (
-    <View>
-      <ScreenContainer>
-        <View>
-          <Texts variant="title">마이페이지</Texts>
-          <MyInfo></MyInfo>
-        </View>
-        <Face>
-          <FaceImage></FaceImage>
-        </Face>
-      </ScreenContainer>
-    </View>
+    <ScreenContainer>
+      <View>
+        <Texts variant="title">마이페이지</Texts>
+        <MyInfo />
+      </View>
+      <Face>
+        <FaceImage />
+      </Face>
+    </ScreenContainer>
   );
 };
 

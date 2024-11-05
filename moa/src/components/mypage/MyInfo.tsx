@@ -1,10 +1,6 @@
-import {View, Text} from 'react-native';
 import React from 'react';
-import ScreenContainer from '../common/ScreenContainer';
-import styled, {css, useTheme, DefaultTheme} from 'styled-components/native';
+import styled, {css, useTheme} from 'styled-components/native';
 import {IconButton} from '../common/button/IconButton';
-import StyleSheet from 'styled-components/dist/sheet';
-import {TextButton} from '../common/button/TextButton';
 
 interface TextProps {
   variant: 'title' | 'subtitle' | 'body';
@@ -17,7 +13,8 @@ const UserInfo = styled.View`
   height: 120px;
   background-color: ${(props) => props.theme.colors.white};
   margin: 10px 0;
-  padding: 30px;
+  padding: 20px 30px;
+  display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -27,6 +24,8 @@ const TextInfo = styled.View`
   flex-direction: column;
   width: 200px;
   color: ${(props) => props.theme.colors.black};
+  height: 100%;
+  justify-content: space-between;
 `;
 
 const Texts = styled.Text<TextProps>`
@@ -105,14 +104,14 @@ const MyInfo = () => {
           누적 다운로드 사진 수 | {DummyData[0].totalDownloads} 장
         </Texts>
       </TextInfo>
-      <MyProfile source={{uri: '/'}}></MyProfile>
+      <MyProfile source={{uri: '/'}} />
       <IconButtonStyled>
         <IconButton
           backcolor="white"
           iconName="edit"
           iconSet="Material"
           onPress={() => console.log('편집 아이콘 버튼 눌렀음')}
-        ></IconButton>
+        />
       </IconButtonStyled>
     </UserInfo>
   );
