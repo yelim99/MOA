@@ -4,6 +4,7 @@ import styled from 'styled-components/native';
 
 const Container = styled.View`
   width: 100%;
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 16px;
@@ -51,7 +52,7 @@ const MyGroupList = () => {
     },
     {
       groupId: 6,
-      groupName: '동호회',
+      groupName: '동호회입니다 오버플로우 테스트',
       groupColor: 'blue',
       groupIcon: 'chat',
     },
