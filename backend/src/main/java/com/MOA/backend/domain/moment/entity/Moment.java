@@ -52,4 +52,8 @@ public class Moment {
         this.momentName = momentUpdateRequestDto.getMomentName();
         this.momentDescription = momentUpdateRequestDto.getMomentDescription();
     }
+
+    public void update(List<Long> userIds) {
+        this.userIds = userIds;
+    }
 }
