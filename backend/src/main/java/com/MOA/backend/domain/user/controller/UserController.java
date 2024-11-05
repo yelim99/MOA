@@ -1,7 +1,6 @@
 package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.entity.Group;
-import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -18,31 +17,33 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final GroupService groupService;
     private final JwtUtil jwtUtil;
 
     // 유저 정보 수정
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@RequestHeader("Authorizaion") String token,
-                                           @RequestBody User userDetails) {
-        Long userId = jwtUtil.extractUserId(jwtUtil.remove(token));
-        User updatedUser = userService.updateUser(userId, userDetails);
+    @PutMapping
+    public ResponseEntity<User> updateUser(@RequestHeader("Authorization") String token, @RequestBody User userDetails) {
+        User updatedUser = userService.updateUser(jwtUtil.extractUserId(jwtUtil.remove(token)), userDetails);
         return ResponseEntity.ok(updatedUser);
     }
 
     // 유저 정보 상세조회
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@RequestHeader("Authorizaion") String token) {
-        Long userId = jwtUtil.extractUserId(jwtUtil.remove(token));
-        Optional<User> user = userService.finfByUserId(userId);
+    @GetMapping
+    public ResponseEntity<User> getUserById(@RequestHeader("Authorization") String token) {
+        Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(token));
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     // 유저가 포함된 그룹들 조회
     @GetMapping("/groups")
-    public List<Group> getMyGroups(@RequestHeader("Authorizaion") String token) {
-        Long userId = jwtUtil.extractUserId(jwtUtil.remove(token));
-        return userService.getUserGroups(userId);
+    public List<Group> getMyGroups(@RequestHeader("Authorization") String token) {
+        return userService.getUserGroups(jwtUtil.extractUserId(jwtUtil.remove(token)));
+    }
+
+    @GetMapping("/generateToken")
+    public ResponseEntity<String> generateTestToken(@RequestParam String userEmail, @RequestParam Long userId) {
+        // 임의의 유저 ID로 JWT 토큰 생성
+        String token = jwtUtil.generateAccessToken(userEmail, userId);
+        return ResponseEntity.ok("Bearer " + token);
     }
 }

@@ -7,6 +7,7 @@ import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +25,8 @@ public class GroupController {
 
     // 그룹 생성하기
     @PostMapping
-    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
-        Group createdGroup = groupService.create(group);
+    public ResponseEntity<Group> createGroup(@RequestHeader("Authorization") String token, @RequestBody Group group) {
+        Group createdGroup = groupService.create(jwtUtil.extractUserId(jwtUtil.remove(token)), group);
         return ResponseEntity.ok(createdGroup);
     }
 
@@ -52,10 +53,20 @@ public class GroupController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{groupId}/leave")
-    public ResponseEntity<Void> leaveGroup(@RequestHeader("Authorizaion") String token, @PathVariable Long id) {
+    // 그룹 나가기
+    @DeleteMapping("/{id}/leave")
+    public ResponseEntity<Void> leaveGroup(@RequestHeader("Authorization") String token, @PathVariable Long id) {
         groupService.leaveGroup(jwtUtil.extractUserId(jwtUtil.remove(token)), id);
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("{id}/join")
+    public ResponseEntity<String> joinGroup(@RequestHeader("Authorization") String token, @PathVariable Long id) {
+        try {
+            groupService.joinGroup(jwtUtil.extractUserId(jwtUtil.remove(token)), id);
+            return ResponseEntity.ok("그룹에 가입되었습니다.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
+    }
 }

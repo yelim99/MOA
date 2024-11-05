@@ -27,7 +27,7 @@ public class UserService {
         return userRepository.findByUserEmail(userEmail);
     }
 
-    public Optional<User> finfByUserId(long id) {
+    public Optional<User> findByUserId(long id) {
         return userRepository.findById(id);
     }
 
@@ -60,7 +60,7 @@ public class UserService {
 
     public List<Group> getUserGroups(Long userId) {
 
-        List<Member> memberships = memberRepository.findByUserId(userId);
+        List<Member> memberships = memberRepository.findByUserUserId(userId);
 
         return memberships.stream()
                 .map(Member::getGroup)

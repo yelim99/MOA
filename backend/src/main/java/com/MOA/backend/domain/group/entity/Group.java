@@ -36,11 +36,8 @@ public class Group extends BaseEntity {
     @Column(name = "group_icon")
     private String groupIcon;
 
-    @Column(name = "group_lightcolor")
-    private String groupLightColor;
-
-    @Column(name = "group_darkcolor")
-    private String groupDarkColor;
+    @Column(name = "group_color")
+    private String groupColor;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Member> members = new ArrayList<>();

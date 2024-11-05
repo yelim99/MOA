@@ -36,7 +36,6 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
         // 로그인한 회원 존재 여부를 가져올 때 null 체크 추가
         boolean isExist = Boolean.TRUE.equals(oAuth2User.getAttribute("exist"));
 
-        String targetUrl = "http://localhost:3000/loginSuccess";
         String token;
 
 
@@ -64,8 +63,12 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
         }
 
         response.setHeader("Authorization", "Bearer " + token);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"token\":\"" + token + "\"}");
+//        String targetUrl = "http://localhost:3000/loginSuccess?token=" + token;
 
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
 }

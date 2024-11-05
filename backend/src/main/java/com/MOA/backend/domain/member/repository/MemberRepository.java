@@ -7,10 +7,13 @@ import java.util.List;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    List<Member> findByGroupId(Long groupId);
+    List<Member> findByGroupGroupId(Long groupId);
 
-    List<Member> findByUserId(Long userId);
+    List<Member> findByUserUserId(Long userId);
 
-    void deleteByGroupIdAndUserId(Long groupId, Long UserId);
+    void deleteByGroupGroupIdAndUserUserId(Long groupId, Long userId);
+
+    Boolean existsByUserUserId(Long userId);
+
 
 }
