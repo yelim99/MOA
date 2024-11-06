@@ -30,14 +30,16 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
-    open-in-view: true
     hibernate:
       ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
+    database: mysql
+    defer-datasource-initialization: true
+    generate-ddl: true
+
 
   security:
     oauth2:
@@ -69,13 +71,28 @@ spring:
       database: ${MONGODB_DATABASE}
   main:
     allow-bean-definition-overriding: true
+  sql:
+    init:
+      mode: never
 
 logging:
   level:
     org:
       springframework:
-        security: DEBUG
         data:
           redis: DEBUG
+          mongodb: DEBUG
       hibernate:
         SQL: DEBUG
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+  stack:
+    auto: false
