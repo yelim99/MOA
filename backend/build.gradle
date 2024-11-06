@@ -61,6 +61,11 @@ dependencies {
 
     //MongoDB
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    //Firebase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 }
 
 application {
