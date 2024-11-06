@@ -4,8 +4,11 @@ import {GroupInfoDetail} from '../../../types/group';
 import GroupIconButton from '../../common/button/GroupIconButton';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {TouchableOpacity} from 'react-native';
+import {onShare} from '../../../utils/share';
 import StyledModal from '../../common/modal/StyledModal';
 import PinModal from '../../common/modal/PinModal';
+import {HomeStackParamList} from '../../../types/screen';
+import {RouteProp, useRoute} from '@react-navigation/native';
 
 const Container = styled.View`
   width: 100%;
@@ -79,6 +82,8 @@ const PhotoNumText = styled(DateText)<{color: string}>`
   color: ${({color}) => color};
 `;
 
+type GroupDetailRouteProp = RouteProp<HomeStackParamList, 'GroupDetail'>;
+
 interface GroupDetailHeaderProps {
   groupInfoDetail: GroupInfoDetail;
   lightColor: string;
@@ -90,6 +95,9 @@ const GroupDetailHeader = ({
   lightColor,
   darkColor,
 }: GroupDetailHeaderProps) => {
+  const route = useRoute<GroupDetailRouteProp>();
+  const {groupId} = route.params.groupInfo;
+
   const [isOptionModalVisible, setOptionModalVisible] = useState(false);
   const [isPinModalVisible, setPinModalVisible] = useState(false);
 
@@ -117,6 +125,7 @@ const GroupDetailHeader = ({
     }
   };
 
+  // 임시 핀번호 -> 나중에 변경 예정
   const groupPin = '12345';
 
   return (
@@ -159,7 +168,14 @@ const GroupDetailHeader = ({
           <NormalText>부터 모인 사진 총</NormalText>
           <PhotoNumText color={darkColor}>777장</PhotoNumText>
         </LineContainer>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() =>
+            onShare(
+              `${groupInfoDetail.groupName} 그룹`,
+              `moa://group/${groupId}`,
+            )
+          }
+        >
           <Icon name="share-social-sharp" size={25} color={darkColor} />
         </TouchableOpacity>
       </AlbumInfo>
