@@ -21,6 +21,7 @@ import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {StatusBar} from 'react-native';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
+import Toast from 'react-native-toast-message';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -128,6 +129,7 @@ const App = () => {
           </RootStack.Navigator>
         </NavigationContainer>
       </StyledSafeAreaView>
+      <Toast />
     </ThemeProvider>
   );
 };

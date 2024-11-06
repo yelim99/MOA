@@ -1,7 +1,7 @@
 // src/components/common/button/IconButton.tsx
 import React from 'react';
 import {TouchableOpacityProps} from 'react-native';
-import styled, {css, useTheme} from 'styled-components/native';
+import styled, {useTheme} from 'styled-components/native';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 

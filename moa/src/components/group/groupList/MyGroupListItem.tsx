@@ -1,11 +1,11 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import GroupIconButton from '../common/button/GroupIconButton';
-import {GroupInfo} from '../../types/group';
-import {darkColorMap, lightColorMap} from '../../utils/groupColor';
+import GroupIconButton from '../../common/button/GroupIconButton';
+import {GroupInfo} from '../../../types/group';
+import {darkColorMap, lightColorMap} from '../../../utils/groupColor';
 import {useNavigation} from '@react-navigation/native';
-import {HomeScreenNavigationProp} from '../../types/screen';
+import {HomeScreenNavigationProp} from '../../../types/screen';
 
 const Container = styled.TouchableOpacity<{bgColor: string}>`
   width: 46%;

@@ -6,7 +6,7 @@ export type GroupInfo = {
 };
 
 export type GroupInfoDetail = {
-  groupId: number;
+  groupId: string;
   groupName: string;
   groupDescription: string;
   groupColor: string;
