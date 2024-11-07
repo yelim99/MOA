@@ -1,5 +1,7 @@
 package com.MOA.backend.domain.image.service;
 
+import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
@@ -31,6 +33,7 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
+    private final GroupService groupService;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -156,5 +159,10 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
+
+    // Group 안의 모든 사진 URL 경로 출력
+//    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
+//        return;
+//    }
 
 }
