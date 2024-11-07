@@ -55,6 +55,7 @@ const GroupDetail: React.FC = () => {
       />
       <Partition />
       <MemberList />
+      <Partition />
       <AlbumContainer title="다운 가능한 사진" />
     </ScreenContainer>
   );

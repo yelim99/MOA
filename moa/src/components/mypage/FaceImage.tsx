@@ -15,7 +15,7 @@ const Title = styled.View`
   margin-top: 20px;
 `;
 
-const ModalBackground = styled.View`
+const ModalBackground = styled.TouchableOpacity`
   flex: 1;
   justify-content: flex-end;
   background-color: rgba(0, 0, 0, 0.5);
@@ -141,7 +141,10 @@ const MyComponent = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <ModalBackground>
+        <ModalBackground
+          activeOpacity={1}
+          onPress={() => setModalVisible(false)}
+        >
           <ModalContainer>
             <OptionButton onPress={() => handleSelectOption('camera')}>
               <OptionText>사진 촬영</OptionText>
