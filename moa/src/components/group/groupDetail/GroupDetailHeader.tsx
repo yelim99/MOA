@@ -121,11 +121,12 @@ const GroupDetailHeader = ({
     toggleOptionModal();
 
     if (optionId === 'pin') {
+      toggleOptionModal();
       togglePinModal();
     } else if (optionId === 'put') {
-      togglePinModal();
+      toggleOptionModal();
     } else if (optionId === 'delete') {
-      togglePinModal();
+      toggleOptionModal();
     }
   };
 
