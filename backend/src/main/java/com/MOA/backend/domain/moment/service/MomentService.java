@@ -11,13 +11,10 @@ import com.MOA.backend.domain.moment.repository.MomentRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
-import com.MOA.backend.global.exception.CustomException;
 import com.MOA.backend.global.exception.ForbiddenAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.bson.types.ObjectId;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -191,5 +188,9 @@ public class MomentService {
         // 4. 유저가 퇴장한 수정사항 반영
         moment.update(modifiedList);
         momentRepository.save(moment);
+    }
+
+    public Moment getMomentEntity(String momentId) {
+        return momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
     }
 }
