@@ -18,4 +18,6 @@ public interface MomentRepository extends MongoRepository<Moment, String> {
      * @return
      */
     List<Moment> findAllByIdInOrderByCreatedAtAsc(Set<ObjectId> momentIds);
+
+    List<Moment> findAllByGroupId(Long groupId);
 }

@@ -1,5 +1,7 @@
 package com.MOA.backend.domain.image.service;
 
+import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
@@ -31,6 +33,7 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
+    private final GroupService groupService;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -117,11 +120,13 @@ public class S3Service {
         }
     }
 
-    public String deleteImages(List<String> imageUrls) {
+    public List<String> deleteImages(List<String> imageUrls) {
+        List<String> removedImages = new ArrayList<>();
         imageUrls.forEach(imageUrl -> {
             try {
                 if(amazonS3.doesObjectExist(bucket, imageUrl)) {
                     amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
+                    removedImages.add(imageUrl);
                 } else {
                     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
                 }
@@ -129,7 +134,8 @@ public class S3Service {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 삭제하는 중 오류가 발생했습니다.", e);
             }
         });
-        return bucket;
+
+        return removedImages;
     }
 
     // S3에 저장된 회원 경로 찾아오기
@@ -154,39 +160,9 @@ public class S3Service {
         }
     }
 
-
-//    // 업로드 링크
-//    public S3UrlResponseDto getPresignedUrlToUpload(String fileName) {
-//        // 제한시간 설정
-//        Date expiration = new Date();
-//        long expirationTime = expiration.getTime();
-//        expirationTime += TimeUnit.MINUTES.toMillis(10); // 10분
-//        expiration.setTime(expirationTime);
-//
-//        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
-//                .withMethod(HttpMethod.PUT)
-//                .withExpiration(expiration);
-//
-//        return S3UrlResponseDto.builder()
-//                .presignedUrl(amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString())
-//                .build();
-//    }
-//
-//    // 다운로드 링크
-//    public S3UrlResponseDto getPresignedUrlToDownload(String fileName) {
-//        // 제한시간 설정
-//        Date expiration = new Date();
-//        long expirationTime = expiration.getTime();
-//        expirationTime += TimeUnit.MINUTES.toMillis(10);
-//        expiration.setTime(expirationTime);
-//
-//        GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(bucket, fileName)
-//                .withMethod(HttpMethod.GET)
-//                .withExpiration(expiration);
-//
-//        return S3UrlResponseDto.builder()
-//                .presignedUrl(amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString())
-//                .build();
+    // Group 안의 모든 사진 URL 경로 출력
+//    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
+//        return;
 //    }
 
 }

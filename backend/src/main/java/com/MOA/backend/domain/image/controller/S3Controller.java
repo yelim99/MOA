@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping
@@ -22,13 +23,13 @@ public class S3Controller {
     }
 
     @PostMapping("/user/upload")
-    ResponseEntity<String> uploadImages(@RequestPart("image") MultipartFile image) {
-        return ResponseEntity.ok(s3Service.uploadImage(image));
+    ResponseEntity<Map<String, String>> uploadImages(@RequestPart("image") MultipartFile image) {
+        return ResponseEntity.ok(Map.of("url", s3Service.uploadImage(image)));
     }
 
-//    @DeleteMapping("/moment/{moment_id}/delete")
-//    ResponseEntity<String> deleteImage(@PathVariable("moment_id") String momentId, List<String> imageUrls) {
-//
-//    }
+    @DeleteMapping("/moment/{moment_id}/delete")
+    ResponseEntity<List<String>> deleteImage(@RequestBody List<String> imageUrls) {
+        return ResponseEntity.ok(s3Service.deleteImages(imageUrls));
+    }
 
 }
