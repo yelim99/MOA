@@ -17,7 +17,7 @@ const Title = styled.Text`
 const MemberList = () => {
   const [containerWidth, setContainerWidth] = useState(0);
 
-  const itemSize = (containerWidth - 3 * 15) / 4; // 아이템 간격 포함
+  const itemSize = (containerWidth - 3 * 15) / 4;
 
   //임시 멤버 데이터 -> 수정 예정
   const memberList: Profile[] = [

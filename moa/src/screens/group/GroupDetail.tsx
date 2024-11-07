@@ -12,6 +12,13 @@ import AlbumContainer from '../../components/album/AlbumContainer';
 import MemberList from '../../components/member/MemberList';
 import {lightColorMap, darkColorMap} from '../../utils/groupColor';
 import Partition from '../../components/common/Partition';
+import styled from 'styled-components/native';
+
+const Container = styled.ScrollView.attrs({
+  nestedScrollEnabled: true,
+})`
+  width: 100%;
+`;
 
 type GroupDetailRouteProp = RouteProp<HomeStackParamList, 'GroupDetail'>;
 
@@ -48,19 +55,21 @@ const GroupDetail: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <GroupDetailHeader
-        groupInfoDetail={groupInfoDetail}
-        lightColor={lightColor}
-        darkColor={darkColor}
-      />
-      <Partition />
-      <MemberList />
-      <Partition />
-      <AlbumContainer
-        title="다운 가능한 사진"
-        lightColor={lightColor}
-        darkColor={darkColor}
-      />
+      <Container>
+        <GroupDetailHeader
+          groupInfoDetail={groupInfoDetail}
+          lightColor={lightColor}
+          darkColor={darkColor}
+        />
+        <Partition />
+        <MemberList />
+        <Partition />
+        <AlbumContainer
+          title="다운 가능한 사진"
+          lightColor={lightColor}
+          darkColor={darkColor}
+        />
+      </Container>
     </ScreenContainer>
   );
 };

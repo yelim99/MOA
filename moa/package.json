@@ -11,6 +11,7 @@
     "storybook-generate": "sb-rn-get-stories"
   },
   "dependencies": {
+    "@react-native-camera-roll/camera-roll": "^7.8.3",
     "@react-native-clipboard/clipboard": "^1.14.3",
     "@react-native-picker/picker": "^2.9.0",
     "@react-native-seoul/kakao-login": "^5.4.1",
@@ -22,8 +23,10 @@
     "react": "18.3.1",
     "react-native": "0.76.0",
     "react-native-config": "^1.5.3",
+    "react-native-fs": "^2.20.0",
     "react-native-image-picker": "^7.1.2",
     "react-native-modal-dropdown": "^1.0.2",
+    "react-native-permissions": "^5.1.0",
     "react-native-screens": "^3.35.0",
     "react-native-shadow-2": "^7.1.1",
     "react-native-toast-message": "^2.2.1",

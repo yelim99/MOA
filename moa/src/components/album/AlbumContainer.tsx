@@ -6,6 +6,7 @@ import StyledModal from '../common/modal/StyledModal';
 
 const Container = styled.View`
   width: 100%;
+  padding-bottom: 100px;
 `;
 
 const TitleLine = styled.View`
@@ -41,6 +42,8 @@ const OptionButton = styled.TouchableOpacity`
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
 `;
 
 const OptionButtonText = styled.Text`
