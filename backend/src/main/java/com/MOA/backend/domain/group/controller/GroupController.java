@@ -4,6 +4,8 @@ import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
 import com.MOA.backend.domain.group.dto.response.GroupDetailsResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.service.GroupService;
+import com.MOA.backend.domain.image.service.S3Service;
+import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
@@ -28,6 +31,8 @@ public class GroupController {
     private final GroupService groupService;
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final MomentService momentService;
+    private final S3Service s3Service;
 
     @Operation(summary = "그룹 생성", description = "JWT 토큰을 통해 새로운 그룹을 생성합니다.")
     @PostMapping
@@ -39,13 +44,19 @@ public class GroupController {
     }
 
     @Operation(summary = "그룹 상세 조회", description = "그룹 ID를 통해 특정 그룹의 상세 정보를 조회합니다.")
-    @GetMapping("/{id}/details")
-    public ResponseEntity<GroupDetailsResponse> getGroupDetails(
-            @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
-        Optional<Group> group = groupService.getGroupById(id);
-        List<User> users = groupService.getGroupUsers(id);
-        return group.map(value -> ResponseEntity.ok(new GroupDetailsResponse(value, users)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{groupId}")
+    public ResponseEntity<?> getGroupDetails(
+            @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
+        Group group = groupService.getGroupById(groupId).orElseThrow();
+        List<User> users = groupService.getGroupUsers(groupId);
+        Map<String, List<String>> allImagesInGroup =
+                s3Service.getAllImagesInGroup(groupId, momentService.getMomentIds(groupId));
+
+        return ResponseEntity.ok().body(GroupDetailsResponse.builder()
+                .group(group)
+                .users(users)
+                .images(allImagesInGroup)
+                .build());
     }
 
     @Operation(summary = "그룹 수정", description = "그룹 ID를 통해 특정 그룹의 정보를 수정합니다.")

@@ -160,9 +160,32 @@ public class S3Service {
         }
     }
 
-    // Group 안의 모든 사진 URL 경로 출력
-//    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
-//        return;
-//    }
+    // Group 안의 모든 사진 URL 경로 조회
+    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
+        Map<String, List<String>> imagesByMoment = new HashMap<>();
+        for(String momentId : momentIds) {
+            List<String> imageSources = new ArrayList<>();
+            try {
+                ListObjectsV2Request request = new ListObjectsV2Request()
+                        .withBucketName(bucket)
+                        .withPrefix("group/" + groupId + "/moment/" + momentId);
+
+                ListObjectsV2Result response = amazonS3.listObjectsV2(request);
+
+                for (S3ObjectSummary objectSummary : response.getObjectSummaries()) {
+                    imageSources.add(amazonS3.getUrl(bucket, objectSummary.getKey()).toString());
+                }
+
+                log.info("imageSources: {}", imageSources);
+
+                imagesByMoment.put(momentId, imageSources);
+            } catch (AmazonS3Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "이미지 목록을 조회하는 중 오류가 발생했습니다.");
+            }
+        }
+
+        return imagesByMoment;
+    }
 
 }
