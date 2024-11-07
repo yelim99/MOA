@@ -11,6 +11,7 @@ import GroupDetailHeader from '../../components/group/groupDetail/GroupDetailHea
 import AlbumContainer from '../../components/album/AlbumContainer';
 import MemberList from '../../components/member/MemberList';
 import {lightColorMap, darkColorMap} from '../../utils/groupColor';
+import Partition from '../../components/common/Partition';
 
 type GroupDetailRouteProp = RouteProp<HomeStackParamList, 'GroupDetail'>;
 
@@ -52,6 +53,7 @@ const GroupDetail: React.FC = () => {
         lightColor={lightColor}
         darkColor={darkColor}
       />
+      <Partition />
       <MemberList />
       <AlbumContainer title="다운 가능한 사진" />
     </ScreenContainer>
