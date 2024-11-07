@@ -39,8 +39,6 @@ spring:
     database: mysql
     defer-datasource-initialization: true
     generate-ddl: true
-
-
   security:
     oauth2:
       client:
@@ -74,6 +72,10 @@ spring:
   sql:
     init:
       mode: never
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 3GB
 
 logging:
   level:
