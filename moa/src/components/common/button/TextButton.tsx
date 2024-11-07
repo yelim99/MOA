@@ -22,9 +22,8 @@ const StyledTextButton = styled.TouchableOpacity<{
   ${({size}) =>
     size === 'small' &&
     css`
-      width: 80px;
-      height: 25px;
-      padding: 5px;
+      height: 30px;
+      padding: 5px 10px;
     `}
   ${({size}) =>
     size === 'medium' &&
@@ -59,7 +58,7 @@ const ButtonText = styled.Text<{
         : theme.fontSize.large};
   font-family: ${({theme, size}) =>
     size === 'small'
-      ? theme.fontFamily.SCDream4
+      ? theme.fontFamily.SCDream5
       : size === 'medium'
         ? theme.fontFamily.SCDream6
         : theme.fontFamily.SCDream7};
@@ -89,7 +88,7 @@ export const TextButton: React.FC<TextButtonProps> = ({
       {...props}
     >
       {iconName && (
-        <TextComponent name={iconName} size={12} color={iconColor} />
+        <TextComponent name={iconName} size={15} color={iconColor} />
       )}
       <ButtonText textcolor={iconColor} size={size}>
         {text}

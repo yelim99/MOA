@@ -21,6 +21,8 @@ import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {StatusBar} from 'react-native';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
+import Toast from 'react-native-toast-message';
+import {LinkingOptions} from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -41,13 +43,8 @@ const HomeStackScreen: React.FC = () => (
         header: () => <AppHeader navigation={navigation} />,
       })}
     />
-    <HomeStack.Screen
-      name="GroupDetail"
-      component={GroupDetail}
-      options={() => ({
-        header: () => <StackHeader title="" />,
-      })}
-    />
+    <HomeStack.Screen name="GroupDetail" component={GroupDetail} />
+    <HomeStack.Screen name="MomentDetail" component={MomentDetail} />
   </HomeStack.Navigator>
 );
 
@@ -85,6 +82,18 @@ const TabNavigator: React.FC = () => (
   </Tab.Navigator>
 );
 
+// 딥링크 설정
+const linking: LinkingOptions<HomeStackParamList> = {
+  prefixes: ['moa://'],
+  config: {
+    screens: {
+      Home: 'home',
+      GroupDetail: 'group/:groupId',
+      MomentDetail: 'moment/:momentId',
+    },
+  },
+};
+
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
 `;
@@ -94,7 +103,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <StyledSafeAreaView>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <RootStack.Navigator>
             <RootStack.Screen
               name="Bottom"
@@ -134,6 +143,7 @@ const App = () => {
           </RootStack.Navigator>
         </NavigationContainer>
       </StyledSafeAreaView>
+      <Toast />
     </ThemeProvider>
   );
 };

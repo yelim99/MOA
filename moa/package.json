@@ -11,6 +11,8 @@
     "storybook-generate": "sb-rn-get-stories"
   },
   "dependencies": {
+    "@react-native-camera-roll/camera-roll": "^7.8.3",
+    "@react-native-clipboard/clipboard": "^1.14.3",
     "@react-native-picker/picker": "^2.9.0",
     "@react-native-seoul/kakao-login": "^5.4.1",
     "@react-navigation/bottom-tabs": "^6.6.1",
@@ -21,9 +23,13 @@
     "react": "18.3.1",
     "react-native": "0.76.0",
     "react-native-config": "^1.5.3",
+    "react-native-fs": "^2.20.0",
     "react-native-image-picker": "^7.1.2",
+    "react-native-modal-dropdown": "^1.0.2",
+    "react-native-permissions": "^5.1.0",
     "react-native-screens": "^3.35.0",
     "react-native-shadow-2": "^7.1.1",
+    "react-native-toast-message": "^2.2.1",
     "react-native-vector-icons": "^10.2.0",
     "styled-components": "^6.1.13"
   },
@@ -46,6 +52,7 @@
     "@storybook/addon-ondevice-controls": "^8.3.10",
     "@storybook/react-native": "^8.3.10",
     "@types/react": "^18.2.6",
+    "@types/react-native-modal-dropdown": "^1.0.5",
     "@types/react-native-vector-icons": "^6.4.18",
     "@types/react-test-renderer": "^18.0.0",
     "babel-jest": "^29.6.3",

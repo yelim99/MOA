@@ -1,15 +1,21 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useState} from 'react';
-import {View, Modal, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import styled, {css, useTheme, DefaultTheme} from 'styled-components/native';
+import {Modal, Text} from 'react-native';
+import styled, {useTheme} from 'styled-components/native';
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker';
 import {TextButton} from '../common/button/TextButton';
+
+const Container = styled.View`
+  width: 100%;
+`;
 
 const Title = styled.View`
   flex-direction: row;
   justify-content: space-between;
   margin-top: 20px;
 `;
-const ModalBackground = styled.View`
+
+const ModalBackground = styled.TouchableOpacity`
   flex: 1;
   justify-content: flex-end;
   background-color: rgba(0, 0, 0, 0.5);
@@ -30,7 +36,7 @@ const OptionButton = styled.TouchableOpacity`
 
 const OptionText = styled.Text`
   font-size: 18px;
-  font-family: ${(props) => props.theme.fontFamily.SCDream3};
+  font-family: ${(props) => props.theme.fontFamily.SCDream4};
 `;
 
 const CancelButton = styled.TouchableOpacity`
@@ -47,10 +53,11 @@ const CancelText = styled.Text`
 const PreviewContainer = styled.View`
   margin-top: 20px;
   align-items: center;
+  width: 100%;
 `;
 
 const PlaceholderPreview = styled.View`
-  width: 350px;
+  width: 100%;
   height: 300px;
   border-radius: 10px;
   border: 1px solid ${(props) => props.theme.colors.lightgray};
@@ -66,7 +73,7 @@ const PlaceholderText = styled.Text`
 `;
 
 const PreviewImage = styled.Image`
-  width: 350px;
+  width: 100%;
   height: 300px;
   border-radius: 10px;
   border: 1px solid ${(props) => props.theme.colors.lightgray};
@@ -114,16 +121,16 @@ const MyComponent = () => {
   };
 
   return (
-    <View>
+    <Container>
       <Title>
         <Text style={{fontSize: 18, fontFamily: theme.fontFamily.SCDream6}}>
           얼굴 등록
         </Text>
         <TextButton
-          backcolor="mainlightorange"
+          backcolor="mainlightyellow"
           text="등록하기"
-          iconName="plus"
-          iconSet="Feather"
+          iconName="photo-camera"
+          iconSet="Material"
           size="small"
           onPress={() => setModalVisible(true)}
         />
@@ -134,7 +141,10 @@ const MyComponent = () => {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <ModalBackground>
+        <ModalBackground
+          activeOpacity={1}
+          onPress={() => setModalVisible(false)}
+        >
           <ModalContainer>
             <OptionButton onPress={() => handleSelectOption('camera')}>
               <OptionText>사진 촬영</OptionText>
@@ -158,7 +168,7 @@ const MyComponent = () => {
           </PlaceholderPreview>
         )}
       </PreviewContainer>
-    </View>
+    </Container>
   );
 };
 
