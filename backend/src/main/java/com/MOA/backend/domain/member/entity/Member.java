@@ -2,7 +2,7 @@ package com.MOA.backend.domain.member.entity;
 
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.user.entity.User;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,12 +26,12 @@ public class Member {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "group_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private Group group;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonIgnore
     private User user;
 
     @Column(name = "join_date")

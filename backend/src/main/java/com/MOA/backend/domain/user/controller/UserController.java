@@ -50,12 +50,4 @@ public class UserController {
             @RequestHeader("AuthorizationJWT") String token) {
         return userService.getUserGroups(jwtUtil.extractUserId(token));
     }
-
-    @Operation(summary = "테스트 토큰 생성", description = "테스트를 위해 임의의 JWT 토큰을 생성합니다.")
-    @GetMapping("/generateToken")
-    public ResponseEntity<String> generateTestToken(
-            @Parameter(description = "유저 ID", required = true) @RequestParam Long userId) {
-        String token = jwtUtil.generateAccessToken(userId);
-        return ResponseEntity.ok("Bearer " + token);
-    }
 }

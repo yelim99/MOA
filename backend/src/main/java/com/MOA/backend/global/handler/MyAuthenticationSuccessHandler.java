@@ -38,7 +38,6 @@ public class MyAuthenticationSuccessHandler extends SimpleUrlAuthenticationSucce
 
         String token;
 
-
         if (isExist) {
             Optional<User> existingUser = userService.findByUserEmail(email);
             token = jwtUtil.generateAccessToken(existingUser.get().getUserId());
