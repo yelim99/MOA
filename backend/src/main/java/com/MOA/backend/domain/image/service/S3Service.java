@@ -25,7 +25,7 @@ import java.util.*;
 public class S3Service {
 
     private static final List<String> ALLOWED_EXTENSIONS = List.of(
-            ".jpg", ".jpeg", ".png", ".webp", ".svg", ".heic", ".bmp", ".tiff", ".tif"
+            ".jpg", ".jpeg", ".png", ".webp", ".svg", ".heic", ".bmp", ".tiff", ".tif", ".jfif"
     );
 
     private final UserService userService;
