@@ -22,7 +22,7 @@ public class S3Controller {
     }
 
     @PostMapping("/user/upload")
-    ResponseEntity<String> uploadImages(MultipartFile image) {
+    ResponseEntity<String> uploadImages(@RequestPart("image") MultipartFile image) {
         return ResponseEntity.ok(s3Service.uploadImage(image));
     }
 
