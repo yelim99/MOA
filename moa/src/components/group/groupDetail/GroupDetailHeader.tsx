@@ -13,6 +13,7 @@ import {RouteProp, useRoute} from '@react-navigation/native';
 const Container = styled.View`
   width: 100%;
 `;
+
 const ContentBox = styled.View<{backcolor: string}>`
   width: 100%;
   background-color: ${({backcolor}) => backcolor};
@@ -56,7 +57,8 @@ const AlbumInfo = styled.View`
   flex-direction: row;
   width: 100%;
   justify-content: space-between;
-  padding: 15px;
+  margin-top: 15px;
+  padding: 0 15px;
 `;
 
 const LineContainer = styled.View`

@@ -44,6 +44,7 @@ const HomeStackScreen: React.FC = () => (
       })}
     />
     <HomeStack.Screen name="GroupDetail" component={GroupDetail} />
+    <HomeStack.Screen name="MomentDetail" component={MomentDetail} />
   </HomeStack.Navigator>
 );
 
