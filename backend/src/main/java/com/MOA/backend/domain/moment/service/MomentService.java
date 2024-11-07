@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -192,5 +193,15 @@ public class MomentService {
 
     public Moment getMomentEntity(String momentId) {
         return momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
+    }
+
+    public List<String> getMomentIds(Long groupId) {
+        List<Moment> moments = momentRepository.findAllByGroupId(groupId);
+
+        if(moments.isEmpty()) {
+            throw new NoSuchElementException("순간이 존재하지 않습니다.");
+        }
+
+        return moments.stream().map(moment -> moment.getId().toHexString()).toList();
     }
 }
