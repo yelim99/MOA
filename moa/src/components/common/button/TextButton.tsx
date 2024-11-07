@@ -22,7 +22,7 @@ const StyledTextButton = styled.TouchableOpacity<{
   ${({size}) =>
     size === 'small' &&
     css`
-      height: 25px;
+      height: 30px;
       padding: 5px 10px;
     `}
   ${({size}) =>

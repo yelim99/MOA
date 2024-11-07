@@ -123,7 +123,9 @@ const GroupDetailHeader = ({
     if (optionId === 'pin') {
       togglePinModal();
     } else if (optionId === 'put') {
+      togglePinModal();
     } else if (optionId === 'delete') {
+      togglePinModal();
     }
   };
 
