@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FCMRequest {
 
-    private String targetToken;
+    private Long targetGroup;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String title;

@@ -8,7 +8,7 @@ spring:
       path: firebase-adminsdk.json
       scope: https://www.googleapis.com/auth/cloud-platform
     api:
-      url: https://fcm.googleapis.com/v1/projects/{FCM_PROJECT_ID}/messages:send
+      url: https://fcm.googleapis.com/v1/projects/${FCM_PROJECT_ID}/messages:send
   jackson:
     time-zone: Asia/Seoul
   jwt:

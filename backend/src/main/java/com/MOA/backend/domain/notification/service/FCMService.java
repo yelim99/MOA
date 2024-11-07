@@ -11,16 +11,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.List;
 
 @Slf4j
-@Component
 @Service
 @RequiredArgsConstructor
 public class FCMService {
@@ -34,31 +34,31 @@ public class FCMService {
 
     /**
      * @param fcmDto
-     * @param topic
+     * @param groupId
      * @throws JsonProcessingException
      */
-    public Mono<Integer> sendMessageToGroup(FCMRequest fcmDto, String topic) throws JsonProcessingException {
-        String message = makeGroupMessage(fcmDto, topic);
+    public Mono<Integer> sendMessageToGroup(FCMRequest fcmDto, Long groupId) throws JsonProcessingException {
+        String message = makeGroupMessage(fcmDto, groupId);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
+        log.info("Access Token: {}", accessToken);
 
         return webClient.post()
                 .uri(FCM_API_URL)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .header(HttpHeaders.CONTENT_TYPE, "application/json")
                 .bodyValue(message)
                 .retrieve()
                 .toBodilessEntity()
                 .map(response -> response.getStatusCode().is2xxSuccessful() ? 1 : 0)
                 .doOnError(e -> {
                     log.error("[-] FCM 전송 오류 :: " + e.getMessage());
-                    log.error("[토픽: " + topic + "] 메세지 전송 실패");
+                    log.error("[토픽: " + groupId + "] 메세지 전송 실패");
                 })
                 .onErrorReturn(0);
     }
 
     /**
-     *
-     *
      * @param fcmInvitationRequest
      * @return
      * @throws JsonProcessingException
@@ -74,9 +74,27 @@ public class FCMService {
                 .bodyValue(message)
                 .retrieve()
                 .toBodilessEntity()
-                .map(response -> response.getStatusCode().is2xxSuccessful() ? 1 : 0)
-                .doOnError(e -> log.error("[-] FCM 초대 알림 전송 오류 :: " + e.getMessage()))
-                .onErrorReturn(0);
+                .map(response -> {
+                    if (response.getStatusCode().is2xxSuccessful()) {
+                        log.info("[+] FCM 초대 알림 전송 성공");
+                        return 1;
+                    } else {
+                        log.warn("[-] FCM 초대 알림 전송 실패 - 응답 코드: {}", response.getStatusCode());
+                        return 0;
+                    }
+                })
+                .doOnError(e -> log.error("[-] FCM 초대 알림 전송 오류: {}", e.getMessage()))
+                .onErrorResume(e -> {
+                    if (e instanceof WebClientRequestException) {
+                        log.warn("[-] 네트워크 연결 오류 발생: {}", e.getMessage());
+                        return Mono.just(-1); // 네트워크 오류에 대한 반환 값 설정
+                    } else if (e instanceof WebClientResponseException.Unauthorized) {
+                        log.warn("[-] 인증 오류 발생: {}", e.getMessage());
+                        return Mono.just(-2); // 인증 오류에 대한 반환 값 설정
+                    }
+                    return Mono.just(0); // 일반적인 예외에 대한 기본 처리
+                });
+
     }
 
 
@@ -105,16 +123,16 @@ public class FCMService {
      * 사람들에게 보내는 메세지를 만듭니다.
      *
      * @param fcmDto
-     * @param topic  그룹
+     * @param groupId
      * @return JSON 형식의 메세지 문자열
      * @throws JsonProcessingException
      */
-    private String makeGroupMessage(FCMRequest fcmDto, String topic) throws JsonProcessingException {
+    private String makeGroupMessage(FCMRequest fcmDto, Long groupId) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         FCMMessage fcmMessage = FCMMessage
                 .builder()
                 .message(FCMMessage.Message.builder()
-                        .topic(topic)
+                        .topic(groupId.toString())
                         .notification(FCMMessage.Notification.builder()
                                 .title(fcmDto.getTitle())
                                 .body(fcmDto.getBody())
