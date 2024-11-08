@@ -4,6 +4,10 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import styled, {useTheme} from 'styled-components/native';
 import {BottomTabBarProps} from '@react-navigation/bottom-tabs';
 import {Shadow} from 'react-native-shadow-2';
+import {launchImageLibrary} from 'react-native-image-picker';
+import {Alert} from 'react-native';
+import {GroupDetailRouteProp, MomentDetailRouteProp} from '../../types/screen';
+import {useRoute} from '@react-navigation/native';
 
 const Container = styled.View`
   position: absolute;
@@ -65,10 +69,113 @@ const ShareButton = styled.TouchableOpacity`
 
 const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
   const theme = useTheme();
+  const route = useRoute();
+
+  const handleUploadPress = async () => {
+    // const route = state.routes[state.index];
+    // const screenName = route.name;
+
+    const screenName = route.name;
+
+    console.log(screenName);
+
+    // if (screenName === 'HomeStack') {
+    //   navigation.navigate('Home');
+    //   return;
+    // }
+
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      selectionLimit: 0,
+    });
+    if (result.didCancel || !result.assets || result.assets.length === 0) {
+      return;
+    }
+
+    const selectedImages = result.assets;
+
+    for (const image of selectedImages) {
+      if (image.uri) {
+        if (screenName === 'GroupDetail') {
+          console.log('그룹 디테일임');
+          // GroupDetail 화면에서 선택한 이미지 업로드
+          const params = route.params as GroupDetailRouteProp['params'];
+          console.log('메소드 실행');
+          uploadImageToGroup(params.groupInfo.groupId, image.uri);
+        } else if (screenName === 'MomentDetail') {
+          // MomentDetail 화면에서 선택한 이미지 업로드
+          const params = route.params as MomentDetailRouteProp['params'];
+          uploadImageToMoment(params.momentInfo.momentId, image.uri);
+        } else {
+          // 다른 화면에서는 Home으로 이동
+          navigation.navigate('Home');
+        }
+      } else {
+        console.log('uri 오류');
+      }
+    }
+  };
+
+  const uploadImageToGroup = async (groupId: string, imageUri: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'upload.jpg',
+      });
+      console.log('api 진입');
+      // 나중에 api 수정 예정
+      const response = await fetch(`YOUR_SERVER_URL/groups/${groupId}/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+      if (response.ok) {
+        Alert.alert('사진 공유 완료', '');
+      } else {
+        Alert.alert('사진 공유 실패', '');
+      }
+    } catch (error) {
+      console.error('Group Upload Error:', error);
+      Alert.alert('사진 공유 실패', '');
+    }
+  };
+
+  const uploadImageToMoment = async (momentId: string, imageUri: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('image', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'upload.jpg',
+      });
+      const response = await fetch(
+        `YOUR_SERVER_URL/moments/${momentId}/upload`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          body: formData,
+        },
+      );
+      if (response.ok) {
+        Alert.alert('사진 공유 완료', '');
+      } else {
+        Alert.alert('사진 공유 실패', '');
+      }
+    } catch (error) {
+      console.error('Moment Upload Error:', error);
+      Alert.alert('사진 공유 실패', '');
+    }
+  };
 
   return (
     <Container>
-      <ShareButton>
+      <ShareButton onPress={handleUploadPress}>
         <FeatherIcon name={'upload'} size={30} color={theme.colors.white} />
       </ShareButton>
       <StyledShadow>
