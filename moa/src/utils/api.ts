@@ -1,5 +1,6 @@
 // src/utils/api.ts
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
   baseURL: 'https://k11a602.p.ssafy.io/api/',
@@ -11,9 +12,9 @@ const api = axios.create({
 
 // 요청 인터셉터
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     // 토큰을 로컬 저장소에서 가져와 헤더에 추가
-    const token = 'your-auth-token'; // 추후에 실제 토큰 값으로 변경
+    const token = await AsyncStorage.getItem('jwtToken'); // 추후에 실제 토큰 값으로 변경
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -28,7 +29,7 @@ api.interceptors.response.use(
   (error) => {
     // 401 에러 처리
     if (error.response && error.response.status === 401) {
-      console.error('Unauthorized, please log in again');
+      console.error('Unauthorized, 다시 로그인 해주세요');
     }
     return Promise.reject(error);
   },

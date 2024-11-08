@@ -93,6 +93,8 @@ const LoginButton = () => {
 
       // 토큰 바디에 담아서 보내는 방법
       // const response = await api.post('/auth/kakao', {accessToken});
+
+      // 토큰 헤더에 담아서 백엔드로 보내기
       const response = await api.post(
         '/auth/kakao',
         {},
