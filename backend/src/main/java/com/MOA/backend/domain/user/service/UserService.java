@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.user.service;
 
 import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
@@ -65,6 +66,16 @@ public class UserService {
         return memberships.stream()
                 .map(Member::getGroup)
                 .collect(Collectors.toList());
+    }
+
+
+    // 등록한 얼굴의 임베딩 값 저장
+    public void updateFaceEmbedding(FaceEmbeddingDTO faceEmbeddingDTO) {
+        User user = userRepository.findById(faceEmbeddingDTO.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다"));
+
+        user.setFaceEmbedding(faceEmbeddingDTO.getFaceEmbedding());
+        userRepository.save(user);  // 엔티티 업데이트
     }
 
 }
