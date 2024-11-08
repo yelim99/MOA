@@ -18,6 +18,7 @@ services:
     volumes:
       - /home/ubuntu/config/firebase-adminsdk.json:/app/resources/firebase-adminsdk.json
     environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /app/resources/firebase-adminsdk.json
       TZ: Asia/Seoul
     ports:
       - "8081:8081"
