@@ -67,4 +67,13 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public void updateDeviceToken(Long userId, String deviceToken) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setDeviceToken(deviceToken);
+            userRepository.save(user);
+        });
+
+
+    }
+
 }

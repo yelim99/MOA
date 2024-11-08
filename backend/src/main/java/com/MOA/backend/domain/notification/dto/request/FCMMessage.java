@@ -1,4 +1,4 @@
-package com.MOA.backend.domain.notification.dto;
+package com.MOA.backend.domain.notification.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

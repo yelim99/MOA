@@ -14,13 +14,14 @@ import java.util.Collections;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/auth")
 public class AuthController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
 
     @Operation(summary = "회원가입 테스트용", description = "테스트를 위해 임의로 구현한 회원가입입니다.")
-    @PostMapping("/login")
+    @PostMapping
     public ResponseEntity<?> CreateUser(@RequestBody UserSignupRequestDto userDto) {
         try {
             // 사용자를 회원가입 시킴
@@ -40,11 +41,11 @@ public class AuthController {
     }
 
     @Operation(summary = "로그인 테스트용", description = "테스트를 위해 임의로 구현한 로그인입니다.")
-    @GetMapping("/login")
+    @GetMapping
     public ResponseEntity<?> loginUser(@RequestParam String userEmail) {
         User findUser = userService.findByUserEmail(userEmail).orElse(null);
 
-        if(findUser == null){
+        if (findUser == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Collections.singletonMap("error", "사용자를 찾을 수 없습니다."));
         }

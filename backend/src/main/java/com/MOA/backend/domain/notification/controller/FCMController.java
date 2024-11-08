@@ -1,7 +1,7 @@
 package com.MOA.backend.domain.notification.controller;
 
-import com.MOA.backend.domain.notification.dto.FCMInvitationRequest;
-import com.MOA.backend.domain.notification.dto.FCMRequest;
+import com.MOA.backend.domain.notification.dto.request.FCMInvitationRequest;
+import com.MOA.backend.domain.notification.dto.request.FCMRequest;
 import com.MOA.backend.domain.notification.service.FCMService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
