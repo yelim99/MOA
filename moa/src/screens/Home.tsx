@@ -32,7 +32,7 @@ const ToggleButton = styled(AnimatedTouchableOpacity)`
   position: absolute;
   width: 50%;
   height: 32px;
-  background-color: ${({theme}) => theme.colors.lightyellow};
+  background-color: ${({theme}) => theme.colors.mainlightyellow};
   border-radius: 16px;
 `;
 

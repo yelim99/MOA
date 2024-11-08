@@ -5,12 +5,14 @@ import {useNavigation} from '@react-navigation/native';
 import {HomeScreenNavigationProp} from '../../../types/screen';
 
 const Container = styled.TouchableOpacity`
-  width: 100%;
-  height: 80px;
+  width: 99%;
+  height: 85px;
   border-radius: 20px;
   border-style: solid;
   border-width: 1px;
-  border-color: ${({theme}) => theme.colors.mainlightorange};
+  border-color: ${({theme}) => theme.colors.mainlightyellow};
+  elevation: 3;
+  background-color: ${({theme}) => theme.colors.white};
   display: flex;
   padding: 14px;
   justify-content: space-between;
@@ -33,13 +35,13 @@ const Title = styled.Text`
 `;
 
 const Date = styled.Text`
-  font-family: SCDream3;
-  font-size: 15px;
+  font-family: SCDream4;
+  font-size: 13px;
 `;
 
 const Owner = styled.Text`
   font-family: SCDream5;
-  font-size: 15px;
+  font-size: 14px;
   color: ${({theme}) => theme.colors.deepgray};
 `;
 
