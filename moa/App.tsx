@@ -8,6 +8,7 @@ import {
   createBottomTabNavigator,
   BottomTabBarProps,
 } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {createStackNavigator} from '@react-navigation/stack';
 import Home from './src/screens/Home';
 import MyPage from './src/screens/MyPage';
@@ -21,11 +22,9 @@ import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import {StatusBar} from 'react-native';
 import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Login from './src/screens/Login';
 import Toast from 'react-native-toast-message';
 import {LinkingOptions} from '@react-navigation/native';
-
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -124,45 +123,45 @@ const App = () => {
       <StyledSafeAreaView>
         <NavigationContainer linking={linking}>
           <RootStack.Navigator>
-            {/* {isAuthenticated ? ( */}
-            <>
-              <RootStack.Screen
-                name="Bottom"
-                component={TabNavigator}
-                options={{headerShown: false}}
-              />
-              <RootStack.Screen
-                name="Add"
-                component={Add}
-                options={() => ({
-                  header: () => <StackHeader title="모아 만들기" />,
-                  tabBarStyle: {display: 'none'},
-                })}
-              />
-              <RootStack.Screen
-                name="GroupAdd"
-                component={GroupAdd}
-                options={() => ({
-                  header: () => <StackHeader title="그룹 생성" />,
-                })}
-              />
-              <RootStack.Screen
-                name="MomentAdd"
-                component={MomentAdd}
-                options={() => ({
-                  header: () => <StackHeader title="순간 생성" />,
-                })}
-              />
-              <RootStack.Screen
-                name="Notification"
-                component={Notification}
-                options={{
-                  header: () => <StackHeader title="알림" />,
-                }}
-              />
-            </>
-            {/* ) : ( */}
-            {/* <RootStack.Screen
+            {/* {isAuthenticated ? (
+            <> */}
+            <RootStack.Screen
+              name="Bottom"
+              component={TabNavigator}
+              options={{headerShown: false}}
+            />
+            <RootStack.Screen
+              name="Add"
+              component={Add}
+              options={() => ({
+                header: () => <StackHeader title="모아 만들기" />,
+                tabBarStyle: {display: 'none'},
+              })}
+            />
+            <RootStack.Screen
+              name="GroupAdd"
+              component={GroupAdd}
+              options={() => ({
+                header: () => <StackHeader title="그룹 생성" />,
+              })}
+            />
+            <RootStack.Screen
+              name="MomentAdd"
+              component={MomentAdd}
+              options={() => ({
+                header: () => <StackHeader title="순간 생성" />,
+              })}
+            />
+            <RootStack.Screen
+              name="Notification"
+              component={Notification}
+              options={{
+                header: () => <StackHeader title="알림" />,
+              }}
+            />
+            {/* </>
+            ) : ( 
+            <RootStack.Screen
                 name="Login"
                 component={Login}
                 options={{headerShown: false}} // 로그인 화면에 헤더 숨기기
