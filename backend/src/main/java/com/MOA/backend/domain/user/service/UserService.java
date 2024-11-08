@@ -78,4 +78,13 @@ public class UserService {
         userRepository.save(user);  // 엔티티 업데이트
     }
 
+
+    public void updateDeviceToken(Long userId, String deviceToken) {
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setDeviceToken(deviceToken);
+            userRepository.save(user);
+        });
+
+    }
+
 }

@@ -1,11 +1,14 @@
 package com.MOA.backend.domain.notification.service;
 
-import com.MOA.backend.domain.notification.dto.FCMInvitationRequest;
-import com.MOA.backend.domain.notification.dto.FCMMessage;
-import com.MOA.backend.domain.notification.dto.FCMRequest;
+import com.MOA.backend.domain.notification.dto.request.FCMInvitationRequest;
+import com.MOA.backend.domain.notification.dto.request.FCMMessage;
+import com.MOA.backend.domain.notification.dto.request.FCMRequest;
+import com.MOA.backend.domain.notification.dto.response.SubscribeResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -164,5 +168,19 @@ public class FCMService {
                 .build();
         return om.writeValueAsString(fcmMessage);
     }
+
+//    public Mono<SubscribeResponse> subscribeToGroups(List<String> tokens, Long groupId){
+//        return Flux.fromIterable(groupIds)
+//                .flatMap(groupId -> {
+//                    String topic = groupId.toString();
+//                    try {
+//                        return FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic)
+//                                .then(Mono.just(groupId))
+//                                .doOnSuccess(id -> log.info)
+//                    } catch (FirebaseMessagingException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//    }
 
 }
