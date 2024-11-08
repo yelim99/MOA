@@ -90,7 +90,7 @@ public class S3Service {
     }
 
     private void uploadThumbnailImage(MultipartFile thumbnailImage, String imagePath) {
-        try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 200, 200)) {
+        try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 0.5)) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(inputStream.available());
             objectMetadata.setContentType("image/jpeg");
@@ -195,8 +195,10 @@ public class S3Service {
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
                 for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                    orgImgs.add(orgResult.getObjectSummaries().get(i).getKey());
-                    thumbImgs.add(thumbResult.getObjectSummaries().get(i).getKey());
+                    orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
+                            orgResult.getObjectSummaries().get(i).getKey())));
+                    thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
+                            thumbResult.getObjectSummaries().get(i).getKey())));
                 }
 
                 log.info("imageSources: {}", thumbImgs);

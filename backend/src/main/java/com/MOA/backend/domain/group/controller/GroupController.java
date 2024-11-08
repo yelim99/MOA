@@ -29,7 +29,6 @@ import java.util.Optional;
 public class GroupController {
 
     private final GroupService groupService;
-    private final UserService userService;
     private final JwtUtil jwtUtil;
     private final MomentService momentService;
     private final S3Service s3Service;
