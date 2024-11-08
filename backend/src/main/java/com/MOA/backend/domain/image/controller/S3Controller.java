@@ -28,12 +28,12 @@ public class S3Controller {
 
     @PostMapping("/group/{groupId}/upload")
     ResponseEntity<?> uploadImagesInGroup(
-//            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("AuthorizationJWT") String token,
             @PathVariable("groupId") Long groupId,
             @RequestPart List<MultipartFile> images
     ) {
         List<String> urls =
-                s3Service.uploadImages(momentService.createMomentForGroup(groupId, images), images);
+                s3Service.uploadImages(momentService.createMomentForGroup(token, groupId, images), images);
 
         return ResponseEntity.ok(urls);
     }

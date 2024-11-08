@@ -41,17 +41,13 @@ public class MomentService {
     private final JwtUtil jwtUtil;
 
     // 그룹에서 사진 업로드 시 바로 Moment 생성
-    public String createMomentForGroup(Long groupId, List<MultipartFile> images) {
+    public String createMomentForGroup(String token, Long groupId, List<MultipartFile> images) {
         if(images == null || images.size() == 0) {
             throw new RuntimeException("잘못된 요청입니다.");
         }
 
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
-//
-//        Long userId = jwtUtil.extractUserId(token);
-//        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         Moment moment = Moment.builder()
                 .groupId(groupId)
