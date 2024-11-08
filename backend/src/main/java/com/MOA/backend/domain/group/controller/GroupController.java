@@ -5,6 +5,8 @@ import com.MOA.backend.domain.group.dto.response.GroupDetailsResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.service.S3Service;
+import com.MOA.backend.domain.member.dto.response.MemberResponseDto;
+import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
@@ -14,6 +16,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +27,7 @@ import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/group")
 public class GroupController {
 
@@ -32,6 +35,7 @@ public class GroupController {
     private final JwtUtil jwtUtil;
     private final MomentService momentService;
     private final S3Service s3Service;
+    private final MemberService memberService;
 
     @Operation(summary = "그룹 생성", description = "JWT 토큰을 통해 새로운 그룹을 생성합니다.")
     @PostMapping
@@ -95,5 +99,11 @@ public class GroupController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
+    }
+
+    @PatchMapping("/{groupId}")
+    public ResponseEntity<MemberResponseDto> modifyMemberNickname(@RequestHeader("AuthorizationJWT") String token,
+                                                                  @RequestParam(name = "nickname") String nickname) {
+        return ResponseEntity.ok(memberService.modifyMemberNickname(jwtUtil.extractUserId(token), nickname));
     }
 }

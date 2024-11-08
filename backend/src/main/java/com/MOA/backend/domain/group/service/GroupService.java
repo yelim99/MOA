@@ -9,6 +9,7 @@ import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,7 +25,7 @@ public class GroupService {
     private final UserRepository userRepository;
 
     // 그룹 생성
-    // 그룹 생성
+    @Transactional
     public Group create(Long userId, GroupCreateDto groupDto) {
         // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
         Group group = new Group();
@@ -102,6 +103,7 @@ public class GroupService {
         Member member = new Member();
         member.setUser(user);
         member.setGroup(group);
+        member.setNickname(user.getUserName());
         member.setJoinDate(LocalDateTime.now());
 
         memberRepository.save(member);
