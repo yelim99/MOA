@@ -131,7 +131,7 @@ const GroupDetailHeader = ({
   };
 
   // 임시 핀번호 -> 나중에 변경 예정
-  const groupPin = '12345';
+  const pinNum = '123456';
 
   return (
     <Container>
@@ -163,7 +163,7 @@ const GroupDetailHeader = ({
         ))}
       </StyledModal>
       <PinModal
-        groupPin={groupPin}
+        pinNum={pinNum}
         isModalVisible={isPinModalVisible}
         toggleModal={togglePinModal}
       />

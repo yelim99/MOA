@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {MomentInfo} from '../../types/moment';
+import {MomentInfo} from '../../../types/moment';
+import {useNavigation} from '@react-navigation/native';
+import {HomeScreenNavigationProp} from '../../../types/screen';
 
 const Container = styled.TouchableOpacity`
   width: 100%;
@@ -46,11 +48,22 @@ interface MyMomentListItemProps {
 }
 
 const MyMomentListItem = ({momentInfo}: MyMomentListItemProps) => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   return (
-    <Container>
+    <Container
+      onPress={() =>
+        navigation.navigate('MomentDetail', {
+          momentInfo: {
+            momentId: momentInfo.momentId,
+            momentName: momentInfo.momentName,
+          },
+        })
+      }
+    >
       <TitleLine>
         <Title numberOfLines={1} ellipsizeMode="tail">
-          {momentInfo.momentTitle}
+          {momentInfo.momentName}
         </Title>
         <Date>{momentInfo.createdAt}</Date>
       </TitleLine>

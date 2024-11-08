@@ -47,16 +47,16 @@ const Pin = styled.Text`
 `;
 
 interface PinModalProps {
-  groupPin: string;
+  pinNum: string;
   isModalVisible: boolean;
   toggleModal: () => void;
 }
 
-const PinModal = ({groupPin, isModalVisible, toggleModal}: PinModalProps) => {
+const PinModal = ({pinNum, isModalVisible, toggleModal}: PinModalProps) => {
   const theme = useTheme();
 
   const copyToClipboard = () => {
-    Clipboard.setString(groupPin);
+    Clipboard.setString(pinNum);
     Alert.alert('클립보드에 복사되었습니다.');
     toggleModal();
   };
@@ -69,7 +69,7 @@ const PinModal = ({groupPin, isModalVisible, toggleModal}: PinModalProps) => {
           <Icon name="copy" size={20} color={theme.colors.maindarkorange} />
         </IconContainer>
         <PinContainer>
-          {groupPin.split('').map((digit, index) => (
+          {pinNum.split('').map((digit, index) => (
             <NumberContainer key={index}>
               <Pin>{digit}</Pin>
             </NumberContainer>

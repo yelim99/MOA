@@ -2,10 +2,14 @@ import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const Container = styled.TouchableOpacity<{itemSize: number}>`
+const Container = styled.TouchableOpacity<{
+  itemSize: number;
+  isLastInRow: boolean;
+}>`
   width: ${({itemSize}) => itemSize}px;
   height: ${({itemSize}) => itemSize}px;
   margin-bottom: 5px;
+  margin-right: ${({isLastInRow}) => (isLastInRow ? '0px' : '5px')};
 `;
 
 const StyledImage = styled.Image<{itemSize: number}>`
@@ -31,6 +35,7 @@ interface PhotoListItemProps {
   isSelected: boolean;
   onToggleSelect: () => void;
   itemSize: number;
+  isLastInRow: boolean;
 }
 
 const PhotoListItem = ({
@@ -38,11 +43,16 @@ const PhotoListItem = ({
   isSelected,
   onToggleSelect,
   itemSize,
+  isLastInRow,
 }: PhotoListItemProps) => {
   const theme = useTheme();
 
   return (
-    <Container itemSize={itemSize} onPress={onToggleSelect}>
+    <Container
+      itemSize={itemSize}
+      isLastInRow={isLastInRow}
+      onPress={onToggleSelect}
+    >
       <StyledImage
         itemSize={itemSize}
         source={{
