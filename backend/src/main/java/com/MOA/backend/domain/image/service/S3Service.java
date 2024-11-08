@@ -76,6 +76,23 @@ public class S3Service {
         return UUID.randomUUID().toString().concat(getFileExtension(imageName));
     }
 
+    public String uploadUserImg(MultipartFile image) {
+        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
+        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
+        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+
+        if(image.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
+        }
+
+        String imageName = "/user/" + loginUser.getUserEmail()
+                + "/userImg".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
+
+        uploadOriginalImage(image, imageName);
+
+        return amazonS3.getUrl(bucket, imageName).toString();
+    }
+
     private void uploadOriginalImage(MultipartFile image, String imagePath) {
         try (InputStream inputStream = image.getInputStream()) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -153,9 +170,9 @@ public class S3Service {
         return removedImages;
     }
 
-    // S3에 저장된 회원 경로 찾아오기
+    // S3에 저장된 회원 AI용 사진 찾아오기
     public String getUserProfile(String userEmail) {
-        String prefix = "user/" + userEmail + "/";
+        String prefix = "user/" + userEmail + "/profile";
         try {
             ListObjectsV2Request request = new ListObjectsV2Request()
                     .withBucketName(bucket)
@@ -215,4 +232,24 @@ public class S3Service {
         return imagesByMoment;
     }
 
+    public String getUserImg(String userEmail) {
+        String prefix = "user/" + userEmail + "/userImg";
+        try {
+            ListObjectsV2Request request = new ListObjectsV2Request()
+                    .withBucketName(bucket)
+                    .withPrefix(prefix)
+                    .withMaxKeys(1);
+
+            ListObjectsV2Result response = amazonS3.listObjectsV2(request);
+
+            if(!response.getObjectSummaries().isEmpty()) {
+                String imageUrl = response.getObjectSummaries().get(0).getKey();
+                return amazonS3.getUrl(bucket, imageUrl).toString();
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
+            }
+        } catch(AmazonS3Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
+        }
+    }
 }

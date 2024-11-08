@@ -32,4 +32,9 @@ public class S3Controller {
         return ResponseEntity.ok(s3Service.deleteImages(imageUrls));
     }
 
+    @PostMapping("/user/img")
+    ResponseEntity<Map<String, String>> uploadUserImage(@RequestPart("image") MultipartFile image) {
+        return ResponseEntity.ok(Map.of("url", s3Service.uploadUserImg(image)));
+    }
+
 }
