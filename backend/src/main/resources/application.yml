@@ -104,3 +104,7 @@ cloud:
     bucket: ${S3_BUCKET_NAME}
   stack:
     auto: false
+
+fast:
+  api:
+    base-url: ${FAST_BASE_URL}
