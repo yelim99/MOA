@@ -34,6 +34,7 @@ const MomentDetail: React.FC = () => {
     momentId: '1',
     momentName: '싸피 가을 마라톤',
     momentDescription: 'SSAFY 11기 가을 마라톤 대회 사진 공유',
+    momentOwner: '김관리',
     createdAt: '2024-11-08',
   };
 
@@ -48,7 +49,7 @@ const MomentDetail: React.FC = () => {
   return (
     <ScreenContainer>
       <Container>
-        <MomentDetailHeader />
+        <MomentDetailHeader momentInfoDetail={momentInfoDetail} />
         <Partition />
         <MemberList />
         <Partition />

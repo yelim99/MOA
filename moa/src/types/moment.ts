@@ -8,6 +8,7 @@ export type MomentInfo = {
 export type MomentInfoDetail = {
   momentId: string;
   momentName: string;
+  momentOwner: string;
   momentDescription: string;
   createdAt: string;
 };
