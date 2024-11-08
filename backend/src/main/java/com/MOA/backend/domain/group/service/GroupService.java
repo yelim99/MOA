@@ -5,6 +5,7 @@ import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
+import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final MemberService memberService;
 
     // 그룹 생성
     @Transactional
@@ -68,8 +70,7 @@ public class GroupService {
         return groupRepository.findById(id);
     }
 
-
-    // userId에 해당하는 모든 그룹 가져오기
+    // groupId에 해당하는 모든 유저
     public List<User> getGroupUsers(Long groupId) {
         List<Member> memberships = memberRepository.findByGroupGroupId(groupId);
         return memberships.stream()
