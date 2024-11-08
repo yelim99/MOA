@@ -24,7 +24,7 @@ public class S3Controller {
 
     @PostMapping("/user/upload")
     ResponseEntity<Map<String, String>> uploadImages(@RequestPart("image") MultipartFile image) {
-        return ResponseEntity.ok(Map.of("url", s3Service.uploadImage(image)));
+        return ResponseEntity.ok(Map.of("url", s3Service.uploadUserProfile(image)));
     }
 
     @DeleteMapping("/moment/{moment_id}/delete")

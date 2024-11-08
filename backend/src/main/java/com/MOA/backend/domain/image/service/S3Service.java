@@ -1,7 +1,5 @@
 package com.MOA.backend.domain.image.service;
 
-import com.MOA.backend.domain.group.entity.Group;
-import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
@@ -11,7 +9,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 @Service
@@ -35,7 +31,6 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
-    private final GroupService groupService;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -121,8 +116,9 @@ public class S3Service {
         }
     }
 
+    // 유저 사진 업로드
     // https://moa-s3-bucket.s3.amazonaws.com/user/{userEmail}/profile.{확장자}
-    public String uploadImage(MultipartFile image) {
+    public String uploadUserProfile(MultipartFile image) {
         // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
         User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
         log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
@@ -131,25 +127,12 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
-        //
-        String imageName = "/user/" + loginUser.getUserEmail() + "/" +
-        "profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(image.getSize());
-        objectMetadata.setContentType(image.getContentType());
-        objectMetadata.addUserMetadata("thumbnail", imageName);
+        String imageName = "/user/" + loginUser.getUserEmail()
+                + "/profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
-        try (InputStream inputStream = image.getInputStream()) {
-            if(amazonS3.doesObjectExist(bucket, imageName)) {
-                log.info("이미 존재하는 파일을 덮어씁니다. {}", imageName);
-            }
-            amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        uploadOriginalImage(image, imageName);
 
-            return amazonS3.getUrl(bucket, imageName).toString();
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다.");
-        }
+        return amazonS3.getUrl(bucket, imageName).toString();
     }
 
     public List<String> deleteImages(List<String> imageUrls) {
@@ -200,7 +183,7 @@ public class S3Service {
             try {
                 ListObjectsV2Request request = new ListObjectsV2Request()
                         .withBucketName(bucket)
-                        .withPrefix("group/" + groupId + "/moment/" + momentId);
+                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/thumbnail");
 
                 ListObjectsV2Result response = amazonS3.listObjectsV2(request);
 
