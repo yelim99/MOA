@@ -169,18 +169,18 @@ public class FCMService {
         return om.writeValueAsString(fcmMessage);
     }
 
-    public Mono<SubscribeResponse> subscribeToGroups(List<String> tokens, Long groupId){
-        return Flux.fromIterable(groupIds)
-                .flatMap(groupId -> {
-                    String topic = groupId.toString();
-                    try {
-                        return FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic)
-                                .then(Mono.just(groupId))
-                                .doOnSuccess(id -> log.info)
-                    } catch (FirebaseMessagingException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-    }
+//    public Mono<SubscribeResponse> subscribeToGroups(List<String> tokens, Long groupId){
+//        return Flux.fromIterable(groupIds)
+//                .flatMap(groupId -> {
+//                    String topic = groupId.toString();
+//                    try {
+//                        return FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic)
+//                                .then(Mono.just(groupId))
+//                                .doOnSuccess(id -> log.info)
+//                    } catch (FirebaseMessagingException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                })
+//    }
 
 }

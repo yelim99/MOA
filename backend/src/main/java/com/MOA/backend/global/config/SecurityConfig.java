@@ -1,7 +1,5 @@
 package com.MOA.backend.global.config;
 
-import com.MOA.backend.global.auth.OAuth2.service.CustomOAuth2UserService;
-import com.MOA.backend.global.handler.MyAuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +14,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final MyAuthenticationSuccessHandler oAuth2LoginSuccessHandler;
-    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -28,15 +24,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                                .requestMatchers("/**").permitAll() // 토큰 발급을 위한 경로는 인증 필요 없음
-                                .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService) // OAuth2 로그인시 사용자 정보 가져오기
-                        )
-                        .successHandler(oAuth2LoginSuccessHandler) // 로그인 성공 시 핸들러
+                        .requestMatchers("/**").permitAll() // 토큰 발급을 위한 경로는 인증 필요 없음
+                        .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 );
+
         return http
                 .build();
     }
