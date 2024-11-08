@@ -1,12 +1,10 @@
-import {View, Text} from 'react-native';
+import {View} from 'react-native';
 import React from 'react';
 import ScreenContainer from '../components/common/ScreenContainer';
-import styled, {css, useTheme, DefaultTheme} from 'styled-components/native';
-import {IconButton} from '../components/common/button/IconButton';
-import StyleSheet from 'styled-components/dist/sheet';
-import {TextButton} from '../components/common/button/TextButton';
+import styled, {css} from 'styled-components/native';
 import MyInfo from '../components/mypage/MyInfo';
 import FaceImage from '../components/mypage/FaceImage';
+import Partition from '../components/common/Partition';
 
 interface TextProps {
   variant: 'title' | 'subtitle' | 'body';
@@ -61,6 +59,7 @@ const MyPage = () => {
         <Texts variant="title">마이페이지</Texts>
         <MyInfo />
       </View>
+      <Partition />
       <Face>
         <FaceImage />
       </Face>

@@ -8,7 +8,7 @@ import React, {useRef, useState} from 'react';
 import styled from 'styled-components/native';
 import ScreenContainer from '../components/common/ScreenContainer';
 import MyGroupList from '../components/group/groupList/MyGroupList';
-import MyMomentList from '../components/moment/MyMomentList';
+import MyMomentList from '../components/moment/momentList/MyMomentList';
 
 const screenHeight = Dimensions.get('window').height;
 

@@ -34,6 +34,7 @@ const StyledModal = ({
       visible={isModalVisible}
       transparent={true}
       onRequestClose={toggleModal}
+      animationType="fade"
     >
       <ModalOverlay activeOpacity={1} onPress={toggleModal}>
         <TouchableWithoutFeedback>

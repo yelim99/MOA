@@ -62,7 +62,7 @@ const GroupDetail: React.FC = () => {
           darkColor={darkColor}
         />
         <Partition />
-        <MemberList />
+        <MemberList darkColor={darkColor} />
         <Partition />
         <AlbumContainer
           title="다운 가능한 사진"

@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {MomentInfo} from '../../types/moment';
+import {MomentInfo} from '../../../types/moment';
 
 const Container = styled.TouchableOpacity`
   width: 100%;

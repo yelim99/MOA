@@ -13,7 +13,7 @@ const UserInfo = styled.View`
   height: 120px;
   background-color: ${(props) => props.theme.colors.white};
   margin: 10px 0;
-  padding: 20px 30px;
+  padding: 20px 25px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -22,7 +22,7 @@ const UserInfo = styled.View`
 
 const TextInfo = styled.View`
   flex-direction: column;
-  width: 200px;
+  width: 210px;
   color: ${(props) => props.theme.colors.black};
   height: 100%;
   justify-content: space-between;
