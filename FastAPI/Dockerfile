@@ -7,7 +7,7 @@ WORKDIR /app
 
 # 시스템 패키지 업데이트 및 캐시 정리
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends cmake make g++ && \
+    apt-get install -y --no-install-recommends cmake make g++ libgl1 && \
     rm -rf /var/lib/apt/lists/* 
 
 # 의존성을 먼저 설치하여 Docker 레이어 캐시 활용
