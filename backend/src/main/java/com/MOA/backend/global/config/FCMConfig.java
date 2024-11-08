@@ -34,7 +34,7 @@ public class FCMConfig {
 
 
         } catch (IOException e) {
-            log.error("파이어베이스 서버와의 연결에 실패했습니다.");
+            log.error("파이어베이스 서버와의 연결에 실패했습니다.", e);
         }
     }
 
