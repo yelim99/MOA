@@ -13,10 +13,10 @@ import java.util.Map;
 public class GroupDetailsResponse {
     private Group group;
     private List<User> users;
-    private Map<String, List<String>> images;
-
+    private Map<String, Map<String, List<String>>> images;
     @Builder
-    public GroupDetailsResponse(Group group, List<User> users, Map<String, List<String>> images) {
+    public GroupDetailsResponse(Group group, List<User> users,
+                                Map<String, Map<String, List<String>>> images) {
         this.group = group;
         this.users = users.isEmpty() ? new ArrayList<>() : users;
         this.images = images.isEmpty() ? new HashMap<>() : images;
