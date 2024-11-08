@@ -11,7 +11,7 @@ public class PinCodeUtil {
     private final SecureRandom random = new SecureRandom();
 
     public String generatePinCode() {
-        return random.ints(8, 0, CHARS.length())
+        return random.ints(6, 0, CHARS.length())
                 .mapToObj(CHARS::charAt)
                 .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
                 .toString();
