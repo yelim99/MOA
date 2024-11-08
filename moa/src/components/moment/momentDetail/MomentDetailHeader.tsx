@@ -48,7 +48,7 @@ const ModalItem = styled.Text`
 const Description = styled.Text`
   width: 100%;
   text-align: center;
-  font-family: SCDream4;
+  font-family: 'SCDream5';
   font-size: 15px;
   margin: 20px 0;
 `;
