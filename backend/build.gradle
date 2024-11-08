@@ -58,7 +58,7 @@ dependencies {
     implementation 'io.github.cdimascio:java-dotenv:5.2.2'
     implementation 'org.springframework.data:spring-data-redis'
 
-    // AWS
+    // AWS S3
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.767'
     implementation 'software.amazon.awssdk:s3:2.27.3'
@@ -71,6 +71,10 @@ dependencies {
     //Firebase
     implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // 이미지 변환 Thumbnailator
+    implementation 'net.coobird:thumbnailator:0.4.1'
+
 }
 
 application {

@@ -1,7 +1,6 @@
 package com.MOA.backend.domain.image.service;
 
-import com.MOA.backend.domain.group.entity.Group;
-import com.MOA.backend.domain.group.service.GroupService;
+import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
@@ -18,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 @Service
@@ -33,7 +31,6 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
-    private final GroupService groupService;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -51,29 +48,58 @@ public class S3Service {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
             }
 
-           String imageName = createImageName(groupId, momentId, image.getOriginalFilename());
-           ObjectMetadata objectMetadata = new ObjectMetadata();
-           objectMetadata.setContentLength(image.getSize());
-           objectMetadata.setContentType(image.getContentType());
+           String imageName = createImageName(image.getOriginalFilename());
+           String originalPath = createOriginalImagePath(groupId, momentId);
+           String thumbnailPath = createThumbnailImagePath(groupId, momentId);
 
-           try (InputStream inputStream = image.getInputStream()) {
-               amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, objectMetadata)
-               .withCannedAcl(CannedAccessControlList.PublicRead));
+           // 원본 사진 업로드
+           uploadOriginalImage(image, originalPath + imageName);
 
-               String imageUrl = amazonS3.getUrl(bucket, imageName).toString();
-               imageUrls.add(imageUrl);
-           } catch (IOException e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다.");
-           }
+           // 썸네일 사진 업로드
+            uploadThumbnailImage(image, thumbnailPath + imageName);
+            imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
 
         return imageUrls;
     }
 
     // https://moa-s3-bucket.s3.amazonaws.com/group/{groupId}/moment/{momentId}/{imageName}
-    public String createImageName(Long groupId, String momentId, String imageName) {
-        return "group/" + groupId + "/moment/" + momentId + "/"
-                + UUID.randomUUID().toString().concat(getFileExtension(imageName));
+    public String createOriginalImagePath(Long groupId, String momentId) {
+        return "group/" + groupId + "/moment/" + momentId + "/original/";
+    }
+
+    public String createThumbnailImagePath(Long groupId, String momentId) {
+        return "group/" + groupId + "/moment/" + momentId + "/thumbnail/";
+    }
+
+    public String createImageName(String imageName) {
+        return UUID.randomUUID().toString().concat(getFileExtension(imageName));
+    }
+
+    private void uploadOriginalImage(MultipartFile image, String imagePath) {
+        try (InputStream inputStream = image.getInputStream()) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(image.getSize());
+            objectMetadata.setContentType(image.getContentType());
+
+            amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new RuntimeException("원본 사진 업로드에 실패하였습니다. {}", e);
+        }
+    }
+
+    private void uploadThumbnailImage(MultipartFile thumbnailImage, String imagePath) {
+        try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 200, 200)) {
+            ObjectMetadata objectMetadata = new ObjectMetadata();
+            objectMetadata.setContentLength(inputStream.available());
+            objectMetadata.setContentType("image/jpeg");
+
+            amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        } catch (IOException e) {
+            throw new RuntimeException("썸네일 사진 업로드에 실패하였습니다. {}", e);
+        }
     }
 
     private String getFileExtension(String imageName) {
@@ -90,8 +116,9 @@ public class S3Service {
         }
     }
 
+    // 유저 사진 업로드
     // https://moa-s3-bucket.s3.amazonaws.com/user/{userEmail}/profile.{확장자}
-    public String uploadImage(MultipartFile image) {
+    public String uploadUserProfile(MultipartFile image) {
         // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
         User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
         log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
@@ -100,24 +127,12 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
-        //
-        String imageName = "/user/" + loginUser.getUserEmail() + "/" +
-        "profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
-        ObjectMetadata objectMetadata = new ObjectMetadata();
-        objectMetadata.setContentLength(image.getSize());
-        objectMetadata.setContentType(image.getContentType());
+        String imageName = "/user/" + loginUser.getUserEmail()
+                + "/profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
-        try (InputStream inputStream = image.getInputStream()) {
-            if(amazonS3.doesObjectExist(bucket, imageName)) {
-                log.info("이미 존재하는 파일을 덮어씁니다. {}", imageName);
-            }
-            amazonS3.putObject(new PutObjectRequest(bucket, imageName, inputStream, objectMetadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead));
+        uploadOriginalImage(image, imageName);
 
-            return amazonS3.getUrl(bucket, imageName).toString();
-        } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패하였습니다.");
-        }
+        return amazonS3.getUrl(bucket, imageName).toString();
     }
 
     public List<String> deleteImages(List<String> imageUrls) {
@@ -160,9 +175,42 @@ public class S3Service {
         }
     }
 
-    // Group 안의 모든 사진 URL 경로 출력
-//    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
-//        return;
-//    }
+    // Group 안의 모든 사진 URL 경로 조회
+    public Map<String, Map<String, List<String>>> getImagesInGroup(Long groupId, List<String> momentIds) {
+        Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
+        imagesByMoment.put("orgImgs", new HashMap<>());
+        imagesByMoment.put("thumbImgs", new HashMap<>());
+        for(String momentId : momentIds) {
+            List<String> orgImgs = new ArrayList<>();
+            List<String> thumbImgs = new ArrayList<>();
+            try {
+                ListObjectsV2Request orgRequest = new ListObjectsV2Request()
+                        .withBucketName(bucket)
+                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/original");
+                ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
+                        .withBucketName(bucket)
+                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/thumbnail");
+
+                ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
+                ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
+
+                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+                    orgImgs.add(orgResult.getObjectSummaries().get(i).getKey());
+                    thumbImgs.add(thumbResult.getObjectSummaries().get(i).getKey());
+                }
+
+                log.info("imageSources: {}", thumbImgs);
+
+                imagesByMoment.get("orgImgs").put(momentId, orgImgs);
+                imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);
+
+            } catch (AmazonS3Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                        "이미지 목록을 조회하는 중 오류가 발생했습니다.");
+            }
+        }
+
+        return imagesByMoment;
+    }
 
 }
