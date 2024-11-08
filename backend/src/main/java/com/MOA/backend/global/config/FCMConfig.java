@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -21,22 +22,27 @@ public class FCMConfig {
 
     @PostConstruct
     public void init() {
-        try {
-            ClassPathResource resource = new ClassPathResource(SERVICE_ACCOUNT_JSON);
-            InputStream serviceAccount = resource.getInputStream();
-
+        try (InputStream serviceAccount = getServiceAccountStream()) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
             FirebaseApp.initializeApp(options);
-                    log.info("파이어베이스 서버와의 연결에 성공했습니다.");
-
-
+            log.info("파이어베이스 서버와의 연결에 성공했습니다.");
         } catch (IOException e) {
             log.error("파이어베이스 서버와의 연결에 실패했습니다.", e);
         }
     }
 
+    private InputStream getServiceAccountStream() throws IOException {
+        String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
 
+        if (serviceAccountPath != null && !serviceAccountPath.isEmpty()) {
+            log.info("환경 변수로 지정된 Firebase 인증 파일 경로: " + serviceAccountPath);
+            return new FileInputStream(serviceAccountPath);
+        } else {
+            log.info("클래스패스에서 Firebase 인증 파일을 로드합니다.");
+            return new ClassPathResource("firebase-adminsdk.json").getInputStream();
+        }
+    }
 }
