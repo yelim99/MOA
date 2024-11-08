@@ -38,7 +38,7 @@ dependencies {
 
     // Spring Security 및 OAuth2 클라이언트
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 로그인을 위한 의존성
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -69,8 +69,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
     //Firebase
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // 이미지 변환 Thumbnailator

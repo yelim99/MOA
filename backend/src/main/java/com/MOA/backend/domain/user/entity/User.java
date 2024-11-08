@@ -43,6 +43,9 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false)
     private String role = "ROLE_USER";
 
+    @Column(name = "device_token")
+    private String deviceToken;
+
     @Lob
     @Column()
     private byte[] faceEmbedding;
