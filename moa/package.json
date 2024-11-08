@@ -30,8 +30,10 @@
     "react-native-screens": "^3.35.0",
     "react-native-shadow-2": "^7.1.1",
     "react-native-toast-message": "^2.2.1",
+    "react-native-uuid": "^2.0.2",
     "react-native-vector-icons": "^10.2.0",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

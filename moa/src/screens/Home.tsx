@@ -68,7 +68,7 @@ const ContentContainer = styled.View`
 
 const Home = () => {
   const [isGroup, setIsGroup] = useState(true);
-  const togglePosition = useRef(new Animated.Value(0)).current;
+  const togglePosition = useRef(new Animated.Value(4)).current;
   const [containerWidth, setContainerWidth] = useState(0);
 
   // PanResponder로 드래그 동작을 처리

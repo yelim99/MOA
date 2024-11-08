@@ -66,8 +66,10 @@ const GroupDetail: React.FC = () => {
         <Partition />
         <AlbumContainer
           title="다운 가능한 사진"
+          isGroup={true}
           lightColor={lightColor}
           darkColor={darkColor}
+          groupId={groupId}
         />
       </Container>
     </ScreenContainer>

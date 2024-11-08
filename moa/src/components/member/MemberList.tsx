@@ -21,14 +21,14 @@ const Title = styled.Text`
 `;
 
 const TitleNum = styled(Title)<{darkColor: string}>`
-  color: ${({darkColor}) => darkColor};
+  color: ${({darkColor, theme}) => darkColor || theme.colors.maindarkorange};
 `;
 
 interface MemberListProps {
-  darkColor: string;
+  darkColor?: string;
 }
 
-const MemberList = ({darkColor}: MemberListProps) => {
+const MemberList = ({darkColor = ''}: MemberListProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
 
   const itemSize = (containerWidth - 3 * 15) / 4;

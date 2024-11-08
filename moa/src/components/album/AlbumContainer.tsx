@@ -4,13 +4,13 @@ import PhotoList from './PhotoList';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import StyledModal from '../common/modal/StyledModal';
 import RNFS from 'react-native-fs';
-import {Alert, Linking, PermissionsAndroid, Platform} from 'react-native';
 import {
-  request,
-  requestMultiple,
-  PERMISSIONS,
-  RESULTS,
-} from 'react-native-permissions';
+  Alert,
+  PermissionsAndroid,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
+import uuid from 'react-native-uuid';
 
 const Container = styled.View`
   width: 100%;
@@ -30,7 +30,7 @@ const Title = styled.Text`
 `;
 
 const TitleNum = styled(Title)<{darkColor: string}>`
-  color: ${({darkColor}) => darkColor};
+  color: ${({darkColor, theme}) => darkColor || theme.colors.maindarkorange};
 `;
 
 const ButtonLine = styled.View`
@@ -65,7 +65,8 @@ const DownloadButton = styled.TouchableOpacity<{
   width: 90px;
   height: 30px;
   border-radius: 10px;
-  background-color: ${({lightColor}) => lightColor};
+  background-color: ${({lightColor, theme}) =>
+    lightColor || theme.colors.mainlightyellow};
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -77,7 +78,7 @@ const DownloadButtonText = styled.Text<{
 }>`
   font-family: SCDream5;
   font-size: 13px;
-  color: ${({darkColor}) => darkColor};
+  color: ${({darkColor, theme}) => darkColor || theme.colors.maindarkorange};
 `;
 
 const ModalItemContainer = styled.TouchableOpacity`
@@ -93,44 +94,44 @@ const ModalItem = styled.Text`
 `;
 
 interface AlbumContainerProps {
+  isGroup?: boolean;
   title: string;
-  lightColor: string;
-  darkColor: string;
+  lightColor?: string;
+  darkColor?: string;
+  groupId?: string;
+  momentId?: string;
 }
 
-// const requestStoragePermission = async () => {
-//   let permissionType;
-//   if (Platform.OS === 'android') {
-//     permissionType = PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE;
-//   } else {
-//     return true;
-//   }
-
-//   const result = await request(permissionType);
-//   if (result === RESULTS.GRANTED) {
-//     return true;
-//   } else {
-//     Alert.alert('권한 필요', '사진을 저장하려면 저장 권한이 필요합니다.');
-//     return false;
-//   }
-// };
+const LoadingOverlay = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
 
 const AlbumContainer = ({
+  isGroup = false,
   title,
-  lightColor,
-  darkColor,
+  lightColor = '',
+  darkColor = '',
+  groupId,
+  momentId,
 }: AlbumContainerProps) => {
-  const theme = useTheme();
-
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [isOptionModalVisible, setIsOptionModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const theme = useTheme();
 
   const options = [
     {id: 'mine', label: '내가 나온 사진'},
     {id: 'scenary', label: '풍경'},
     {id: 'food', label: '음식'},
   ];
-
-  const [isOptionModalVisible, setIsOptionModalVisible] = useState(false);
 
   const toggleOptionModal = () => {
     setIsOptionModalVisible(!isOptionModalVisible);
@@ -153,46 +154,15 @@ const AlbumContainer = ({
     try {
       if (Platform.OS === 'android') {
         if (Platform.Version >= 30) {
-          // Android 11 이상: MANAGE_EXTERNAL_STORAGE 권한 필요 -> WRITE여도 되는데 나중에 배포 후 재테스트
+          // Android 11 이상: MANAGE_EXTERNAL_STORAGE 권한 필요 -> WRITE이어도 되는데 나중에 배포 후 재테스트
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-            {
-              title: 'External Storage Permission',
-              message:
-                'This app needs access to your storage to download photos.',
-              buttonPositive: 'Allow',
-            },
           );
-
-          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert(
-              '권한 설정 필요',
-              '갤러리 저장 권한이 필요합니다. 설정에서 권한을 활성화해주세요.',
-              [
-                {
-                  text: '설정으로 이동',
-                  onPress: () => Linking.openSettings(),
-                },
-                {
-                  text: '취소',
-                  style: 'cancel',
-                },
-              ],
-            );
-            return false;
-          }
-
-          return true;
+          return granted === PermissionsAndroid.RESULTS.GRANTED;
         } else {
           // Android 10 이하: WRITE_EXTERNAL_STORAGE 권한 요청
           const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-            {
-              title: 'External Storage Permission',
-              message:
-                'This app needs access to your storage to download photos.',
-              buttonPositive: 'Allow',
-            },
           );
           return granted === PermissionsAndroid.RESULTS.GRANTED;
         }
@@ -208,7 +178,7 @@ const AlbumContainer = ({
   const handleDownload = async () => {
     const hasPermission = await requestStoragePermission();
     if (!hasPermission) {
-      Alert.alert('권한 필요', '사진을 저장하려면 저장 권한이 필요합니다.');
+      Alert.alert('권한 요청', '사진을 저장하려면 접근 권한이 필요합니다.');
       return;
     }
 
@@ -217,16 +187,21 @@ const AlbumContainer = ({
       return;
     }
     try {
-      const picturesDir = RNFS.PicturesDirectoryPath;
-      const dirExists = await RNFS.exists(picturesDir);
+      const moaDir = `${RNFS.PicturesDirectoryPath}/MOA`;
+      const dirExists = await RNFS.exists(moaDir);
       if (!dirExists) {
-        await RNFS.mkdir(picturesDir);
+        await RNFS.mkdir(moaDir);
       }
 
+      setLoading(true);
+
       await Promise.all(
-        selectedPhotos.map(async (uri, index) => {
-          const fileName = `downloaded_image_${index + 5}.jpg`;
-          const downloadDest = `${RNFS.PicturesDirectoryPath}/${fileName}`;
+        selectedPhotos.map(async (uri) => {
+          const newUuid = uuid.v4();
+          const fileName = isGroup
+            ? `group_${groupId}_${newUuid}.jpg`
+            : `moment_${momentId}_${newUuid}.jpg`;
+          const downloadDest = `${moaDir}/${fileName}`;
 
           const downloadResult = await RNFS.downloadFile({
             fromUrl: uri,
@@ -248,6 +223,8 @@ const AlbumContainer = ({
     } catch (error) {
       console.error('Download Error:', error);
       Alert.alert('다운로드 오류', '다운로드 중 문제가 발생했습니다.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -263,7 +240,11 @@ const AlbumContainer = ({
           <OptionButtonText>사진 분류 옵션</OptionButtonText>
         </OptionButton>
         <DownloadButton lightColor={lightColor} onPress={handleDownload}>
-          <Icon name="download" size={15} color={darkColor} />
+          <Icon
+            name="download"
+            size={15}
+            color={darkColor ? darkColor : theme.colors.maindarkorange}
+          />
           <DownloadButtonText darkColor={darkColor}>
             다운로드
           </DownloadButtonText>
@@ -283,6 +264,11 @@ const AlbumContainer = ({
         ))}
       </StyledModal>
       <PhotoList onSelectionChange={setSelectedPhotos} />
+      {loading && (
+        <LoadingOverlay>
+          <ActivityIndicator size="large" color={theme.colors.maindarkorange} />
+        </LoadingOverlay>
+      )}
     </Container>
   );
 };

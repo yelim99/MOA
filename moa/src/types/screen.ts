@@ -4,7 +4,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 export type HomeStackParamList = {
   Home: undefined;
   GroupDetail: {groupInfo: {groupId: string; groupName: string}};
-  MomentDetail: {momentInfo: {momentId: string; momentTitle: string}};
+  MomentDetail: {momentInfo: {momentId: string; momentName: string}};
   // 여기에 스크린 추가
 };
 
