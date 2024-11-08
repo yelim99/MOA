@@ -1,5 +1,7 @@
 package com.MOA.backend.domain.moment.service;
 
+import com.MOA.backend.domain.group.service.GroupService;
+import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
 import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
@@ -11,11 +13,15 @@ import com.MOA.backend.domain.moment.repository.MomentRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
+import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.MOA.backend.global.exception.ForbiddenAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -32,16 +38,38 @@ public class MomentService {
     private final UserService userService;
     private final PinCodeUtil pinCodeUtil;
     private final MomentRedisService momentRedisService;
+    private final JwtUtil jwtUtil;
 
-    public MomentCreateResponseDto createMoment(MomentCreateRequestDto momentCreateRequestDto) {
+    // 그룹에서 사진 업로드 시 바로 Moment 생성
+    public String createMomentForGroup(Long groupId, List<MultipartFile> images) {
+        if(images == null || images.size() == 0) {
+            throw new RuntimeException("잘못된 요청입니다.");
+        }
 
-        // TODO: : 리팩토링 필요 : 로그인유저의 정보 가져오기
+        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
         User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}", loginUser);
+        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+//
+//        Long userId = jwtUtil.extractUserId(token);
+//        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
-        // TODO: : 리팩토링 필요 : 내가 속한 그룹들의 ID만 가져오는 로직
+        Moment moment = Moment.builder()
+                .groupId(groupId)
+                .userIds(Stream.of(loginUser.getUserId()).collect(Collectors.toList()))
+                .momentOwner(loginUser.getUserEmail())
+                .uploadOption("ALL")
+                .build();
 
-        // TODO: : 리팩토링 필요 : GroupId 선택한 뒤, 순간을 만드는 로직 (현재 임시방은 602로 임의 설정)
+        momentRepository.save(moment);
+        log.info("Moment: {}가 생성되었습니다.", moment);
+
+        return moment.getId().toHexString();
+    }
+
+    public MomentCreateResponseDto createMoment(String token, MomentCreateRequestDto momentCreateRequestDto) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
         Moment moment = Moment.builder()
                 .groupId(momentCreateRequestDto.getGroupId() == null ? 602 : momentCreateRequestDto.getGroupId())
                 .momentPin(pinCodeUtil.generatePinCode())
@@ -83,10 +111,9 @@ public class MomentService {
                 .build();
     }
 
-    public List<MomentResponseDto> getAllMoments() {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}", loginUser);
+    public List<MomentResponseDto> getAllMoments(String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         // 내가 참여한 방 목록 조회
         Set<String> myMomentsIds = momentRedisService.getMyMoments(loginUser.getUserId());
@@ -107,10 +134,9 @@ public class MomentService {
     }
 
     // 순간 상세 조회 == 내가 이미 참여한 순간에 입장
-    public MomentDetailResponseDto getMoment(String momentId) {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}", loginUser);
+    public MomentDetailResponseDto getMoment(String token, String momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         Set<String> myMoments = momentRedisService.getMyMoments(loginUser.getUserId());
         if(!myMoments.contains(momentId)) {
@@ -132,10 +158,9 @@ public class MomentService {
                         .build();
     }
 
-    public MomentDetailResponseDto participate(String momentId, String pin) {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+    public MomentDetailResponseDto participate(String token, String momentId, String pin) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         // 입력한 PIN번호가 순간의 PIN번호와 일치하는 지를 검증
         // 1. 해당 Moment 가져오기
@@ -168,10 +193,9 @@ public class MomentService {
                 .build();
     }
 
-    public void userExit(String momentId) {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+    public void userExit(String token, String momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         // 1. 해당 Moment 가져오기
         Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);

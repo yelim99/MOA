@@ -5,6 +5,7 @@ import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
+import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
+    private final JwtUtil jwtUtil;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -76,10 +78,9 @@ public class S3Service {
         return UUID.randomUUID().toString().concat(getFileExtension(imageName));
     }
 
-    public String uploadUserImg(MultipartFile image) {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+    public String uploadUserImg(String token, MultipartFile image) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         if(image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
@@ -135,10 +136,9 @@ public class S3Service {
 
     // 유저 사진 업로드
     // https://moa-s3-bucket.s3.amazonaws.com/user/{userEmail}/profile.{확장자}
-    public String uploadUserProfile(MultipartFile image) {
-        // TODO: 리팩토링 필요: 로그인 유저의 정보 가져오기
-        User loginUser = userService.findByUserEmail("moa@moa.com").orElseThrow(NoSuchElementException::new);
-        log.info("loginUser: {}, {}", loginUser.getUserId(), loginUser.getUserEmail());
+    public String uploadUserProfile(String token, MultipartFile image) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         if(image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
