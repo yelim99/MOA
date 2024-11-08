@@ -25,6 +25,7 @@ import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
 import Login from './src/screens/Login';
 import Toast from 'react-native-toast-message';
 import {LinkingOptions} from '@react-navigation/native';
+import {useAuthStore} from './src/stores/authStores';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -101,16 +102,15 @@ const StyledSafeAreaView = styled.SafeAreaView`
 `;
 
 const App = () => {
-  // const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // const {isAuthenticated, checkAuthStatus} = useAuthStore();
   // const [loading, setLoading] = useState(true);
 
   // useEffect(() => {
-  //   const checkLoginStatus = async () => {
-  //     const token = await AsyncStorage.getItem('jwtToken');
-  //     setIsAuthenticated(!!token);
-  //     setLoading(false);
+  //   const initAuthStatus = async () => {
+  //     await checkAuthStatus(); // 로그인 상태 확인
+  //     setLoading(false); // 로딩 완료
   //   };
-  //   checkLoginStatus();
+  //   initAuthStatus();
   // }, []);
 
   // if (loading) {
@@ -124,7 +124,7 @@ const App = () => {
         <NavigationContainer linking={linking}>
           <RootStack.Navigator>
             {/* {isAuthenticated ? (
-            <> */}
+              <> */}
             <RootStack.Screen
               name="Bottom"
               component={TabNavigator}
@@ -160,8 +160,8 @@ const App = () => {
               }}
             />
             {/* </>
-            ) : ( 
-            <RootStack.Screen
+            ) : (
+              <RootStack.Screen
                 name="Login"
                 component={Login}
                 options={{headerShown: false}} // 로그인 화면에 헤더 숨기기
