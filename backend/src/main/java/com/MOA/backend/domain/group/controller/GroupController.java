@@ -49,13 +49,13 @@ public class GroupController {
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
         Group group = groupService.getGroupById(groupId).orElseThrow();
         List<User> users = groupService.getGroupUsers(groupId);
-        Map<String, List<String>> allImagesInGroup =
-                s3Service.getAllImagesInGroup(groupId, momentService.getMomentIds(groupId));
+        Map<String, Map<String, List<String>>> imagesInGroup =
+                s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
 
         return ResponseEntity.ok().body(GroupDetailsResponse.builder()
                 .group(group)
                 .users(users)
-                .images(allImagesInGroup)
+                .images(imagesInGroup)
                 .build());
     }
 

@@ -176,24 +176,34 @@ public class S3Service {
     }
 
     // Group 안의 모든 사진 URL 경로 조회
-    public Map<String, List<String>> getAllImagesInGroup(Long groupId, List<String> momentIds) {
-        Map<String, List<String>> imagesByMoment = new HashMap<>();
+    public Map<String, Map<String, List<String>>> getImagesInGroup(Long groupId, List<String> momentIds) {
+        Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
+        imagesByMoment.put("orgImgs", new HashMap<>());
+        imagesByMoment.put("thumbImgs", new HashMap<>());
         for(String momentId : momentIds) {
-            List<String> imageSources = new ArrayList<>();
+            List<String> orgImgs = new ArrayList<>();
+            List<String> thumbImgs = new ArrayList<>();
             try {
-                ListObjectsV2Request request = new ListObjectsV2Request()
+                ListObjectsV2Request orgRequest = new ListObjectsV2Request()
+                        .withBucketName(bucket)
+                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/original");
+                ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
                         .withBucketName(bucket)
                         .withPrefix("group/" + groupId + "/moment/" + momentId + "/thumbnail");
 
-                ListObjectsV2Result response = amazonS3.listObjectsV2(request);
+                ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
+                ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                for (S3ObjectSummary objectSummary : response.getObjectSummaries()) {
-                    imageSources.add(amazonS3.getUrl(bucket, objectSummary.getKey()).toString());
+                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+                    orgImgs.add(orgResult.getObjectSummaries().get(i).getKey());
+                    thumbImgs.add(thumbResult.getObjectSummaries().get(i).getKey());
                 }
 
-                log.info("imageSources: {}", imageSources);
+                log.info("imageSources: {}", thumbImgs);
 
-                imagesByMoment.put(momentId, imageSources);
+                imagesByMoment.get("orgImgs").put(momentId, orgImgs);
+                imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);
+
             } catch (AmazonS3Exception e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "이미지 목록을 조회하는 중 오류가 발생했습니다.");
