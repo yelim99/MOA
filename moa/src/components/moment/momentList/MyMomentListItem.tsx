@@ -10,7 +10,7 @@ const Container = styled.TouchableOpacity`
   border-radius: 20px;
   border-style: solid;
   border-width: 1px;
-  border-color: ${({theme}) => theme.colors.mainlightyellow};
+  border-color: ${({theme}) => theme.colors.maindarkyellow};
   elevation: 3;
   background-color: ${({theme}) => theme.colors.white};
   display: flex;

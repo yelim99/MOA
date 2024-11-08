@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import uuid from 'react-native-uuid';
+import LoadingSpinner from '../common/LoadingSpinner';
 
 const Container = styled.View`
   width: 100%;
@@ -101,17 +102,6 @@ interface AlbumContainerProps {
   groupId?: string;
   momentId?: string;
 }
-
-const LoadingOverlay = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-`;
 
 const AlbumContainer = ({
   isGroup = false,
@@ -264,11 +254,7 @@ const AlbumContainer = ({
         ))}
       </StyledModal>
       <PhotoList onSelectionChange={setSelectedPhotos} />
-      {loading && (
-        <LoadingOverlay>
-          <ActivityIndicator size="large" color={theme.colors.maindarkorange} />
-        </LoadingOverlay>
-      )}
+      {loading && <LoadingSpinner />}
     </Container>
   );
 };
