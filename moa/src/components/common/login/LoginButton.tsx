@@ -11,12 +11,6 @@ import api from '../../../utils/api';
 //   onLoginSuccess: (kakaoToken: string) => void;
 // };
 
-const KakaoLoginButton = styled.Button`
-  width: 200px;
-  height: 50px;
-  border-radius: 15px;
-  background-color: #000000;
-`;
 const ButtonContainer = styled(TouchableOpacity)`
   flex-direction: row;
   align-items: center;
@@ -96,7 +90,7 @@ const LoginButton = () => {
 
       // 토큰 헤더에 담아서 백엔드로 보내기
       const response = await api.post(
-        '/auth/kakao',
+        '/kakao',
         {},
         {
           headers: {
@@ -115,7 +109,7 @@ const LoginButton = () => {
         await setAuthenticated(true, jwtToken); // JWT 토큰 저장 및 전역 상태 업데이트
       }
     } catch (error) {
-      console.error('Error sending token to backend:', error);
+      console.error('에러났다~~Error sending token to backend:', error);
     }
   };
 
@@ -133,17 +127,15 @@ const LoginButton = () => {
 
   return (
     <View>
-      {/* <KakaoLoginButton title="카카오 로그인mkm" onPress={signInWithKakao} />; */}
-
       <ButtonContainer onPress={signInWithKakao}>
         <Ionicons name="chatbubble-sharp" size={24} color="#3c1e1e" />
         <ButtonText>카카오 로그인</ButtonText>
       </ButtonContainer>
 
-      <ButtonContainer onPress={signOutWithKakao}>
+      {/* <ButtonContainer onPress={signOutWithKakao}>
         <Ionicons name="chatbubble-sharp" size={24} color="#3c1e1e" />
         <ButtonText>카카오 로그아웃</ButtonText>
-      </ButtonContainer>
+      </ButtonContainer> */}
     </View>
   );
 };
