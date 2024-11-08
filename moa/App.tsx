@@ -92,21 +92,21 @@ const StyledSafeAreaView = styled.SafeAreaView`
 `;
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('jwtToken');
-      setIsAuthenticated(!!token);
-      setLoading(false);
-    };
-    checkLoginStatus();
-  }, []);
+  // useEffect(() => {
+  //   const checkLoginStatus = async () => {
+  //     const token = await AsyncStorage.getItem('jwtToken');
+  //     setIsAuthenticated(!!token);
+  //     setLoading(false);
+  //   };
+  //   checkLoginStatus();
+  // }, []);
 
-  if (loading) {
-    return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
-  }
+  // if (loading) {
+  //   return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
+  // }
 
   return (
     <ThemeProvider theme={theme}>
@@ -114,50 +114,50 @@ const App = () => {
       <StyledSafeAreaView>
         <NavigationContainer>
           <RootStack.Navigator>
-            {isAuthenticated ? (
-              <>
-                <RootStack.Screen
-                  name="Bottom"
-                  component={TabNavigator}
-                  options={{headerShown: false}}
-                />
-                <RootStack.Screen
-                  name="Add"
-                  component={Add}
-                  options={() => ({
-                    header: () => <StackHeader title="모아 만들기" />,
-                    tabBarStyle: {display: 'none'},
-                  })}
-                />
-                <RootStack.Screen
-                  name="GroupAdd"
-                  component={GroupAdd}
-                  options={() => ({
-                    header: () => <StackHeader title="그룹 생성" />,
-                  })}
-                />
-                <RootStack.Screen
-                  name="MomentAdd"
-                  component={MomentAdd}
-                  options={() => ({
-                    header: () => <StackHeader title="순간 생성" />,
-                  })}
-                />
-                <RootStack.Screen
-                  name="Notification"
-                  component={Notification}
-                  options={{
-                    header: () => <StackHeader title="알림" />,
-                  }}
-                />
-              </>
-            ) : (
+            {/* {isAuthenticated ? ( */}
+            <>
               <RootStack.Screen
+                name="Bottom"
+                component={TabNavigator}
+                options={{headerShown: false}}
+              />
+              <RootStack.Screen
+                name="Add"
+                component={Add}
+                options={() => ({
+                  header: () => <StackHeader title="모아 만들기" />,
+                  tabBarStyle: {display: 'none'},
+                })}
+              />
+              <RootStack.Screen
+                name="GroupAdd"
+                component={GroupAdd}
+                options={() => ({
+                  header: () => <StackHeader title="그룹 생성" />,
+                })}
+              />
+              <RootStack.Screen
+                name="MomentAdd"
+                component={MomentAdd}
+                options={() => ({
+                  header: () => <StackHeader title="순간 생성" />,
+                })}
+              />
+              <RootStack.Screen
+                name="Notification"
+                component={Notification}
+                options={{
+                  header: () => <StackHeader title="알림" />,
+                }}
+              />
+            </>
+            {/* ) : ( */}
+            {/* <RootStack.Screen
                 name="Login"
                 component={Login}
                 options={{headerShown: false}} // 로그인 화면에 헤더 숨기기
               />
-            )}
+            )} */}
             {/* 여기에 Screen 추가 */}
           </RootStack.Navigator>
         </NavigationContainer>
