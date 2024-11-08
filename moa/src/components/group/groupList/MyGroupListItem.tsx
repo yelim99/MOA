@@ -1,9 +1,11 @@
 import React from 'react';
 import styled, {useTheme} from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import GroupIconButton from '../common/button/GroupIconButton';
-import {GroupInfo} from '../../types/group';
-import {darkColorMap, lightColorMap} from '../../utils/groupColor';
+import GroupIconButton from '../../common/button/GroupIconButton';
+import {GroupInfo} from '../../../types/group';
+import {darkColorMap, lightColorMap} from '../../../utils/groupColor';
+import {useNavigation} from '@react-navigation/native';
+import {HomeScreenNavigationProp} from '../../../types/screen';
 
 const Container = styled.TouchableOpacity<{bgColor: string}>`
   width: 46%;
@@ -59,12 +61,26 @@ interface MyGroupListItemProps {
 }
 
 const MyGroupListItem = ({groupInfo}: MyGroupListItemProps) => {
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   const theme = useTheme();
 
   return (
-    <Container bgColor={lightColorMap[groupInfo.groupColor]}>
+    <Container
+      bgColor={lightColorMap[groupInfo.groupColor]}
+      onPress={() =>
+        navigation.navigate('GroupDetail', {
+          groupInfo: {
+            groupId: groupInfo.groupId,
+            groupName: groupInfo.groupName,
+          },
+        })
+      }
+    >
       <TopLine>
-        <TitleText>{groupInfo.groupName}</TitleText>
+        <TitleText numberOfLines={2} ellipsizeMode="tail">
+          {groupInfo.groupName}
+        </TitleText>
         <ContentColor txtColor={darkColorMap[groupInfo.groupColor]}>
           사진 527장
         </ContentColor>

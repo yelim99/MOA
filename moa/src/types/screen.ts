@@ -3,16 +3,16 @@ import {StackNavigationProp} from '@react-navigation/stack';
 // HomeStack의 ParamList 타입 정의
 export type HomeStackParamList = {
   Home: undefined;
-  Add: undefined;
-  GroupAdd: undefined;
-  GroupDetail: undefined;
-  MomentAdd: undefined;
-  MomentDetail: undefined;
+  GroupDetail: {groupInfo: {groupId: string; groupName: string}};
+  MomentDetail: {momentInfo: {momentId: string; momentTitle: string}};
   // 여기에 스크린 추가
 };
 
 // Home 화면에서 사용하는 네비게이션 타입
-export type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList>;
+export type HomeScreenNavigationProp = StackNavigationProp<
+  HomeStackParamList,
+  'Home'
+>;
 
 // MyPageStack의 ParamList 타입 정의
 export type MyPageStackParamList = {

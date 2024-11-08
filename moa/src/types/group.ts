@@ -1,12 +1,12 @@
 export type GroupInfo = {
-  groupId: number;
+  groupId: string;
   groupName: string;
   groupColor: string;
   groupIcon: string;
 };
 
 export type GroupInfoDetail = {
-  groupId: number;
+  groupId: string;
   groupName: string;
   groupDescription: string;
   groupColor: string;

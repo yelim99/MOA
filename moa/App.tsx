@@ -1,5 +1,6 @@
 /* eslint-disable react/no-unstable-nested-components */
 import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import styled, {ThemeProvider} from 'styled-components/native';
 import {theme} from './src/styles/theme';
 import Navigation from './src/components/common/Navigation';
@@ -22,6 +23,11 @@ import AppHeader from './src/components/common/header/AppHeader';
 import StackHeader from './src/components/common/header/StackHeader';
 import Login from './src/screens/Login';
 import {StatusBar} from 'react-native';
+import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Login from './src/screens/Login';
+import Toast from 'react-native-toast-message';
+import {LinkingOptions} from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -30,107 +36,145 @@ const CustomTabBar: React.FC<BottomTabBarProps> = (props) => (
   <Navigation {...props} />
 );
 
+// 홈 화면(모아) 스택 구조
+const HomeStack = createStackNavigator<HomeStackParamList>();
+
+const HomeStackScreen: React.FC = () => (
+  <HomeStack.Navigator>
+    <HomeStack.Screen
+      name="Home"
+      component={Home}
+      options={({navigation}) => ({
+        header: () => <AppHeader navigation={navigation} />,
+      })}
+    />
+    <HomeStack.Screen name="GroupDetail" component={GroupDetail} />
+    <HomeStack.Screen name="MomentDetail" component={MomentDetail} />
+  </HomeStack.Navigator>
+);
+
+// 마이페이지 스택 구조
+const MyPageStack = createStackNavigator<MyPageStackParamList>();
+
+const MyPageStackScreen: React.FC = () => (
+  <MyPageStack.Navigator>
+    <MyPageStack.Screen
+      name="MyPage"
+      component={MyPage}
+      options={({navigation}) => ({
+        header: () => <AppHeader navigation={navigation} />,
+      })}
+    />
+  </MyPageStack.Navigator>
+);
+
 // Tab Navigator 구성
 const TabNavigator: React.FC = () => (
   <Tab.Navigator
     tabBar={CustomTabBar}
     screenOptions={{tabBarHideOnKeyboard: true}}
   >
-    <Tab.Screen name="Home" component={Home} options={{headerShown: false}} />
     <Tab.Screen
-      name="MyPage"
-      component={MyPage}
+      name="HomeStack"
+      component={HomeStackScreen}
+      options={{headerShown: false}}
+    />
+    <Tab.Screen
+      name="MyPageStack"
+      component={MyPageStackScreen}
       options={{headerShown: false}}
     />
   </Tab.Navigator>
 );
+
+// 딥링크 설정
+const linking: LinkingOptions<HomeStackParamList> = {
+  prefixes: ['moa://'],
+  config: {
+    screens: {
+      Home: 'home',
+      GroupDetail: 'group/:groupId',
+      MomentDetail: 'moment/:momentId',
+    },
+  },
+};
 
 const StyledSafeAreaView = styled.SafeAreaView`
   flex: 1;
 `;
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const token = await AsyncStorage.getItem('jwtToken');
-      setIsAuthenticated(!!token);
-      setLoading(false);
-    };
-    checkLoginStatus();
-  }, []);
+  // useEffect(() => {
+  //   const checkLoginStatus = async () => {
+  //     const token = await AsyncStorage.getItem('jwtToken');
+  //     setIsAuthenticated(!!token);
+  //     setLoading(false);
+  //   };
+  //   checkLoginStatus();
+  // }, []);
 
-  if (loading) {
-    return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
-  }
+  // if (loading) {
+  //   return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
+  // }
 
   return (
     <ThemeProvider theme={theme}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <StyledSafeAreaView>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <RootStack.Navigator>
-            {isAuthenticated ? (
-              // 로그인이 되어 있을 때는 Bottom Tab Navigator로 이동
+            {/* {isAuthenticated ? ( */}
+            <>
               <RootStack.Screen
                 name="Bottom"
                 component={TabNavigator}
-                options={({navigation}) => ({
-                  header: () => <AppHeader navigation={navigation} />,
-                })}
+                options={{headerShown: false}}
               />
-            ) : (
-              // 로그인되지 않은 경우 Login 스크린으로 이동
               <RootStack.Screen
-                name="Home"
-                component={Home}
-                options={({navigation}) => ({
-                  header: () => <AppHeader navigation={navigation} />,
+                name="Add"
+                component={Add}
+                options={() => ({
+                  header: () => <StackHeader title="모아 만들기" />,
+                  tabBarStyle: {display: 'none'},
                 })}
               />
-            )}
-            <RootStack.Screen
-              name="Add"
-              component={Add}
-              options={() => ({
-                header: () => <StackHeader title="모아 만들기" />,
-                tabBarStyle: {display: 'none'},
-              })}
-            />
-            <RootStack.Screen
-              name="GroupAdd"
-              component={GroupAdd}
-              options={() => ({
-                header: () => <StackHeader title="그룹 생성" />,
-              })}
-            />
-            <RootStack.Screen
-              name="MomentAdd"
-              component={MomentAdd}
-              options={() => ({
-                header: () => <StackHeader title="순간 생성" />,
-              })}
-            />
-            <RootStack.Screen
-              name="Notification"
-              component={Notification}
-              options={{
-                header: () => <StackHeader title="알림" />,
-              }}
-            />
-            <RootStack.Screen
-              name="MyPage"
-              component={MyPage}
-              options={({navigation}) => ({
-                header: () => <AppHeader navigation={navigation} />,
-              })}
-            />
+              <RootStack.Screen
+                name="GroupAdd"
+                component={GroupAdd}
+                options={() => ({
+                  header: () => <StackHeader title="그룹 생성" />,
+                })}
+              />
+              <RootStack.Screen
+                name="MomentAdd"
+                component={MomentAdd}
+                options={() => ({
+                  header: () => <StackHeader title="순간 생성" />,
+                })}
+              />
+              <RootStack.Screen
+                name="Notification"
+                component={Notification}
+                options={{
+                  header: () => <StackHeader title="알림" />,
+                }}
+              />
+            </>
+            {/* ) : ( */}
+            {/* <RootStack.Screen
+                name="Login"
+                component={Login}
+                options={{headerShown: false}} // 로그인 화면에 헤더 숨기기
+              />
+            )} */}
             {/* 여기에 Screen 추가 */}
           </RootStack.Navigator>
         </NavigationContainer>
       </StyledSafeAreaView>
+      <Toast />
     </ThemeProvider>
   );
 };
