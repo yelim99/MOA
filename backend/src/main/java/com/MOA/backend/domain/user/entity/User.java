@@ -50,6 +50,8 @@ public class User extends BaseEntity {
     @Column()
     private byte[] faceEmbedding;
 
+
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Member> memberships = new ArrayList<>();
 

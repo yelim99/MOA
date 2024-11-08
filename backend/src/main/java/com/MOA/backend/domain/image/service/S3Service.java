@@ -1,5 +1,7 @@
 package com.MOA.backend.domain.image.service;
 
+import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
+import com.MOA.backend.domain.image.util.RegistFaceUtil;
 import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
@@ -31,6 +33,7 @@ public class S3Service {
     private final UserService userService;
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
+    private final RegistFaceUtil faceUtil;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -131,8 +134,22 @@ public class S3Service {
                 + "/profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
         uploadOriginalImage(image, imageName);
+        String fileUrl = amazonS3.getUrl(bucket, imageName).toString();
 
-        return amazonS3.getUrl(bucket, imageName).toString();
+        // fast에서 임베딩 값 받아오기
+        byte[] faceEmbedding = faceUtil.GetFaceEmbeddingFromFast(fileUrl);
+
+        // FaceEmbeddingDTO에 값 설정
+        FaceEmbeddingDTO faceEmbeddingDTO = FaceEmbeddingDTO.builder()
+                .userId(loginUser.getUserId())
+                .faceEmbedding(faceEmbedding)
+                .build();
+
+        userService.updateFaceEmbedding(faceEmbeddingDTO);
+
+
+
+        return fileUrl;
     }
 
     public List<String> deleteImages(List<String> imageUrls) {
