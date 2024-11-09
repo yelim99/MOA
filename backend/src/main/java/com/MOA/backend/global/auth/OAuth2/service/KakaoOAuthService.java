@@ -29,7 +29,7 @@ public class KakaoOAuthService {
 
     @Transactional
     public String processUser(String accessToken) {
-        String userInfoEndpointUri = "https://kapi.kakao.com/v2/user/m2";
+        String userInfoEndpointUri = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
@@ -45,30 +45,42 @@ public class KakaoOAuthService {
 
             Map<String, Object> userInfo = objectMapper.readValue(response.getBody(), Map.class);
 
+            // kakao_account와 email 존재 여부 체크
             Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
+            if (kakaoAccount == null) {
+                throw new RuntimeException("Kakao 계정 정보가 없습니다.");
+            }
+
             String email = (String) kakaoAccount.get("email");
+            if (email == null) {
+                throw new RuntimeException("사용자의 이메일 정보가 없습니다.");
+            }
+
             Optional<User> optionalUser = userService.findByUserEmail(email);
             User user;
 
             if (optionalUser.isPresent()) {
                 user = optionalUser.get();
             } else {
+                // profile 정보 체크
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
-                String nickname = (String) profile.get("nickname");
-                String image = (String) profile.get("thumbnail_image_url");
+                String nickname = (profile != null) ? (String) profile.get("nickname") : "Unknown";
+                String image = (profile != null) ? (String) profile.get("thumbnail_image_url") : null;
 
                 user = new User(nickname, email, image);
                 userRepository.save(user);
             }
 
+            // JWT 토큰 생성
             String jwtToken = jwtUtil.generateAccessToken(user.getUserId());
             return jwtToken;
 
-
         } catch (Exception e) {
-            throw new RuntimeException("유저 프로필을 불러오는 것에 실패했습니다.");
+            // 원인 메시지를 포함하여 예외 처리
+            throw new RuntimeException("유저 프로필을 불러오는 것에 실패했습니다. 상세 오류: " + e.getMessage(), e);
         }
     }
+
 
 
 }
