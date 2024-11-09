@@ -6,6 +6,7 @@ import MyInfo from '../components/mypage/MyInfo';
 import FaceImage from '../components/mypage/FaceImage';
 import Partition from '../components/common/Partition';
 import {IconButton} from '../components/common/button/IconButton';
+import {TextButton} from '../components/common/button/TextButton';
 import api from '../utils/api';
 import {logout} from '@react-native-seoul/kakao-login';
 import {useAuthStore} from '../stores/authStores';
@@ -42,6 +43,11 @@ const Texts = styled.Text<TextProps>`
   }}
 `;
 
+const Logout = styled.View`
+  width: 100%;
+  flex-direction: row;
+  justify-content: space-between;
+`;
 // 중간에 선 넣기 나중에 시도
 const Divider = styled.View`
   border: 1px solid ${(props) => props.theme.colors.lightgray};
@@ -71,6 +77,7 @@ const MyPage = () => {
     try {
       await logout();
       await storeLogout();
+      console.log('로그아웃!!!');
       Alert.alert('로그아웃 되었습니다.', '로그인 화면으로 이동합니다.');
     } catch (error) {
       console.error('Logout Failed', error);
@@ -79,12 +86,23 @@ const MyPage = () => {
   return (
     <ScreenContainer>
       <View>
-        <Texts variant="title">마이페이지</Texts>
-        <IconButton
-          iconName="logout"
-          // onPress={() => getUserData()}
-          onPress={() => signOutWithKakao()}
-        ></IconButton>
+        <Logout>
+          <Texts variant="title">마이페이지</Texts>
+          {/* <IconButton
+            iconName="logout"
+            // onPress={() => getUserData()}
+            onPress={() => signOutWithKakao()}
+          ></IconButton> */}
+          <TextButton
+            iconName="logout"
+            backcolor="mainlightyellow"
+            text="로그아웃"
+            iconSet="Material"
+            size="small"
+            // onPress={() => getUserData()}
+            onPress={() => signOutWithKakao()}
+          ></TextButton>
+        </Logout>
         <MyInfo />
       </View>
       <Partition />
