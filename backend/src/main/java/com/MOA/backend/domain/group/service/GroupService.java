@@ -5,10 +5,12 @@ import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
+import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,9 +24,10 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final MemberService memberService;
 
     // 그룹 생성
-    // 그룹 생성
+    @Transactional
     public Group create(Long userId, GroupCreateDto groupDto) {
         // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
         Group group = new Group();
@@ -67,8 +70,7 @@ public class GroupService {
         return groupRepository.findById(id);
     }
 
-
-    // userId에 해당하는 모든 그룹 가져오기
+    // groupId에 해당하는 모든 유저
     public List<User> getGroupUsers(Long groupId) {
         List<Member> memberships = memberRepository.findByGroupGroupId(groupId);
         return memberships.stream()
@@ -102,6 +104,7 @@ public class GroupService {
         Member member = new Member();
         member.setUser(user);
         member.setGroup(group);
+        member.setNickname(user.getUserName());
         member.setJoinDate(LocalDateTime.now());
 
         memberRepository.save(member);

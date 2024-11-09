@@ -75,6 +75,11 @@ dependencies {
     // 이미지 변환 Thumbnailator
     implementation 'net.coobird:thumbnailator:0.4.1'
 
+    // 이미지의 EXIF 데이터를 읽는 라이브러리
+    implementation 'com.drewnoakes:metadata-extractor:2.6.2'
+
+    // JAXB API: AWS SDK가 Base64 인코딩/디코딩에 필요한 라이브러리
+    implementation 'javax.xml.bind:jaxb-api:2.2.4'
 }
 
 application {

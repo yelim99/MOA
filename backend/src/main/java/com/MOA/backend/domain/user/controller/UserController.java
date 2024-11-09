@@ -28,7 +28,7 @@ public class UserController {
     @PutMapping
     public ResponseEntity<User> updateUser(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @RequestBody User userDetails) {
         User updatedUser = userService.updateUser(jwtUtil.extractUserId(token), userDetails);
         return ResponseEntity.ok(updatedUser);
@@ -38,7 +38,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<User> getUserById(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("AuthorizationJWT") String token) {
+            @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(token));
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
@@ -48,7 +48,7 @@ public class UserController {
     @GetMapping("/groups")
     public List<Group> getMyGroups(
             @Parameter(description = "JWT 토큰", required = true)
-            @RequestHeader("AuthorizationJWT") String token) {
+            @RequestHeader("Authorization") String token) {
         return userService.getUserGroups(jwtUtil.extractUserId(token));
     }
 

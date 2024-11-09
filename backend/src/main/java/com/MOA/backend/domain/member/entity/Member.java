@@ -34,6 +34,12 @@ public class Member {
     @JsonIgnore
     private User user;
 
+    private String nickname;
+
     @Column(name = "join_date")
     private LocalDateTime joinDate = LocalDateTime.now();
+
+    public void update(String nickname) {
+        this.nickname = nickname;
+    }
 }
