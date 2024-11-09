@@ -1,11 +1,14 @@
-import {View} from 'react-native';
+import {View, Alert} from 'react-native';
 import React from 'react';
 import ScreenContainer from '../components/common/ScreenContainer';
 import styled, {css} from 'styled-components/native';
 import MyInfo from '../components/mypage/MyInfo';
 import FaceImage from '../components/mypage/FaceImage';
 import Partition from '../components/common/Partition';
-
+import {IconButton} from '../components/common/button/IconButton';
+import api from '../utils/api';
+import {logout} from '@react-native-seoul/kakao-login';
+import {useAuthStore} from '../stores/authStores';
 interface TextProps {
   variant: 'title' | 'subtitle' | 'body';
   color?: string;
@@ -53,10 +56,35 @@ const Face = styled.View`
 `;
 
 const MyPage = () => {
+  const {logout: storeLogout} = useAuthStore();
+  // const getUserData = async () => { // 테스트 용
+  //   try {
+  //     const response = await api.get('/user');
+  //     console.log('User Data:', response.data); // 성공 시 데이터 확인
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error fetching user data:', error); // 에러 발생 시 로그 출력
+  //   }
+  // };
+
+  const signOutWithKakao = async () => {
+    try {
+      await logout();
+      await storeLogout();
+      Alert.alert('로그아웃 되었습니다.', '로그인 화면으로 이동합니다.');
+    } catch (error) {
+      console.error('Logout Failed', error);
+    }
+  };
   return (
     <ScreenContainer>
       <View>
         <Texts variant="title">마이페이지</Texts>
+        <IconButton
+          iconName="logout"
+          // onPress={() => getUserData()}
+          onPress={() => signOutWithKakao()}
+        ></IconButton>
         <MyInfo />
       </View>
       <Partition />
