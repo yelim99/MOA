@@ -28,7 +28,7 @@ public class S3Controller {
 
     @PostMapping("/group/{groupId}/upload")
     ResponseEntity<?> uploadImagesInGroup(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @PathVariable("groupId") Long groupId,
             @RequestPart List<MultipartFile> images
     ) {
@@ -40,7 +40,7 @@ public class S3Controller {
 
     @PostMapping("/user/upload")
     ResponseEntity<Map<String, String>> uploadAIImage(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @RequestPart("image") MultipartFile image
     ) {
         return ResponseEntity.ok(Map.of("url", s3Service.uploadUserProfile(token, image)));
@@ -55,7 +55,7 @@ public class S3Controller {
 
     @PostMapping("/user/img")
     ResponseEntity<Map<String, String>> uploadUserImage(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @RequestPart("image") MultipartFile image
     ) {
         return ResponseEntity.ok(Map.of("url", s3Service.uploadUserImg(token, image)));

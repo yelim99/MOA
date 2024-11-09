@@ -19,7 +19,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping
-    public List<Long> getAllMembers(@RequestHeader("AuthorizationJWT") String token) {
+    public List<Long> getAllMembers(@RequestHeader("Authorization" +
+            "") String token) {
         return memberService.findAllGroupIdByUserId(token);
     }
 }

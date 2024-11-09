@@ -25,7 +25,7 @@ public class MomentController {
     // 순간 생성
     @PostMapping
     public ResponseEntity<MomentCreateResponseDto> createMoment(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @RequestBody MomentCreateRequestDto momentCreateRequestDto
     ) {
         MomentCreateResponseDto momentDto = momentService.createMoment(token, momentCreateRequestDto);
@@ -55,7 +55,7 @@ public class MomentController {
     // 순간 목록 조회
     @GetMapping()
     public ResponseEntity<List<MomentResponseDto>> getAllMoments(
-            @RequestHeader("AuthorizationJWT") String token
+            @RequestHeader("Authorization") String token
     ) {
         List<MomentResponseDto> myMoments = momentService.getAllMoments(token);
         return ResponseEntity.ok(myMoments);
@@ -64,7 +64,7 @@ public class MomentController {
     // 순간 상세 조회
     @GetMapping("/{moment_id}")
     public ResponseEntity<MomentDetailResponseDto> getMoment(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @PathVariable(name = "moment_id") String momentId
     ) {
         MomentDetailResponseDto moment = momentService.getMoment(token, momentId);
@@ -74,7 +74,7 @@ public class MomentController {
     // 순간 참여
     @PostMapping("/{moment_id}")
     public ResponseEntity<?> participate(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @PathVariable(name = "moment_id") String momentId,
             @RequestParam(name = "PIN") String pin
     ) {
@@ -85,7 +85,7 @@ public class MomentController {
     // 순간 퇴장
     @PutMapping("/{moment_id}")
     public ResponseEntity<?> exit(
-            @RequestHeader("AuthorizationJWT") String token,
+            @RequestHeader("Authorization") String token,
             @PathVariable(name = "moment_id") String momentId
     ) {
         momentService.userExit(token, momentId);
