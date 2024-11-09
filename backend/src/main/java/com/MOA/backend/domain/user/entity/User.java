@@ -43,9 +43,14 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false)
     private String role = "ROLE_USER";
 
+    @Column(name = "device_token")
+    private String deviceToken;
+
     @Lob
     @Column()
     private byte[] faceEmbedding;
+
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Member> memberships = new ArrayList<>();
