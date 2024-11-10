@@ -52,7 +52,7 @@ services:
       - 27017:27017
     volumes:
       - /home/ubuntu/mongo-data1:/data/db
-      - /home/ubuntu/config/mongodb.key:/etc/mongodb.key
+      - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
       - /home/ubuntu/config/mongo-init-replica.sh:/docker-entrypoint-initdb.d/mongo-init-replica.sh
     command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
     networks:
@@ -74,7 +74,7 @@ services:
       - 27018:27017
     volumes:
       - /home/ubuntu/mongo-data2:/data/db
-      - /home/ubuntu/config/mongodb.key:/etc/mongodb.key
+      - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
     command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
   mongo3:
@@ -93,7 +93,7 @@ services:
       - 27019:27017
     volumes:
       - /home/ubuntu/mongo-data3:/data/db
-      - /home/ubuntu/config/mongodb.key:/etc/mongodb.key
+      - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
     command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
 networks:
