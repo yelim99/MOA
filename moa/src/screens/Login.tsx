@@ -10,6 +10,13 @@ import {
   unlink,
 } from '@react-native-seoul/kakao-login';
 import LoginButton from '../components/common/login/LoginButton';
+import styled from 'styled-components/native';
+
+const Logo = styled.Image`
+  width: 160px;
+  height: 100px;
+  margin-bottom: 100px;
+`;
 
 const Login = () => {
   // const [result, setResult] = useState<string | null>(null);
@@ -76,6 +83,7 @@ const Login = () => {
 
   return (
     <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Logo source={require('../assets/images/logo.png')} />
       <LoginButton></LoginButton>
       {/* <Button title="Login with Kakao" onPress={signInWithKakao} />
       <Button title="Logout from Kakao" onPress={signOutWithKakao} />

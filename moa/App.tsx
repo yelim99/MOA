@@ -28,6 +28,7 @@ import {HomeStackParamList, MyPageStackParamList} from './src/types/screen';
 import Login from './src/screens/Login';
 import Toast from 'react-native-toast-message';
 import {LinkingOptions} from '@react-navigation/native';
+import {useAuthStore} from './src/stores/authStores';
 
 const Tab = createBottomTabNavigator();
 const RootStack = createStackNavigator();
@@ -104,21 +105,20 @@ const StyledSafeAreaView = styled.SafeAreaView`
 `;
 
 const App = () => {
-  // const [isAuthenticated, setIsAuthenticated] = useState(true);
-  // const [loading, setLoading] = useState(true);
+  const {isAuthenticated, checkAuthStatus} = useAuthStore();
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const checkLoginStatus = async () => {
-  //     const token = await AsyncStorage.getItem('jwtToken');
-  //     setIsAuthenticated(!!token);
-  //     setLoading(false);
-  //   };
-  //   checkLoginStatus();
-  // }, []);
+  useEffect(() => {
+    const initAuthStatus = async () => {
+      await checkAuthStatus(); // 로그인 상태 확인
+      setLoading(false); // 로딩 완료
+    };
+    initAuthStatus();
+  }, []);
 
-  // if (loading) {
-  //   return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
-  // }
+  if (loading) {
+    return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
+  }
 
   const navigationRef =
     useRef<NavigationContainerRef<HomeStackParamList>>(null);
@@ -129,50 +129,50 @@ const App = () => {
       <StyledSafeAreaView>
         <NavigationContainer ref={navigationRef} linking={linking}>
           <RootStack.Navigator>
-            {/* {isAuthenticated ? (
-            <> */}
-            <RootStack.Screen
-              name="Bottom"
-              component={TabNavigator}
-              options={{headerShown: false}}
-            />
-            <RootStack.Screen
-              name="Add"
-              component={Add}
-              options={() => ({
-                header: () => <StackHeader title="모아 만들기" />,
-                tabBarStyle: {display: 'none'},
-              })}
-            />
-            <RootStack.Screen
-              name="GroupAdd"
-              component={GroupAdd}
-              options={() => ({
-                header: () => <StackHeader title="그룹 생성" />,
-              })}
-            />
-            <RootStack.Screen
-              name="MomentAdd"
-              component={MomentAdd}
-              options={() => ({
-                header: () => <StackHeader title="순간 생성" />,
-              })}
-            />
-            <RootStack.Screen
-              name="Notification"
-              component={Notification}
-              options={{
-                header: () => <StackHeader title="알림" />,
-              }}
-            />
-            {/* </>
-            ) : ( 
-            <RootStack.Screen
+            {isAuthenticated ? (
+              <>
+                <RootStack.Screen
+                  name="Bottom"
+                  component={TabNavigator}
+                  options={{headerShown: false}}
+                />
+                <RootStack.Screen
+                  name="Add"
+                  component={Add}
+                  options={() => ({
+                    header: () => <StackHeader title="모아 만들기" />,
+                    tabBarStyle: {display: 'none'},
+                  })}
+                />
+                <RootStack.Screen
+                  name="GroupAdd"
+                  component={GroupAdd}
+                  options={() => ({
+                    header: () => <StackHeader title="그룹 생성" />,
+                  })}
+                />
+                <RootStack.Screen
+                  name="MomentAdd"
+                  component={MomentAdd}
+                  options={() => ({
+                    header: () => <StackHeader title="순간 생성" />,
+                  })}
+                />
+                <RootStack.Screen
+                  name="Notification"
+                  component={Notification}
+                  options={{
+                    header: () => <StackHeader title="알림" />,
+                  }}
+                />
+              </>
+            ) : (
+              <RootStack.Screen
                 name="Login"
                 component={Login}
                 options={{headerShown: false}} // 로그인 화면에 헤더 숨기기
               />
-            )} */}
+            )}
             {/* 여기에 Screen 추가 */}
           </RootStack.Navigator>
         </NavigationContainer>
