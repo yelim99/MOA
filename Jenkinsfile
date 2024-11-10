@@ -33,8 +33,9 @@ pipeline {
 
         stage('Initialize MongoDB Replica Set') {
             steps {
+                echo 'Waiting for MongoDB to be ready...'
+                sleep 10  // MongoDB가 완전히 시작될 시간을 확보
                 echo 'Initializing MongoDB Replica Set...'
-                // Execute the replica set initiation script in one of the MongoDB containers
                 sh '''
                     docker exec mongo1 bash -c "mongo < /docker-entrypoint-initdb.d/mongo-init-replica.sh"
                 '''
