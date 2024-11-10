@@ -22,6 +22,8 @@ services:
       TZ: Asia/Seoul
     ports:
       - "8081:8081"
+    networks:
+      - mongoCluster
     depends_on:
       - redis
       - mysql
