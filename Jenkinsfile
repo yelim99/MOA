@@ -15,7 +15,7 @@ pipeline {
                 echo 'Building JAR file...'
                 sh '''
                     cd backend
-                    chmod +x gradlew
+                    chmod +x gradlew  # gradlew 파일에 실행 권한 부여
                     ./gradlew clean bootJar --no-build-cache -x test
                 '''
             }
@@ -27,17 +27,6 @@ pipeline {
                 sh '''
                     docker-compose down
                     docker-compose up -d --build
-                '''
-            }
-        }
-
-        stage('Initialize MongoDB Replica Set') {
-            steps {
-                echo 'Waiting for MongoDB to be ready...'
-                sleep 10  // MongoDB가 완전히 시작될 시간을 확보
-                echo 'Initializing MongoDB Replica Set...'
-                sh '''
-                    docker exec mongo1 bash -c "mongo < /docker-entrypoint-initdb.d/mongo-init-replica.sh"
                 '''
             }
         }
