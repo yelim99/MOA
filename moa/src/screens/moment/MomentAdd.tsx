@@ -40,7 +40,7 @@ const MomentAdd = () => {
   const [loading, setLoading] = useState(false);
   const [momentName, setMomentName] = useState('');
   const [momentDescription, setMomentDescription] = useState('');
-  const [uploadOption, setUploadOption] = useState('all');
+  const [uploadOption, setUploadOption] = useState('only');
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const route = useRoute<MomentAddRouteProp>();
@@ -62,7 +62,7 @@ const MomentAdd = () => {
       });
       setMomentName(momentAddInfo.momentName);
       setMomentDescription(momentAddInfo.momentDescription);
-      setUploadOption(momentAddInfo.uploadOption || 'all');
+      setUploadOption(momentAddInfo.uploadOption);
     } else {
       navigation.setOptions({
         header: () => <StackHeader title="순간 생성" />,
@@ -118,9 +118,8 @@ const MomentAdd = () => {
             selectedValue={uploadOption}
             onValueChange={(itemValue) => setUploadOption(itemValue as string)}
           >
-            {/* 나의 업로드만 허용 나중에 만들기로 함 -> 백에서 안됨 */}
-            <Picker.Item label="나의 업로드만 허용" value="all" />
-            <Picker.Item label="모든 멤버의 업로드 허용" value="al" />
+            <Picker.Item label="나의 업로드만 허용" value="only" />
+            <Picker.Item label="모든 멤버의 업로드 허용" value="all" />
           </StyledPicker>
         </PickerContainer>
       </AddInputBox>
