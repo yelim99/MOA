@@ -318,7 +318,7 @@ public class S3Service {
         }
     }
 
-    public void createLifecyclePolicy(String groupId, String momentId) {
+    public void createLifecyclePolicy(Long groupId, String momentId) {
         // 현재 시간으로부터 5분 뒤 만료 설정
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, 5); // 5분 후

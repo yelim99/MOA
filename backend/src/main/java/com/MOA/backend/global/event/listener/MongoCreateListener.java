@@ -23,7 +23,7 @@ public class MongoCreateListener implements ApplicationListener<ApplicationReady
                 .forEach(change -> {
                     if(change.getOperationType() == OperationType.INSERT) {
                         Document document = change.getFullDocument();
-                        String groupId = document.getString("groupId");
+                        Long groupId = document.getLong("groupId");
                         String momentId = document.getString("_id");
 
                         // S3에 LifeCycle 규칙 생성
