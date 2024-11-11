@@ -1,14 +1,12 @@
 package com.MOA.backend.domain.moment.controller;
 
 import com.MOA.backend.domain.image.service.S3Service;
-import com.MOA.backend.domain.member.dto.response.MemberInfoResponseDto;
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
 import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentDetailResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentUpdateResponseDto;
-import com.MOA.backend.domain.moment.service.MomentRedisService;
 import com.MOA.backend.domain.moment.service.MomentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +57,7 @@ public class MomentController {
     }
 
     // 순간 목록 조회
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<MomentResponseDto>> getAllMoments(
             @RequestHeader("Authorization") String token
     ) {

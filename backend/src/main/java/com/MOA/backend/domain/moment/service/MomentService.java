@@ -41,7 +41,7 @@ public class MomentService {
     // 그룹에서 사진 업로드 시 바로 Moment 생성
     @Transactional
     public String createMomentForGroup(String token, Long groupId, List<MultipartFile> images) {
-        if(images == null || images.size() == 0) {
+        if (images == null || images.size() == 0) {
             throw new RuntimeException("잘못된 요청입니다.");
         }
 
@@ -73,7 +73,7 @@ public class MomentService {
                 .userIds(Stream.of(loginUser.getUserId()).collect(Collectors.toList()))
                 .momentName(momentCreateRequestDto.getMomentName())
                 .momentDescription(momentCreateRequestDto.getMomentDescription())
-                .momentOwner(loginUser.getUserEmail())
+                .momentOwner(loginUser.getUserName())
                 .uploadOption(momentCreateRequestDto.getUploadOption())
                 .build();
 
@@ -128,12 +128,12 @@ public class MomentService {
         return momentRepository.findAllByIdInOrderByCreatedAtAsc(objectIds)
                 .stream()
                 .map(moment -> MomentResponseDto.builder()
-                .momentId(moment.getId().toHexString())
-                .momentTitle(moment.getMomentName())
-                .momentDescription(moment.getMomentDescription())
-                .momentOwner(moment.getMomentOwner())
-                .createdAt(moment.getCreatedAt())
-                .build()).toList();
+                        .momentId(moment.getId().toHexString())
+                        .momentTitle(moment.getMomentName())
+                        .momentDescription(moment.getMomentDescription())
+                        .momentOwner(moment.getMomentOwner())
+                        .createdAt(moment.getCreatedAt())
+                        .build()).toList();
     }
 
     // 순간 상세 조회 == 내가 이미 참여한 순간에 입장
@@ -142,7 +142,7 @@ public class MomentService {
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         Set<String> myMoments = momentRedisService.getMyMoments(loginUser.getUserId());
-        if(!myMoments.contains(momentId)) {
+        if (!myMoments.contains(momentId)) {
             throw new ForbiddenAccessException("순간에 대해 유효하지 않은 접근입니다.");
         }
 
@@ -154,20 +154,20 @@ public class MomentService {
                 .orElseThrow(() -> new NoSuchElementException("소유자가 없습니다."));
 
         return MomentDetailResponseDto.builder()
-                        .id(moment.getId().toHexString())
-                        .groupId(moment.getGroupId())
-                        .momentPin(moment.getMomentPin())
-                        .members(getMomentMembers(momentId))
-                        .momentName(moment.getMomentName())
-                        .momentDescription(moment.getMomentDescription())
-                        .momentOwner(MemberInfoResponseDto.builder()
-                                .userId(momentOwner.getUserId())
-                                .nickname(momentOwner.getUserName())
-                                .imageSrc(momentOwner.getUserImage())
-                                .build())
-                        .uploadOption(moment.getUploadOption())
-                        .createdAt(moment.getCreatedAt())
-                        .build();
+                .id(moment.getId().toHexString())
+                .groupId(moment.getGroupId())
+                .momentPin(moment.getMomentPin())
+                .members(getMomentMembers(momentId))
+                .momentName(moment.getMomentName())
+                .momentDescription(moment.getMomentDescription())
+                .momentOwner(MemberInfoResponseDto.builder()
+                        .userId(momentOwner.getUserId())
+                        .nickname(momentOwner.getUserName())
+                        .imageSrc(momentOwner.getUserImage())
+                        .build())
+                .uploadOption(moment.getUploadOption())
+                .createdAt(moment.getCreatedAt())
+                .build();
     }
 
     // 순간 참여하기
@@ -181,7 +181,7 @@ public class MomentService {
         Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
 
         // 2. 해당 Moment의 PIN이 입력 PIN이랑 일치하는 지를 검증
-        if(!pin.equals(moment.getMomentPin())) {
+        if (!pin.equals(moment.getMomentPin())) {
             throw new ForbiddenAccessException("PIN번호가 일치하지 않습니다.");
         }
 
@@ -235,7 +235,7 @@ public class MomentService {
     public List<String> getMomentIds(Long groupId) {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 
-        if(moments.isEmpty()) {
+        if (moments.isEmpty()) {
             throw new NoSuchElementException("순간이 존재하지 않습니다.");
         }
 
