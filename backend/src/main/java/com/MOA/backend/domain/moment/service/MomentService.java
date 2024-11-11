@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.moment.service;
 
 import com.MOA.backend.domain.group.service.GroupService;
+import com.MOA.backend.domain.member.dto.response.MemberInfoResponseDto;
 import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
 import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
@@ -39,8 +40,10 @@ public class MomentService {
     private final PinCodeUtil pinCodeUtil;
     private final MomentRedisService momentRedisService;
     private final JwtUtil jwtUtil;
+    private final MemberService memberService;
 
     // 그룹에서 사진 업로드 시 바로 Moment 생성
+    @Transactional
     public String createMomentForGroup(String token, Long groupId, List<MultipartFile> images) {
         if(images == null || images.size() == 0) {
             throw new RuntimeException("잘못된 요청입니다.");
@@ -62,6 +65,8 @@ public class MomentService {
         return moment.getId().toHexString();
     }
 
+    // 순간 생성
+    @Transactional
     public MomentCreateResponseDto createMoment(String token, MomentCreateRequestDto momentCreateRequestDto) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -80,6 +85,8 @@ public class MomentService {
         log.info("Moment: {}", moment);
         String hexId = moment.getId().toHexString();
 
+        momentRedisService.participateMoment(userId, hexId);
+
         return MomentCreateResponseDto.builder()
                 .momentId(hexId)
                 .message("순간 생성에 성공하였습니다.")
@@ -87,6 +94,8 @@ public class MomentService {
                 .build();
     }
 
+    // 순간 삭제
+    @Transactional
     public void deleteMoment(String momentId) {
         // 1. Redis에서 유저가 참여한 관계 매핑 먼저 지우기
         momentRedisService.deleteMomentParticipation(momentId);
@@ -95,6 +104,8 @@ public class MomentService {
         momentRepository.deleteById(momentId);
     }
 
+    // 순간 수정
+    @Transactional
     public MomentUpdateResponseDto updateMoment(String momentId, MomentUpdateRequestDto momentUpdateCreateDto) {
         Moment moment = momentRepository.findById(momentId).orElseThrow();
         moment.update(momentUpdateCreateDto);
@@ -107,6 +118,8 @@ public class MomentService {
                 .build();
     }
 
+    // 내 순간 가져오기
+    @Transactional(readOnly = true)
     public List<MomentResponseDto> getAllMoments(String token) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -130,6 +143,7 @@ public class MomentService {
     }
 
     // 순간 상세 조회 == 내가 이미 참여한 순간에 입장
+    @Transactional(readOnly = true)
     public MomentDetailResponseDto getMoment(String token, String momentId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -142,18 +156,28 @@ public class MomentService {
         // Moment 찾아오기
         Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
 
+        // 소유자 찾아오기
+        User momentOwner = userService.findByUserEmail(moment.getMomentOwner()).orElseThrow(NoSuchElementException::new);
+
         return MomentDetailResponseDto.builder()
                         .id(moment.getId().toHexString())
                         .groupId(moment.getGroupId())
                         .momentPin(moment.getMomentPin())
-                        .userIds(moment.getUserIds())
+                        .members(getMomentMembers(momentId))
                         .momentName(moment.getMomentName())
                         .momentDescription(moment.getMomentDescription())
-                        .momentOwner(moment.getMomentOwner())
+                        .momentOwner(MemberInfoResponseDto.builder()
+                                .userId(momentOwner.getUserId())
+                                .nickname(momentOwner.getUserName())
+                                .imageSrc(momentOwner.getUserImage())
+                                .build())
                         .uploadOption(moment.getUploadOption())
+                        .createdAt(moment.getCreatedAt())
                         .build();
     }
 
+    // 순간 참여하기
+    @Transactional
     public MomentDetailResponseDto participate(String token, String momentId, String pin) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -181,14 +205,14 @@ public class MomentService {
                 .id(moment.getId().toHexString())
                 .groupId(moment.getGroupId())
                 .momentPin(moment.getMomentPin())
-                .userIds(moment.getUserIds())
                 .momentName(moment.getMomentName())
                 .momentDescription(moment.getMomentDescription())
-                .momentOwner(moment.getMomentOwner())
                 .uploadOption(moment.getUploadOption())
                 .build();
     }
 
+    // 순간 퇴장하기
+    @Transactional
     public void userExit(String token, String momentId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -210,10 +234,12 @@ public class MomentService {
         momentRepository.save(moment);
     }
 
+    @Transactional(readOnly = true)
     public Moment getMomentEntity(String momentId) {
         return momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
     }
 
+    @Transactional(readOnly = true)
     public List<String> getMomentIds(Long groupId) {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 
@@ -225,5 +251,17 @@ public class MomentService {
         log.info("momentIds: {}", momentIds);
 
         return momentIds;
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberInfoResponseDto> getMomentMembers(String momentId) {
+        Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
+        List<Long> userIds = moment.getUserIds();
+        List<User> users = userService.getUsers(userIds);
+        return users.stream().map(user -> MemberInfoResponseDto.builder()
+                .userId(user.getUserId())
+                .nickname(user.getUserName())
+                .imageSrc(user.getUserImage())
+                .build()).toList();
     }
 }
