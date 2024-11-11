@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import StyledModal from '../../common/modal/StyledModal';
 import {onShare} from '../../../utils/share';
 import PinModal from '../../common/modal/PinModal';
+import {AppHeaderNavigationProp} from '../../../types/screen';
+import {useNavigation} from '@react-navigation/native';
 
 const Container = styled.View`
   width: 100%;
@@ -79,6 +81,8 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
   const [isOptionModalVisible, setOptionModalVisible] = useState(false);
   const [isPinModalVisible, setPinModalVisible] = useState(false);
 
+  const navigation = useNavigation<AppHeaderNavigationProp>();
+
   const toggleOptionModal = () => {
     setOptionModalVisible(!isOptionModalVisible);
   };
@@ -101,6 +105,15 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
       togglePinModal();
     } else if (optionId === 'put') {
       toggleOptionModal();
+      navigation.navigate('MomentAdd', {
+        momentAddInfo: {
+          momentId: momentInfoDetail.id,
+          momentName: momentInfoDetail.momentName,
+          momentDescription: momentInfoDetail.momentDescription,
+          uploadOption: momentInfoDetail.uploadOption,
+        },
+        isEdit: true,
+      });
     } else if (optionId === 'delete') {
       toggleOptionModal();
     }

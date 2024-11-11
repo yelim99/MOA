@@ -40,6 +40,7 @@ const MomentDetail: React.FC = () => {
     momentDescription: '',
     momentOwner: '',
     createdAt: '',
+    uploadOption: '',
   });
   const [loading, setLoading] = useState(false);
   const [isPinModalVisible, setIsPinModalVisible] = useState(false);

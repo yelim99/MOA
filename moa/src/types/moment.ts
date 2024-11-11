@@ -14,4 +14,12 @@ export type MomentInfoDetail = {
   momentDescription: string;
   momentOwner: string;
   createdAt: string;
+  uploadOption: string;
+};
+
+export type MomentAddInfo = {
+  momentId: string;
+  momentName: string;
+  momentDescription: string;
+  uploadOption: string;
 };

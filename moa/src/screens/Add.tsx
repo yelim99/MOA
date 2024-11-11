@@ -3,7 +3,10 @@ import ScreenContainer from '../components/common/ScreenContainer';
 import styled from 'styled-components/native';
 import {TextButton} from '../components/common/button/TextButton';
 import {useNavigation} from '@react-navigation/native';
-import {HomeScreenNavigationProp} from '../types/screen';
+import {
+  AppHeaderNavigationProp,
+  HomeScreenNavigationProp,
+} from '../types/screen';
 
 const ContentContainer = styled.View`
   width: 100%;
@@ -21,7 +24,7 @@ const ButtonContainer = styled.View`
 `;
 
 const Add = () => {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const navigation = useNavigation<AppHeaderNavigationProp>();
 
   return (
     <ScreenContainer>
@@ -31,15 +34,37 @@ const Add = () => {
             backcolor="maindarkorange"
             size="large"
             text="나의 그룹 만들기"
-            onPress={() => navigation.navigate('GroupAdd')}
+            onPress={() =>
+              navigation.navigate('GroupAdd', {
+                groupAddInfo: {
+                  groupId: '',
+                  groupName: '',
+                  groupDescription: '',
+                  groupColor: '',
+                  groupIcon: '',
+                },
+                isEdit: false,
+              })
+            }
           />
           <TextButton
             backcolor="mainlightyellow"
             size="large"
             text="나의 순간 만들기"
-            onPress={() => navigation.navigate('MomentAdd')}
+            onPress={() =>
+              navigation.navigate('MomentAdd', {
+                momentAddInfo: {
+                  momentId: '',
+                  momentName: '',
+                  momentDescription: '',
+                  uploadOption: '',
+                },
+                isEdit: false,
+              })
+            }
           />
         </ButtonContainer>
+        s
       </ContentContainer>
     </ScreenContainer>
   );
