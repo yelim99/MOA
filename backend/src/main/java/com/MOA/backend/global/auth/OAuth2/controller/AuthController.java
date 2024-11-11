@@ -2,23 +2,43 @@ package com.MOA.backend.global.auth.OAuth2.controller;
 
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
 import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.repository.UserRepository;
 import com.MOA.backend.domain.user.service.UserService;
+import com.MOA.backend.global.auth.OAuth2.service.AuthSerivce;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
-@AllArgsConstructor
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthSerivce authSerivce;
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final UserService userService;
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, String>> refreshAccessToken(@RequestHeader("Authorization") String refreshToken) {
+        try {
+            String newAccessToken = authSerivce.refreshAccessToken(refreshToken);
+            Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("accessToken", newAccessToken);
+
+            return ResponseEntity.ok(responseBody);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
     @Operation(summary = "회원가입 테스트용", description = "테스트를 위해 임의로 구현한 회원가입입니다.")
     @PostMapping
@@ -55,6 +75,9 @@ public class AuthController {
         return ResponseEntity.ok()
                 .body(Collections.singletonMap("token", "Bearer " + token));
     }
+
+
+
 
 
 }
