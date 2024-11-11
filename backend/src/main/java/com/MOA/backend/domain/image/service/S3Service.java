@@ -227,21 +227,16 @@ public class S3Service {
         List<String> orgImgs = new ArrayList<>();
         List<String> thumbImgs = new ArrayList<>();
 
-        log.info("momentId: {}", momentId);
         try {
             ListObjectsV2Request orgRequest = new ListObjectsV2Request()
                     .withBucketName(bucket)
-                    .withPrefix("group/200/moment/" + momentId + "/original");
+                    .withPrefix("group/602/moment/" + momentId + "/original");
             ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
                     .withBucketName(bucket)
-                    .withPrefix("group/200/moment/" + momentId + "/thumbnail");
+                    .withPrefix("group/602/moment/" + momentId + "/thumbnail");
 
             ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
-
-            log.info("Original images found: {}", orgResult.getObjectSummaries().size());
-            log.info("Thumbnail images found: {}", thumbResult.getObjectSummaries().size());
-
 
             for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
                 orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
@@ -249,8 +244,6 @@ public class S3Service {
                 thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                         thumbResult.getObjectSummaries().get(i).getKey())));
             }
-
-            log.info("imageSources: {}", thumbImgs);
 
             images.put("orgImgs", orgImgs);
             images.put("thumbImgs", thumbImgs);
