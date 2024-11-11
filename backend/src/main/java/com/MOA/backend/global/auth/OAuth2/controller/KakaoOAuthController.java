@@ -23,7 +23,7 @@ public class KakaoOAuthController {
     @PostMapping
     public ResponseEntity<Map<String, String>> kakaoLogin(@RequestHeader("Authorization") String accessToken) {
         String token = accessToken.replace("Bearer ", "");
-        User user = kakaoOAuthService.processUser(accessToken);
+        User user = kakaoOAuthService.processUser(token);
 
         String jwtToken = jwtUtil.generateAccessToken(user.getUserId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
