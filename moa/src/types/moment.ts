@@ -5,16 +5,27 @@ export type MomentInfo = {
   createdAt: string;
 };
 
-export type MomentInfoDetail = {
-  momentId: string;
-  momentName: string;
-  momentOwner: string;
-  momentDescription: string;
-  createdAt: string;
+export type Member = {
+  userId: string;
+  nickname: string;
+  imageSrc: string;
 };
 
-export type MomentPostResponse = {
+export type MomentInfoDetail = {
+  id: string;
+  groupId: string;
+  momentPin: string;
+  members: Member[];
+  momentName: string;
+  momentDescription: string;
+  momentOwner: Member;
+  createdAt: string;
+  uploadOption: string;
+};
+
+export type MomentAddInfo = {
   momentId: string;
-  message: string;
-  pin: string;
+  momentName: string;
+  momentDescription: string;
+  uploadOption: string;
 };

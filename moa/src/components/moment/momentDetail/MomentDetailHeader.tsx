@@ -6,6 +6,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import StyledModal from '../../common/modal/StyledModal';
 import {onShare} from '../../../utils/share';
 import PinModal from '../../common/modal/PinModal';
+import {AppHeaderNavigationProp} from '../../../types/screen';
+import {useNavigation} from '@react-navigation/native';
 
 const Container = styled.View`
   width: 100%;
@@ -47,7 +49,6 @@ const ModalItem = styled.Text`
 
 const Description = styled.Text`
   width: 100%;
-  text-align: center;
   font-family: 'SCDream5';
   font-size: 15px;
   margin: 20px 0;
@@ -79,6 +80,8 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
   const [isOptionModalVisible, setOptionModalVisible] = useState(false);
   const [isPinModalVisible, setPinModalVisible] = useState(false);
 
+  const navigation = useNavigation<AppHeaderNavigationProp>();
+
   const toggleOptionModal = () => {
     setOptionModalVisible(!isOptionModalVisible);
   };
@@ -87,11 +90,17 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
     setPinModalVisible(!isPinModalVisible);
   };
 
+  const formatDate = (dateString: string) => {
+    return `${dateString.substring(0, 10)} ${dateString.substring(11, 16)}`;
+  };
+
   const options = [
     {id: 'pin', label: 'PIN번호 보기'},
     {id: 'put', label: '그룹 수정'},
     {id: 'delete', label: '그룹 삭제'},
   ];
+
+  // console.log(momentInfoDetail);
 
   const handleSelectOption = (optionId: string) => {
     toggleOptionModal();
@@ -101,15 +110,21 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
       togglePinModal();
     } else if (optionId === 'put') {
       toggleOptionModal();
+      navigation.navigate('MomentAdd', {
+        momentAddInfo: {
+          momentId: momentInfoDetail.id,
+          momentName: momentInfoDetail.momentName,
+          momentDescription: momentInfoDetail.momentDescription,
+          uploadOption: momentInfoDetail.uploadOption,
+        },
+        isEdit: true,
+      });
     } else if (optionId === 'delete') {
       toggleOptionModal();
     }
   };
 
   const theme = useTheme();
-
-  // 임시 핀번호 -> 나중에 변경 예정
-  const pinNum = '123456';
 
   return (
     <Container>
@@ -120,7 +135,7 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
             onPress={() =>
               onShare(
                 `${momentInfoDetail.momentName} 순간`,
-                `moa://moment/${momentInfoDetail.momentId}`,
+                `moa://moment/${momentInfoDetail.id}`,
               )
             }
           >
@@ -142,11 +157,11 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
       <Description>{momentInfoDetail.momentDescription}</Description>
       <TextLine>
         <TextName>생성일</TextName>
-        <TextContent>{momentInfoDetail.createdAt}</TextContent>
+        <TextContent>{formatDate(momentInfoDetail.createdAt)}</TextContent>
       </TextLine>
       <TextLine>
         <TextName>생성자</TextName>
-        <TextContent>{momentInfoDetail.momentOwner}</TextContent>
+        <TextContent>{momentInfoDetail.momentOwner.nickname}</TextContent>
       </TextLine>
       <StyledModal
         isModalVisible={isOptionModalVisible}
@@ -162,7 +177,7 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
         ))}
       </StyledModal>
       <PinModal
-        pinNum={pinNum}
+        pinNum={momentInfoDetail.momentPin}
         isModalVisible={isPinModalVisible}
         toggleModal={togglePinModal}
       />

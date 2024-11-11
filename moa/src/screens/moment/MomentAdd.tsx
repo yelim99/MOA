@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable react/no-unstable-nested-components */
+import React, {useEffect, useState} from 'react';
 import ScreenContainer from '../../components/common/ScreenContainer';
 import AddInputBox from '../../components/common/input/AddInputBox';
 import {Picker} from '@react-native-picker/picker';
@@ -7,9 +8,9 @@ import {TextButton} from '../../components/common/button/TextButton';
 import api from '../../utils/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import {Alert} from 'react-native';
-import {HomeScreenNavigationProp} from '../../types/screen';
-import {useNavigation} from '@react-navigation/native';
-import {MomentPostResponse} from '../../types/moment';
+import {AppHeaderParamList, HomeScreenNavigationProp} from '../../types/screen';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import StackHeader from '../../components/common/header/StackHeader';
 
 const PickerContainer = styled.View`
   width: 100%;
@@ -33,6 +34,8 @@ const ButtonContainer = styled.View`
   align-items: center;
 `;
 
+type MomentAddRouteProp = RouteProp<AppHeaderParamList, 'MomentAdd'>;
+
 const MomentAdd = () => {
   const [loading, setLoading] = useState(false);
   const [momentName, setMomentName] = useState('');
@@ -40,6 +43,32 @@ const MomentAdd = () => {
   const [uploadOption, setUploadOption] = useState('all');
 
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const route = useRoute<MomentAddRouteProp>();
+
+  const {isEdit, momentAddInfo} = route.params || {
+    isEdit: false,
+    momentAddInfo: {
+      momentId: '',
+      momentName: '',
+      momentDescription: '',
+      uploadOption: '',
+    },
+  };
+
+  useEffect(() => {
+    if (isEdit && momentAddInfo) {
+      navigation.setOptions({
+        header: () => <StackHeader title="순간 수정" />,
+      });
+      setMomentName(momentAddInfo.momentName);
+      setMomentDescription(momentAddInfo.momentDescription);
+      setUploadOption(momentAddInfo.uploadOption || 'all');
+    } else {
+      navigation.setOptions({
+        header: () => <StackHeader title="순간 생성" />,
+      });
+    }
+  }, [isEdit, momentAddInfo, navigation]);
 
   const handleMomentPost = async () => {
     if (momentName === '' || momentDescription === '') {
@@ -57,7 +86,6 @@ const MomentAdd = () => {
 
     try {
       const response = await api.post('/moment', newMoment);
-
       Alert.alert('순간 생성', `${momentName} 순간이 생성되었습니다.`);
       navigation.navigate('MomentDetail', {
         momentInfo: {

@@ -151,13 +151,7 @@ const App = () => {
                     header: () => <StackHeader title="그룹 생성" />,
                   })}
                 />
-                <RootStack.Screen
-                  name="MomentAdd"
-                  component={MomentAdd}
-                  options={() => ({
-                    header: () => <StackHeader title="순간 생성" />,
-                  })}
-                />
+                <RootStack.Screen name="MomentAdd" component={MomentAdd} />
                 <RootStack.Screen
                   name="Notification"
                   component={Notification}

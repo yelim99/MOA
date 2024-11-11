@@ -8,6 +8,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import {Alert} from 'react-native';
 import {GroupDetailRouteProp, MomentDetailRouteProp} from '../../types/screen';
 import {useRoute} from '@react-navigation/native';
+import api from '../../utils/api';
 
 const Container = styled.View`
   position: absolute;
@@ -73,13 +74,6 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
   const handleUploadPress = async () => {
     const route = state.routes[state.index];
     const screenName = route.name;
-
-    // console.log(screenName);
-
-    // if (screenName === 'HomeStack') {
-    //   navigation.navigate('Home');
-    //   return;
-    // }
 
     const result = await launchImageLibrary({
       mediaType: 'photo',

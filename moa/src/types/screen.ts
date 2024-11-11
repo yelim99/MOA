@@ -1,5 +1,7 @@
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {GroupAddInfo} from './group';
+import {MomentAddInfo} from './moment';
 
 // HomeStack의 ParamList 타입 정의
 export type HomeStackParamList = {
@@ -35,7 +37,8 @@ export type MyPageScreenNavigationProp =
 export type AppHeaderParamList = {
   Home: undefined;
   Add: undefined;
-  GroupAdd: undefined;
+  GroupAdd: {groupAddInfo: GroupAddInfo; isEdit: boolean};
+  MomentAdd: {momentAddInfo: MomentAddInfo; isEdit: boolean};
   Notification: undefined;
 };
 
