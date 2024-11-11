@@ -69,15 +69,12 @@ const ShareButton = styled.TouchableOpacity`
 
 const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
   const theme = useTheme();
-  const route = useRoute();
 
   const handleUploadPress = async () => {
-    // const route = state.routes[state.index];
-    // const screenName = route.name;
-
+    const route = state.routes[state.index];
     const screenName = route.name;
 
-    console.log(screenName);
+    // console.log(screenName);
 
     // if (screenName === 'HomeStack') {
     //   navigation.navigate('Home');
@@ -96,18 +93,27 @@ const Navigation: React.FC<BottomTabBarProps> = ({state, navigation}) => {
 
     for (const image of selectedImages) {
       if (image.uri) {
-        if (screenName === 'GroupDetail') {
-          console.log('그룹 디테일임');
-          // GroupDetail 화면에서 선택한 이미지 업로드
-          const params = route.params as GroupDetailRouteProp['params'];
-          console.log('메소드 실행');
-          uploadImageToGroup(params.groupInfo.groupId, image.uri);
-        } else if (screenName === 'MomentDetail') {
-          // MomentDetail 화면에서 선택한 이미지 업로드
-          const params = route.params as MomentDetailRouteProp['params'];
-          uploadImageToMoment(params.momentInfo.momentId, image.uri);
+        if (screenName === 'HomeStack' && route.state?.index !== undefined) {
+          const nestedRoute = route.state?.routes[route.state.index];
+          if (nestedRoute && nestedRoute.name === 'GroupDetail') {
+            const params = nestedRoute.params as GroupDetailRouteProp['params'];
+            if (params?.groupInfo?.groupId) {
+              // GroupDetail에 있을 때 업로드 로직
+              uploadImageToGroup(params.groupInfo.groupId, image.uri);
+            }
+          } else if (nestedRoute && nestedRoute.name === 'MomentDetail') {
+            const params =
+              nestedRoute.params as MomentDetailRouteProp['params'];
+            if (params?.momentInfo?.momentId) {
+              // MomentDetail에 있을 때 업로드 로직
+              uploadImageToMoment(params.momentInfo.momentId, image.uri);
+            }
+          } else {
+            // Home으로 이동 -> 나중에 Home 선택모드로 이동
+            navigation.navigate('Home');
+          }
         } else {
-          // 다른 화면에서는 Home으로 이동
+          // 다른 탭에서도 Home 선택모드로 이동
           navigation.navigate('Home');
         }
       } else {

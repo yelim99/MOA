@@ -114,20 +114,20 @@ const App = () => {
       setLoading(false); // 로딩 완료
     };
     initAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
   if (loading) {
     return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
   }
 
-  const navigationRef =
-    useRef<NavigationContainerRef<HomeStackParamList>>(null);
+  // const navigationRef =
+  //   useRef<NavigationContainerRef<HomeStackParamList>>(null);
 
   return (
     <ThemeProvider theme={theme}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <StyledSafeAreaView>
-        <NavigationContainer ref={navigationRef} linking={linking}>
+        <NavigationContainer linking={linking}>
           <RootStack.Navigator>
             {isAuthenticated ? (
               <>
