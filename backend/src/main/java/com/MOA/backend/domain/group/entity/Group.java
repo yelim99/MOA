@@ -41,7 +41,7 @@ public class Group extends BaseEntity {
     @Column(name = "group_color")
     private String groupColor;
 
-    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Member> members = new ArrayList<>();
 
 }
