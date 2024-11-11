@@ -5,14 +5,20 @@ export type MomentInfo = {
   createdAt: string;
 };
 
+export type Member = {
+  userId: string;
+  nickname: string;
+  imageSrc: string;
+};
+
 export type MomentInfoDetail = {
   id: string;
   groupId: string;
   momentPin: string;
-  userNicknames: string[];
+  members: Member[];
   momentName: string;
   momentDescription: string;
-  momentOwner: string;
+  momentOwner: Member;
   createdAt: string;
   uploadOption: string;
 };

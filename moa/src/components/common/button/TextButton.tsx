@@ -12,11 +12,13 @@ interface TextButtonProps extends TouchableOpacityProps {
   backcolor?: keyof DefaultTheme['colors'];
   onPress?: () => void;
   text: string;
+  border?: boolean;
 }
 
 const StyledTextButton = styled.TouchableOpacity<{
   backcolor: keyof DefaultTheme['colors'];
   size: 'small' | 'medium' | 'large';
+  bordercolor: string;
 }>`
   background-color: ${({backcolor, theme}) => theme.colors[backcolor]};
   ${({size}) =>
@@ -38,6 +40,7 @@ const StyledTextButton = styled.TouchableOpacity<{
       padding: 5px 30px;
     `}
   border-radius: 15px;
+  ${({bordercolor}) => bordercolor && `border: 1px solid ${bordercolor};`}
   align-items: center;
   justify-content: center;
   flex-direction: row;
@@ -60,7 +63,6 @@ const ButtonText = styled.Text<{
       : size === 'medium'
         ? theme.fontFamily.SCDream6
         : theme.fontFamily.SCDream7};
-  margin-left: 5px;
 `;
 
 export const TextButton: React.FC<TextButtonProps> = ({
@@ -70,6 +72,7 @@ export const TextButton: React.FC<TextButtonProps> = ({
   size = 'medium',
   onPress,
   text,
+  border = false,
   ...props
 }) => {
   const theme = useTheme();
@@ -78,11 +81,14 @@ export const TextButton: React.FC<TextButtonProps> = ({
       ? theme.colors.maindarkorange
       : theme.colors.white;
   const TextComponent = iconSet === 'Feather' ? FeatherIcon : MaterialIcon;
+  const bordercolor = border ? theme.colors.maindarkorange : '';
+
   return (
     <StyledTextButton
       size={size}
       backcolor={backcolor}
       onPress={onPress}
+      bordercolor={bordercolor}
       {...props}
     >
       {iconName && (

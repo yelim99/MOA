@@ -3,6 +3,7 @@ import styled from 'styled-components/native';
 import MemberListItem from './MemberListItem';
 import {Profile} from '../../types/user';
 import {FlatList} from 'react-native';
+import {Member} from '../../types/moment';
 
 const Container = styled.View`
   width: 100%;
@@ -25,42 +26,14 @@ const TitleNum = styled(Title)<{darkColor: string}>`
 `;
 
 interface MemberListProps {
+  memberList: Member[];
   darkColor?: string;
 }
 
-const MemberList = ({darkColor = ''}: MemberListProps) => {
+const MemberList = ({memberList, darkColor = ''}: MemberListProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
 
   const itemSize = (containerWidth - 3 * 15) / 4;
-
-  //임시 멤버 데이터 -> 수정 예정
-  const memberList: Profile[] = [
-    {
-      userId: 1,
-      userName: '문선정',
-      userImage: require('../../assets/images/logo.png'),
-    },
-    {
-      userId: 2,
-      userName: '김윤홍',
-      userImage: require('../../assets/images/logo.png'),
-    },
-    {
-      userId: 3,
-      userName: '김주형',
-      userImage: require('../../assets/images/logo.png'),
-    },
-    {
-      userId: 4,
-      userName: '민예림',
-      userImage: require('../../assets/images/logo.png'),
-    },
-    {
-      userId: 5,
-      userName: '임세하',
-      userImage: require('../../assets/images/logo.png'),
-    },
-  ];
 
   return (
     <Container
@@ -80,8 +53,8 @@ const MemberList = ({darkColor = ''}: MemberListProps) => {
         keyExtractor={(item) => item.userId.toString()}
         renderItem={({item}) => (
           <MemberListItem
-            userName={item.userName}
-            userImage={item.userImage}
+            userName={item.nickname}
+            userImage={item.imageSrc}
             itemSize={itemSize}
           />
         )}

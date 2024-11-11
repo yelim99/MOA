@@ -91,11 +91,17 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
     setPinModalVisible(!isPinModalVisible);
   };
 
+  const formatDate = (dateString: string) => {
+    return `${dateString.substring(0, 10)} ${dateString.substring(11, 16)}`;
+  };
+
   const options = [
     {id: 'pin', label: 'PIN번호 보기'},
     {id: 'put', label: '그룹 수정'},
     {id: 'delete', label: '그룹 삭제'},
   ];
+
+  // console.log(momentInfoDetail);
 
   const handleSelectOption = (optionId: string) => {
     toggleOptionModal();
@@ -152,11 +158,11 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
       <Description>{momentInfoDetail.momentDescription}</Description>
       <TextLine>
         <TextName>생성일</TextName>
-        <TextContent>{momentInfoDetail.createdAt}</TextContent>
+        <TextContent>{formatDate(momentInfoDetail.createdAt)}</TextContent>
       </TextLine>
       <TextLine>
         <TextName>생성자</TextName>
-        <TextContent>{momentInfoDetail.momentOwner}</TextContent>
+        <TextContent>{momentInfoDetail.momentOwner.nickname}</TextContent>
       </TextLine>
       <StyledModal
         isModalVisible={isOptionModalVisible}

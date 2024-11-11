@@ -16,7 +16,7 @@ const ContentContainer = styled.View`
 
 const Title = styled.Text`
   font-family: 'SCDream5';
-  font-size: 20px;
+  font-size: 18px;
   color: ${({theme}) => theme.colors.maindarkorange};
   margin-bottom: 30px;
 `;
@@ -40,7 +40,7 @@ const NumberContainer = styled.View`
 
 const PinInput = styled(TextInput)`
   font-family: SCDream4;
-  font-size: 12px;
+  font-size: 15px;
   text-align: center;
   width: 30px;
   height: 50px;
@@ -49,6 +49,8 @@ const PinInput = styled(TextInput)`
 const ButtonContainer = styled.View`
   flex-direction: row;
   align-items: center;
+  justify-content: space-between;
+  width: 110px;
 `;
 
 interface PinModalProps {
@@ -77,6 +79,11 @@ const PinPostModal = ({
     }
   };
 
+  const handleGoback = () => {
+    toggleModal();
+    navigation.goBack();
+  };
+
   const handleSubmitPin = async () => {
     if (momentPin === pinNum) {
       await api.post(`/moment/${momentId}?PIN=${pinNum}`);
@@ -103,7 +110,6 @@ const PinPostModal = ({
               <PinInput
                 ref={(ref) => (inputRefs.current[index] = ref)}
                 maxLength={1}
-                keyboardType="number-pad"
                 value={pinNum[index] || ''}
                 onChangeText={(text) => handleChangeText(text, index)}
               />
@@ -111,9 +117,15 @@ const PinPostModal = ({
           ))}
         </PinContainer>
         <ButtonContainer>
-          <TextButton text="이전" onPress={() => navigation.goBack()} />
+          <TextButton
+            text="이전"
+            size="small"
+            onPress={() => handleGoback()}
+            border={true}
+          />
           <TextButton
             text="입장"
+            size="small"
             backcolor="maindarkorange"
             onPress={handleSubmitPin}
           />

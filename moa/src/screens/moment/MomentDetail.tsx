@@ -18,6 +18,7 @@ import {MomentInfoDetail} from '../../types/moment';
 import {Alert} from 'react-native';
 import PinPostModal from '../../components/common/modal/PinPostModal';
 import {AxiosError} from 'axios';
+import {Member} from '../../types/moment';
 
 const Container = styled.ScrollView.attrs({
   nestedScrollEnabled: true,
@@ -35,10 +36,10 @@ const MomentDetail: React.FC = () => {
     id: '',
     groupId: '',
     momentPin: '',
-    userNicknames: [],
+    members: [],
     momentName: '',
     momentDescription: '',
-    momentOwner: '',
+    momentOwner: {userId: '', nickname: '', imageSrc: ''},
     createdAt: '',
     uploadOption: '',
   });
@@ -59,10 +60,9 @@ const MomentDetail: React.FC = () => {
 
     try {
       const response = await api.get(`/moment/${momentId}`);
-      setMomentInfoDetail(response.data);
+      setMomentInfoDetail(response?.data);
     } catch (error: unknown) {
-      console.log(error);
-      if (error instanceof AxiosError && error.response?.status === 403) {
+      if (error instanceof AxiosError && error.response?.data.status === 403) {
         toggleModal();
       } else {
         Alert.alert('순간 조회 오류', '나의 순간 조회 중 오류가 발생했습니다.');
@@ -89,7 +89,7 @@ const MomentDetail: React.FC = () => {
       <Container>
         <MomentDetailHeader momentInfoDetail={momentInfoDetail} />
         <Partition />
-        <MemberList />
+        <MemberList memberList={momentInfoDetail.members} />
         <Partition />
         <AlbumContainer title="공유된 사진" momentId={momentId} />
       </Container>

@@ -3,10 +3,7 @@ import ScreenContainer from '../components/common/ScreenContainer';
 import styled from 'styled-components/native';
 import {TextButton} from '../components/common/button/TextButton';
 import {useNavigation} from '@react-navigation/native';
-import {
-  AppHeaderNavigationProp,
-  HomeScreenNavigationProp,
-} from '../types/screen';
+import {AppHeaderNavigationProp} from '../types/screen';
 
 const ContentContainer = styled.View`
   width: 100%;

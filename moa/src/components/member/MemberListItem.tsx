@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import {ImageSourcePropType} from 'react-native';
 
 const Container = styled.View<{itemSize: number}>`
   width: ${({itemSize}) => itemSize}px;
@@ -25,7 +24,7 @@ const Name = styled.Text`
 
 interface MemberListItemProps {
   userName: string;
-  userImage: ImageSourcePropType;
+  userImage: string;
   itemSize: number;
 }
 
@@ -37,7 +36,7 @@ const MemberListItem = ({
   return (
     <Container itemSize={itemSize}>
       <StyledImage
-        source={userImage}
+        source={{uri: userImage}}
         resizeMode="contain"
         itemSize={itemSize}
       />
