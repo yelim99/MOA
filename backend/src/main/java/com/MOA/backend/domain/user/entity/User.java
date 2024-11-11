@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
+@Getter
 @JsonIgnoreProperties({"memberships"})
 public class User extends BaseEntity {
 
