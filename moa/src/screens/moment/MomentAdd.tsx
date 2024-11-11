@@ -56,7 +56,6 @@ const MomentAdd = () => {
 
     try {
       const response = await api.post('/moment', newMoment);
-
       Alert.alert('순간 생성', `${momentName} 순간이 생성되었습니다.`);
       navigation.navigate('MomentDetail', {
         momentInfo: {

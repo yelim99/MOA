@@ -1,8 +1,11 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import StyledModal from './StyledModal';
 import styled from 'styled-components/native';
-import {TextInput} from 'react-native';
+import {Alert, TextInput} from 'react-native';
 import {TextButton} from '../button/TextButton';
+import api from '../../../utils/api';
+import {HomeScreenNavigationProp} from '../../../types/screen';
+import {useNavigation} from '@react-navigation/native';
 
 const ContentContainer = styled.View`
   padding: 30px;
@@ -22,11 +25,12 @@ const PinContainer = styled.View`
   width: 90%;
   flex-direction: row;
   justify-content: space-between;
+  margin-bottom: 30px;
 `;
 
 const NumberContainer = styled.View`
-  width: 40px;
-  height: 50px;
+  width: 30px;
+  height: 30px;
   border-radius: 10px;
   background-color: ${({theme}) => theme.colors.mainlightyellow};
   align-items: center;
@@ -36,25 +40,31 @@ const NumberContainer = styled.View`
 
 const PinInput = styled(TextInput)`
   font-family: SCDream4;
-  font-size: 18px;
+  font-size: 12px;
   text-align: center;
-  width: 100%;
-  height: 100%;
+  width: 30px;
+  height: 50px;
+`;
+
+const ButtonContainer = styled.View`
+  flex-direction: row;
+  align-items: center;
 `;
 
 interface PinModalProps {
-  pinNum: string;
+  momentId: string;
+  momentPin: string;
   isModalVisible: boolean;
   toggleModal: () => void;
-  setPinNum: (value: string) => void;
 }
 
-const PinModal = ({
+const PinPostModal = ({
+  momentId,
+  momentPin,
   isModalVisible,
   toggleModal,
-  pinNum,
-  setPinNum,
 }: PinModalProps) => {
+  const [pinNum, setPinNum] = useState<string>('');
   const inputRefs = useRef<Array<TextInput | null>>([]);
 
   const handleChangeText = (text: string, index: number) => {
@@ -67,8 +77,24 @@ const PinModal = ({
     }
   };
 
+  const handleSubmitPin = async () => {
+    if (momentPin === pinNum) {
+      await api.post(`/moment/${momentId}?PIN=${pinNum}`);
+      toggleModal();
+      return;
+    }
+
+    Alert.alert('PIN번호 오류', 'PIN번호가 일치하지 않습니다.');
+  };
+
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+
   return (
-    <StyledModal isModalVisible={isModalVisible} toggleModal={toggleModal}>
+    <StyledModal
+      isModalVisible={isModalVisible}
+      toggleModal={toggleModal}
+      canClickOverlay={false}
+    >
       <ContentContainer>
         <Title>PIN 번호 입력</Title>
         <PinContainer>
@@ -84,9 +110,17 @@ const PinModal = ({
             </NumberContainer>
           ))}
         </PinContainer>
+        <ButtonContainer>
+          <TextButton text="이전" onPress={() => navigation.goBack()} />
+          <TextButton
+            text="입장"
+            backcolor="maindarkorange"
+            onPress={handleSubmitPin}
+          />
+        </ButtonContainer>
       </ContentContainer>
     </StyledModal>
   );
 };
 
-export default PinModal;
+export default PinPostModal;

@@ -15,6 +15,9 @@ import AlbumContainer from '../../components/album/AlbumContainer';
 import api from '../../utils/api';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import {MomentInfoDetail} from '../../types/moment';
+import {Alert} from 'react-native';
+import PinPostModal from '../../components/common/modal/PinPostModal';
+import {AxiosError} from 'axios';
 
 const Container = styled.ScrollView.attrs({
   nestedScrollEnabled: true,
@@ -29,10 +32,13 @@ const MomentDetail: React.FC = () => {
   const route = useRoute<MomentDetailRouteProp>();
 
   const [momentInfoDetail, setMomentInfoDetail] = useState<MomentInfoDetail>({
-    momentId: '',
+    id: '',
+    groupId: '',
+    momentPin: '',
+    userNicknames: [],
     momentName: '',
-    momentOwner: '',
     momentDescription: '',
+    momentOwner: '',
     createdAt: '',
   });
   const [loading, setLoading] = useState(false);
@@ -53,11 +59,12 @@ const MomentDetail: React.FC = () => {
     try {
       const response = await api.get(`/moment/${momentId}`);
       setMomentInfoDetail(response.data);
-    } catch (error: any) {
-      if (error.response?.status === 403) {
+    } catch (error: unknown) {
+      console.log(error);
+      if (error instanceof AxiosError && error.response?.status === 403) {
         toggleModal();
       } else {
-        console.error('데이터를 가져오는 중 오류 발생:', error);
+        Alert.alert('순간 조회 오류', '나의 순간 조회 중 오류가 발생했습니다.');
       }
     } finally {
       setLoading(false);
@@ -86,6 +93,12 @@ const MomentDetail: React.FC = () => {
         <AlbumContainer title="공유된 사진" momentId={momentId} />
       </Container>
       {loading && <LoadingSpinner />}
+      <PinPostModal
+        momentId={momentInfoDetail.id}
+        isModalVisible={isPinModalVisible}
+        toggleModal={toggleModal}
+        momentPin={momentInfoDetail.momentPin}
+      />
     </ScreenContainer>
   );
 };

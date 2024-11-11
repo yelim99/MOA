@@ -6,9 +6,12 @@ export type MomentInfo = {
 };
 
 export type MomentInfoDetail = {
-  momentId: string;
+  id: string;
+  groupId: string;
+  momentPin: string;
+  userNicknames: string[];
   momentName: string;
-  momentOwner: string;
   momentDescription: string;
+  momentOwner: string;
   createdAt: string;
 };

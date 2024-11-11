@@ -28,9 +28,7 @@ const StyledTextButton = styled.TouchableOpacity<{
   ${({size}) =>
     size === 'medium' &&
     css`
-      width: 160px;
-      height: 30px;
-      padding: 5px;
+      padding: 5px 15px;
     `}
   ${({size}) =>
     size === 'large' &&

@@ -108,9 +108,6 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
 
   const theme = useTheme();
 
-  // 임시 핀번호 -> 나중에 변경 예정
-  const pinNum = '123456';
-
   return (
     <Container>
       <TitleLine>
@@ -120,7 +117,7 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
             onPress={() =>
               onShare(
                 `${momentInfoDetail.momentName} 순간`,
-                `moa://moment/${momentInfoDetail.momentId}`,
+                `moa://moment/${momentInfoDetail.id}`,
               )
             }
           >
@@ -162,7 +159,7 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
         ))}
       </StyledModal>
       <PinModal
-        pinNum={pinNum}
+        pinNum={momentInfoDetail.momentPin}
         isModalVisible={isPinModalVisible}
         toggleModal={togglePinModal}
       />
