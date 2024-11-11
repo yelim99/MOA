@@ -82,6 +82,7 @@ services:
     volumes:
       - /home/ubuntu/mongo-data2:/data/db
       - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
+      - /home/ubuntu/config/mongod.conf:/etc/mongod.conf
     command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
   mongo3:
@@ -101,6 +102,7 @@ services:
     volumes:
       - /home/ubuntu/mongo-data3:/data/db
       - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
+      - /home/ubuntu/config/mongod.conf:/etc/mongod.conf
     command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
 networks:
