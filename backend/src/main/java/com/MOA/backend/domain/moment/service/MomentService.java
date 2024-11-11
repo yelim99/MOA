@@ -1,8 +1,6 @@
 package com.MOA.backend.domain.moment.service;
 
-import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.member.dto.response.MemberInfoResponseDto;
-import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
 import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
@@ -18,7 +16,6 @@ import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.MOA.backend.global.exception.ForbiddenAccessException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,7 +37,6 @@ public class MomentService {
     private final PinCodeUtil pinCodeUtil;
     private final MomentRedisService momentRedisService;
     private final JwtUtil jwtUtil;
-    private final MemberService memberService;
 
     // 그룹에서 사진 업로드 시 바로 Moment 생성
     @Transactional
@@ -119,7 +115,6 @@ public class MomentService {
     }
 
     // 내 순간 가져오기
-    @Transactional(readOnly = true)
     public List<MomentResponseDto> getAllMoments(String token) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -132,7 +127,6 @@ public class MomentService {
 
         return momentRepository.findAllByIdInOrderByCreatedAtAsc(objectIds)
                 .stream()
-//                .sorted(Comparator.comparing(Moment::getCreatedAt)) // 생성일자 기준으로 정렬
                 .map(moment -> MomentResponseDto.builder()
                 .momentId(moment.getId().toHexString())
                 .momentTitle(moment.getMomentName())
@@ -143,7 +137,6 @@ public class MomentService {
     }
 
     // 순간 상세 조회 == 내가 이미 참여한 순간에 입장
-    @Transactional(readOnly = true)
     public MomentDetailResponseDto getMoment(String token, String momentId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -154,10 +147,11 @@ public class MomentService {
         }
 
         // Moment 찾아오기
-        Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
+        Moment moment = momentRepository.findById(momentId).orElseThrow(() -> new NoSuchElementException("순간이 없습니다."));
 
         // 소유자 찾아오기
-        User momentOwner = userService.findByUserEmail(moment.getMomentOwner()).orElseThrow(NoSuchElementException::new);
+        User momentOwner = userService.findByUserEmail(moment.getMomentOwner())
+                .orElseThrow(() -> new NoSuchElementException("소유자가 없습니다."));
 
         return MomentDetailResponseDto.builder()
                         .id(moment.getId().toHexString())
@@ -234,12 +228,10 @@ public class MomentService {
         momentRepository.save(moment);
     }
 
-    @Transactional(readOnly = true)
     public Moment getMomentEntity(String momentId) {
         return momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
     }
 
-    @Transactional(readOnly = true)
     public List<String> getMomentIds(Long groupId) {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 

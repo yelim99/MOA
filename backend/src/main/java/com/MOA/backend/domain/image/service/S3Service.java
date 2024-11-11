@@ -10,6 +10,8 @@ import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.lifecycle.LifecycleFilter;
+import com.amazonaws.services.s3.model.lifecycle.LifecyclePrefixPredicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +42,7 @@ public class S3Service {
     @Value("${cloud.s3.bucket}")
     private String bucket;
 
+    // 이미지 업로드
     public List<String> uploadImages(String momentId, List<MultipartFile> images) {
         /* 해당 Moment 먼저 찾기
             - Moment에 GroupId랑 MomentId가 다 들어가 있음
@@ -68,19 +71,23 @@ public class S3Service {
         return imageUrls;
     }
 
+    // 원본 파일 경로 생성
     // https://moa-s3-bucket.s3.amazonaws.com/group/{groupId}/moment/{momentId}/{imageName}
     public String createOriginalImagePath(Long groupId, String momentId) {
         return "group/" + groupId + "/moment/" + momentId + "/original/";
     }
 
+    // 썸네일 파일 경로 생성
     public String createThumbnailImagePath(Long groupId, String momentId) {
         return "group/" + groupId + "/moment/" + momentId + "/thumbnail/";
     }
 
+    // 이미지 파일 이름(UUID) 생성
     public String createImageName(String imageName) {
         return UUID.randomUUID().toString().concat(getFileExtension(imageName));
     }
 
+    // 회원 프로필 사진 업로드
     public String uploadUserImg(String token, MultipartFile image) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -97,6 +104,7 @@ public class S3Service {
         return amazonS3.getUrl(bucket, imageName).toString();
     }
 
+    // 원본 이미지 업로드
     private void uploadOriginalImage(MultipartFile image, String imagePath) {
         try (InputStream inputStream = image.getInputStream()) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -110,6 +118,7 @@ public class S3Service {
         }
     }
 
+    // 썸네일 이미지 업로드
     private void uploadThumbnailImage(MultipartFile thumbnailImage, String imagePath) {
         try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 0.5)) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
@@ -123,6 +132,7 @@ public class S3Service {
         }
     }
 
+    // 확장자 구하기
     private String getFileExtension(String imageName) {
         try {
             String extension = imageName.substring(imageName.lastIndexOf(".")).toLowerCase();
@@ -137,7 +147,7 @@ public class S3Service {
         }
     }
 
-    // 유저 사진 업로드
+    // 유저 AI 분류용 사진 업로드
     // https://moa-s3-bucket.s3.amazonaws.com/user/{userEmail}/profile.{확장자}
     public String uploadUserProfile(String token, MultipartFile image) {
         Long userId = jwtUtil.extractUserId(token);
@@ -169,6 +179,7 @@ public class S3Service {
         return fileUrl;
     }
 
+    // S3에서 사진 삭제
     public List<String> deleteImages(List<String> imageUrls) {
         List<String> removedImages = new ArrayList<>();
         imageUrls.forEach(imageUrl -> {
@@ -207,6 +218,49 @@ public class S3Service {
         } catch(AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
+    }
+
+    // Moment 안의 모든 사진 URL 경로 조회
+    public Map<String, List<String>> getImagesInMoment(String momentId) {
+        Map<String, List<String>> images = new HashMap<>();
+
+        List<String> orgImgs = new ArrayList<>();
+        List<String> thumbImgs = new ArrayList<>();
+
+        log.info("momentId: {}", momentId);
+        try {
+            ListObjectsV2Request orgRequest = new ListObjectsV2Request()
+                    .withBucketName(bucket)
+                    .withPrefix("group/200/moment/" + momentId + "/original");
+            ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
+                    .withBucketName(bucket)
+                    .withPrefix("group/200/moment/" + momentId + "/thumbnail");
+
+            ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
+            ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
+
+            log.info("Original images found: {}", orgResult.getObjectSummaries().size());
+            log.info("Thumbnail images found: {}", thumbResult.getObjectSummaries().size());
+
+
+            for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+                orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
+                        orgResult.getObjectSummaries().get(i).getKey())));
+                thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
+                        thumbResult.getObjectSummaries().get(i).getKey())));
+            }
+
+            log.info("imageSources: {}", thumbImgs);
+
+            images.put("orgImgs", orgImgs);
+            images.put("thumbImgs", thumbImgs);
+
+        } catch (AmazonS3Exception e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+                    "이미지 목록을 조회하는 중 오류가 발생했습니다.");
+        }
+
+        return images;
     }
 
     // Group 안의 모든 사진 URL 경로 조회
@@ -249,6 +303,7 @@ public class S3Service {
         return imagesByMoment;
     }
 
+    // 유저 프로필 사진 조회
     public String getUserImg(String userEmail) {
         String prefix = "user/" + userEmail + "/userImg";
         try {
@@ -268,5 +323,23 @@ public class S3Service {
         } catch(AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
+    }
+
+    public void createLifecyclePolicy(String groupId, String momentId) {
+        BucketLifecycleConfiguration.Rule rule = new BucketLifecycleConfiguration.Rule()
+                .withId("DeleteMomentImages-" + momentId)
+                .withFilter(new LifecycleFilter(
+                        new LifecyclePrefixPredicate("group/" + groupId + "/moment/" + momentId + "/")))
+                .withExpirationInDays(1)
+                .withStatus(BucketLifecycleConfiguration.ENABLED);
+
+        BucketLifecycleConfiguration configuration = amazonS3.getBucketLifecycleConfiguration(bucket);
+        if(configuration == null) {
+            configuration = new BucketLifecycleConfiguration().withRules(rule);
+        } else {
+            configuration.getRules().add(rule);
+        }
+
+        amazonS3.setBucketLifecycleConfiguration(bucket, configuration);
     }
 }
