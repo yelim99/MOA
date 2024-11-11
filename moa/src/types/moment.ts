@@ -12,3 +12,9 @@ export type MomentInfoDetail = {
   momentDescription: string;
   createdAt: string;
 };
+
+export type MomentPostResponse = {
+  momentId: string;
+  message: string;
+  pin: string;
+};
