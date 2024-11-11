@@ -24,7 +24,6 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
-    private final MemberService memberService;
 
     // 그룹 생성
     @Transactional

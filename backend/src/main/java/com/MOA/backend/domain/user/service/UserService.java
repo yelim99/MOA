@@ -28,7 +28,7 @@ public class UserService {
         return userRepository.findByUserEmail(userEmail);
     }
 
-    public Optional<User> findByUserId(long id) {
+    public Optional<User> findByUserId(Long id) {
         return userRepository.findById(id);
     }
 
@@ -85,6 +85,10 @@ public class UserService {
             userRepository.save(user);
         });
 
+    }
+
+    public List<User> getUsers(List<Long> userIds) {
+        return userRepository.findAllByUserIdIn(userIds);
     }
 
 }
