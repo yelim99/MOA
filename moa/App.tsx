@@ -1,9 +1,12 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import styled, {ThemeProvider} from 'styled-components/native';
 import {theme} from './src/styles/theme';
 import Navigation from './src/components/common/Navigation';
-import {NavigationContainer} from '@react-navigation/native';
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+} from '@react-navigation/native';
 import {
   createBottomTabNavigator,
   BottomTabBarProps,
@@ -111,11 +114,14 @@ const App = () => {
       setLoading(false); // 로딩 완료
     };
     initAuthStatus();
-  }, []);
+  }, [checkAuthStatus]);
 
   if (loading) {
     return null; // 로딩 중일 때 빈 화면 또는 로딩 스피너를 보여줄 수 있습니다.
   }
+
+  // const navigationRef =
+  //   useRef<NavigationContainerRef<HomeStackParamList>>(null);
 
   return (
     <ThemeProvider theme={theme}>

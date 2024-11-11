@@ -52,8 +52,8 @@ const OptionButton = styled.TouchableOpacity`
 `;
 
 const ToggleText = styled.Text<{isActive: boolean}>`
+  font-family: 'SCDream5';
   font-size: 15px;
-  font-weight: bold;
   color: ${({theme, isActive}) =>
     isActive ? theme.colors.maindarkorange : theme.colors.deepgray};
 `;

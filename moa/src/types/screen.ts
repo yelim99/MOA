@@ -1,3 +1,4 @@
+import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 
 // HomeStack의 ParamList 타입 정의
@@ -7,6 +8,12 @@ export type HomeStackParamList = {
   MomentDetail: {momentInfo: {momentId: string; momentName: string}};
   // 여기에 스크린 추가
 };
+
+export type GroupDetailRouteProp = RouteProp<HomeStackParamList, 'GroupDetail'>;
+export type MomentDetailRouteProp = RouteProp<
+  HomeStackParamList,
+  'MomentDetail'
+>;
 
 // Home 화면에서 사용하는 네비게이션 타입
 export type HomeScreenNavigationProp = StackNavigationProp<
