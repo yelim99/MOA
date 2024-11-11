@@ -9,7 +9,6 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 import {Alert} from 'react-native';
 import {HomeScreenNavigationProp} from '../../types/screen';
 import {useNavigation} from '@react-navigation/native';
-import {MomentPostResponse} from '../../types/moment';
 
 const PickerContainer = styled.View`
   width: 100%;

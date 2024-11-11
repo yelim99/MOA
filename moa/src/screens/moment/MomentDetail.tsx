@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import ScreenContainer from '../../components/common/ScreenContainer';
 import MemberList from '../../components/member/MemberList';
 import styled from 'styled-components/native';
@@ -12,6 +12,9 @@ import {
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import StackHeader from '../../components/common/header/StackHeader';
 import AlbumContainer from '../../components/album/AlbumContainer';
+import api from '../../utils/api';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
+import {MomentInfoDetail} from '../../types/moment';
 
 const Container = styled.ScrollView.attrs({
   nestedScrollEnabled: true,
@@ -25,18 +28,45 @@ const MomentDetail: React.FC = () => {
   const navigation = useNavigation<StackHeaderNavigationProp>();
   const route = useRoute<MomentDetailRouteProp>();
 
+  const [momentInfoDetail, setMomentInfoDetail] = useState<MomentInfoDetail>({
+    momentId: '',
+    momentName: '',
+    momentOwner: '',
+    momentDescription: '',
+    createdAt: '',
+  });
+  const [loading, setLoading] = useState(false);
+  const [isPinModalVisible, setIsPinModalVisible] = useState(false);
+
   const {momentId, momentName} = route.params.momentInfo || {
     momentId: '',
     momentName: '',
   };
 
-  const momentInfoDetail = {
-    momentId: '1',
-    momentName: '싸피 가을 마라톤',
-    momentDescription: 'SSAFY 11기 가을 마라톤 대회 사진 공유',
-    momentOwner: '김관리',
-    createdAt: '2024-11-08',
-  };
+  const toggleModal = useCallback(() => {
+    setIsPinModalVisible((prev) => !prev);
+  }, []);
+
+  const getMomentDetail = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const response = await api.get(`/moment/${momentId}`);
+      setMomentInfoDetail(response.data);
+    } catch (error: any) {
+      if (error.response?.status === 403) {
+        toggleModal();
+      } else {
+        console.error('데이터를 가져오는 중 오류 발생:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [momentId, toggleModal]);
+
+  useEffect(() => {
+    getMomentDetail();
+  }, [getMomentDetail]);
 
   useEffect(() => {
     if (momentName) {
@@ -55,6 +85,7 @@ const MomentDetail: React.FC = () => {
         <Partition />
         <AlbumContainer title="공유된 사진" momentId={momentId} />
       </Container>
+      {loading && <LoadingSpinner />}
     </ScreenContainer>
   );
 };
