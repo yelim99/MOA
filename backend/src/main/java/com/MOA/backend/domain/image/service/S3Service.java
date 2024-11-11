@@ -317,28 +317,4 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
-
-    public void createLifecyclePolicy(Long groupId, String momentId) {
-        // 현재 시간으로부터 5분 뒤 만료 설정
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, 5); // 5분 후
-        Date expirationDate = calendar.getTime();
-
-        BucketLifecycleConfiguration.Rule rule = new BucketLifecycleConfiguration.Rule()
-                .withId("DeleteMomentImages-" + momentId)
-                .withFilter(new LifecycleFilter(
-                        new LifecyclePrefixPredicate("group/" + groupId + "/moment/" + momentId + "/")))
-//                .withExpirationInDays(1)
-                .withExpirationDate(expirationDate)
-                .withStatus(BucketLifecycleConfiguration.ENABLED);
-
-        BucketLifecycleConfiguration configuration = amazonS3.getBucketLifecycleConfiguration(bucket);
-        if(configuration == null) {
-            configuration = new BucketLifecycleConfiguration().withRules(rule);
-        } else {
-            configuration.getRules().add(rule);
-        }
-
-        amazonS3.setBucketLifecycleConfiguration(bucket, configuration);
-    }
 }
