@@ -65,6 +65,7 @@ const ScrollContainer = styled.ScrollView`
 
 const ContentContainer = styled.View`
   padding-bottom: 100px;
+  min-height: 200px;
 `;
 
 const Home = () => {
@@ -144,7 +145,14 @@ const Home = () => {
         }
       >
         <ContentContainer>
-          {isGroup ? <MyGroupList /> : <MyMomentList />}
+          {isGroup ? (
+            <MyGroupList />
+          ) : (
+            <MyMomentList
+              refreshing={refreshing}
+              onRefresh={() => setRefreshing(false)}
+            />
+          )}
         </ContentContainer>
       </ScrollContainer>
     </ScreenContainer>

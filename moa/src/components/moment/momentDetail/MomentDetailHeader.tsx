@@ -8,6 +8,7 @@ import {onShare} from '../../../utils/share';
 import PinModal from '../../common/modal/PinModal';
 import {AppHeaderNavigationProp} from '../../../types/screen';
 import {useNavigation} from '@react-navigation/native';
+import {formatDate} from '../../../utils/common';
 
 const Container = styled.View`
   width: 100%;
@@ -88,10 +89,6 @@ const MomentDetailHeader = ({momentInfoDetail}: MomentDetailHeaderProps) => {
 
   const togglePinModal = () => {
     setPinModalVisible(!isPinModalVisible);
-  };
-
-  const formatDate = (dateString: string) => {
-    return `${dateString.substring(0, 10)} ${dateString.substring(11, 16)}`;
   };
 
   const options = [

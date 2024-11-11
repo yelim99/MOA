@@ -10,15 +10,22 @@ const Container = styled.View`
   width: 100%;
   align-items: center;
   padding-top: 1px;
+  min-height: 200px;
 `;
 
 const NullText = styled.Text`
   font-family: 'SCDream4';
   font-size: 15px;
   color: ${({theme}) => theme.colors.deepgray};
+  margin-top: 50px;
 `;
 
-const MyMomentList = () => {
+interface MyMomentListProps {
+  refreshing: boolean;
+  onRefresh: () => void;
+}
+
+const MyMomentList = ({refreshing, onRefresh}: MyMomentListProps) => {
   const [loading, setLoading] = useState(false);
   const [momentList, setMomentList] = useState<MomentInfo[]>();
 
@@ -41,13 +48,20 @@ const MyMomentList = () => {
     handleGetMomentList();
   }, []);
 
+  useEffect(() => {
+    if (refreshing) {
+      handleGetMomentList();
+      onRefresh(); // 새로고침 종료
+    }
+  }, [refreshing, onRefresh]);
+
   return (
     <Container>
       {momentList?.map((moment) => (
         <MyMomentListItem key={moment.momentId} momentInfo={moment} />
       ))}
       {momentList?.length === 0 && <NullText>가입한 순간이 없습니다.</NullText>}
-      {loading && <LoadingSpinner />}
+      {loading && <LoadingSpinner isDark={false} />}
     </Container>
   );
 };
