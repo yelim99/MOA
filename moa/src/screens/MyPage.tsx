@@ -48,11 +48,6 @@ const Logout = styled.View`
   flex-direction: row;
   justify-content: space-between;
 `;
-// 중간에 선 넣기 나중에 시도
-const Divider = styled.View`
-  border: 1px solid ${(props) => props.theme.colors.lightgray};
-  width: 100%;
-`;
 
 const Face = styled.View`
   width: 100%;
