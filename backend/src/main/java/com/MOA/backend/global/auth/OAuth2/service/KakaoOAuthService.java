@@ -28,7 +28,7 @@ public class KakaoOAuthService {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Transactional
-    public String processUser(String accessToken) {
+    public User processUser(String accessToken) {
         String userInfoEndpointUri = "https://kapi.kakao.com/v2/user/me";
 
         HttpHeaders headers = new HttpHeaders();
@@ -49,6 +49,7 @@ public class KakaoOAuthService {
             Map<String, Object> userInfo = objectMapper.readValue(response.getBody(), Map.class);
 
             Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
+
             if (kakaoAccount == null) {
                 throw new RuntimeException("Kakao 계정 정보가 없습니다. 응답: " + response.getBody());
             }
@@ -72,15 +73,12 @@ public class KakaoOAuthService {
                 userRepository.save(user);
             }
 
-            String jwtToken = jwtUtil.generateAccessToken(user.getUserId());
-            return jwtToken;
+            return user;
 
         } catch (Exception e) {
             throw new RuntimeException("유저 프로필을 불러오는 것에 실패했습니다. 상세 오류: " + e.getMessage(), e);
         }
     }
-
-
 
 
 }
