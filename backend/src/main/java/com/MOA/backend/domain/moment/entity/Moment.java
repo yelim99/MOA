@@ -28,6 +28,7 @@ public class Moment {
     private String momentName;
     private String momentDescription;
     private String momentOwner;
+    private String momentOwnerEmail;
     private String uploadOption;
 
     @CreatedDate
@@ -38,7 +39,7 @@ public class Moment {
 
     @Builder
     public Moment(Long groupId, String momentPin, List<Long> userIds, String momentName, String momentDescription,
-                  String momentOwner, String uploadOption) {
+                  String momentOwner, String momentOwnerEmail, String uploadOption) {
         this.groupId = groupId;
         this.momentPin = momentPin;
         this.userIds = userIds == null ? new ArrayList<>() : userIds;
@@ -46,6 +47,7 @@ public class Moment {
         this.momentDescription = momentDescription;
         this.momentOwner = momentOwner;
         this.uploadOption = uploadOption;
+        this.momentOwnerEmail = momentOwnerEmail;
     }
 
     public void update(MomentUpdateRequestDto momentUpdateRequestDto) {

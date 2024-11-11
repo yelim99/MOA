@@ -74,6 +74,7 @@ public class MomentService {
                 .momentName(momentCreateRequestDto.getMomentName())
                 .momentDescription(momentCreateRequestDto.getMomentDescription())
                 .momentOwner(loginUser.getUserName())
+                .momentOwnerEmail(loginUser.getUserEmail())
                 .uploadOption(momentCreateRequestDto.getUploadOption())
                 .build();
 
@@ -150,7 +151,7 @@ public class MomentService {
         Moment moment = momentRepository.findById(momentId).orElseThrow(() -> new NoSuchElementException("순간이 없습니다."));
 
         // 소유자 찾아오기
-        User momentOwner = userService.findByUserEmail(moment.getMomentOwner())
+        User momentOwner = userService.findByUserEmail(moment.getMomentOwnerEmail())
                 .orElseThrow(() -> new NoSuchElementException("소유자가 없습니다."));
 
         return MomentDetailResponseDto.builder()
