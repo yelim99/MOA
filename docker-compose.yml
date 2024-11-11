@@ -5,6 +5,8 @@ services:
     container_name: redis
     environment:
       TZ: Asia/Seoul
+    volumes:
+      - /home/ubuntu/redis-data:/data
     networks:
       - mongoCluster      
     ports:
