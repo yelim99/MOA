@@ -86,14 +86,20 @@ const MomentDetail: React.FC = () => {
 
   return (
     <ScreenContainer>
-      <Container>
-        <MomentDetailHeader momentInfoDetail={momentInfoDetail} />
-        <Partition />
-        <MemberList memberList={momentInfoDetail.members} />
-        <Partition />
-        <AlbumContainer title="공유된 사진" momentId={momentId} />
-      </Container>
-      {loading && <LoadingSpinner />}
+      {loading ? (
+        <LoadingSpinner />
+      ) : (
+        <Container>
+          <MomentDetailHeader momentInfoDetail={momentInfoDetail} />
+          <Partition />
+          <MemberList
+            owner={momentInfoDetail.momentOwner}
+            memberList={momentInfoDetail.members}
+          />
+          <Partition />
+          <AlbumContainer title="공유된 사진" momentId={momentId} />
+        </Container>
+      )}
       <PinPostModal
         momentId={momentInfoDetail.id}
         isModalVisible={isPinModalVisible}

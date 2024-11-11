@@ -16,22 +16,35 @@ const StyledImage = styled.Image<{itemSize: number}>`
   border-radius: 100px;
 `;
 
+const NameLine = styled.View`
+  flex-direction: row;
+  align-items: center;
+`;
+
 const Name = styled.Text`
   font-family: 'SCDream5';
   font-size: 12px;
   color: ${({theme}) => theme.colors.deepgray};
 `;
 
+const IsMe = styled(Name)`
+  color: ${({theme}) => theme.colors.maindarkorange};
+`;
+
 interface MemberListItemProps {
   userName: string;
   userImage: string;
   itemSize: number;
+  isMe: boolean;
+  isOwner: boolean;
 }
 
 const MemberListItem = ({
   userName,
   userImage,
   itemSize,
+  isMe,
+  isOwner,
 }: MemberListItemProps) => {
   return (
     <Container itemSize={itemSize}>
@@ -40,7 +53,15 @@ const MemberListItem = ({
         resizeMode="contain"
         itemSize={itemSize}
       />
-      <Name>{userName}</Name>
+      <NameLine>
+        {isMe ? (
+          <IsMe>{userName}&nbsp;(나)</IsMe>
+        ) : (
+          <Name>
+            {userName} {isOwner && '(관리자)'}
+          </Name>
+        )}
+      </NameLine>
     </Container>
   );
 };

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import styled from 'styled-components/native';
 import MemberListItem from './MemberListItem';
-import {Profile} from '../../types/user';
 import {FlatList} from 'react-native';
 import {Member} from '../../types/moment';
+import {useAuthStore} from '../../stores/authStores';
 
 const Container = styled.View`
   width: 100%;
@@ -26,14 +26,25 @@ const TitleNum = styled(Title)<{darkColor: string}>`
 `;
 
 interface MemberListProps {
+  owner: Member;
   memberList: Member[];
   darkColor?: string;
 }
 
-const MemberList = ({memberList, darkColor = ''}: MemberListProps) => {
+const MemberList = ({owner, memberList, darkColor = ''}: MemberListProps) => {
   const [containerWidth, setContainerWidth] = useState(0);
-
+  const userId = useAuthStore((state) => state.userId);
   const itemSize = (containerWidth - 3 * 15) / 4;
+
+  const sortedMemberList = [
+    ...memberList.filter((member) => member.userId === userId),
+    ...memberList.filter(
+      (member) => member.userId !== userId && member.userId === owner.userId,
+    ),
+    ...memberList.filter(
+      (member) => member.userId !== userId && member.userId !== owner.userId,
+    ),
+  ];
 
   return (
     <Container
@@ -44,10 +55,10 @@ const MemberList = ({memberList, darkColor = ''}: MemberListProps) => {
     >
       <TitleLine>
         <Title>참여중인 멤버</Title>
-        <TitleNum darkColor={darkColor}>{memberList.length}명</TitleNum>
+        <TitleNum darkColor={darkColor}>{memberList?.length}명</TitleNum>
       </TitleLine>
       <FlatList
-        data={memberList}
+        data={sortedMemberList}
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         keyExtractor={(item) => item.userId.toString()}
@@ -56,6 +67,8 @@ const MemberList = ({memberList, darkColor = ''}: MemberListProps) => {
             userName={item.nickname}
             userImage={item.imageSrc}
             itemSize={itemSize}
+            isMe={item.userId === userId}
+            isOwner={item.userId !== userId && item.userId === owner.userId}
           />
         )}
       />
