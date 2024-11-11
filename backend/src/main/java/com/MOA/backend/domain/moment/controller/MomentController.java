@@ -1,5 +1,7 @@
 package com.MOA.backend.domain.moment.controller;
 
+import com.MOA.backend.domain.image.service.S3Service;
+import com.MOA.backend.domain.member.dto.response.MemberInfoResponseDto;
 import com.MOA.backend.domain.moment.dto.request.MomentCreateRequestDto;
 import com.MOA.backend.domain.moment.dto.request.MomentUpdateRequestDto;
 import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
@@ -9,18 +11,22 @@ import com.MOA.backend.domain.moment.dto.response.MomentUpdateResponseDto;
 import com.MOA.backend.domain.moment.service.MomentRedisService;
 import com.MOA.backend.domain.moment.service.MomentService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/moment")
+@Slf4j
 public class MomentController {
 
     private final MomentService momentService;
+    private final S3Service s3Service;
 
     // 순간 생성
     @PostMapping
@@ -68,7 +74,20 @@ public class MomentController {
             @PathVariable(name = "moment_id") String momentId
     ) {
         MomentDetailResponseDto moment = momentService.getMoment(token, momentId);
-        return ResponseEntity.ok(moment);
+        Map<String, List<String>> images = s3Service.getImagesInMoment(momentId);
+
+        return ResponseEntity.ok(MomentDetailResponseDto.builder()
+                .id(moment.getId())
+                .groupId(moment.getGroupId())
+                .momentPin(moment.getMomentPin())
+                .members(moment.getMembers())
+                .momentName(moment.getMomentName())
+                .momentDescription(moment.getMomentDescription())
+                .momentOwner(moment.getMomentOwner())
+                .images(images)
+                .uploadOption(moment.getUploadOption())
+                .createdAt(moment.getCreatedAt())
+                .build());
     }
 
     // 순간 참여
