@@ -3,8 +3,9 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  RefreshControl,
 } from 'react-native';
-import React, {useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import styled from 'styled-components/native';
 import ScreenContainer from '../components/common/ScreenContainer';
 import MyGroupList from '../components/group/groupList/MyGroupList';
@@ -68,6 +69,7 @@ const ContentContainer = styled.View`
 
 const Home = () => {
   const [isGroup, setIsGroup] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const togglePosition = useRef(new Animated.Value(4)).current;
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -109,6 +111,11 @@ const Home = () => {
     }).start();
   };
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
   return (
     <ScreenContainer>
       <ToggleContainer
@@ -131,7 +138,11 @@ const Home = () => {
           </OptionButton>
         </OptionContainer>
       </ToggleContainer>
-      <ScrollContainer>
+      <ScrollContainer
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <ContentContainer>
           {isGroup ? <MyGroupList /> : <MyMomentList />}
         </ContentContainer>

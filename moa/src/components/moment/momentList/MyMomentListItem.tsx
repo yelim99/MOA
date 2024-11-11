@@ -58,14 +58,14 @@ const MyMomentListItem = ({momentInfo}: MyMomentListItemProps) => {
         navigation.navigate('MomentDetail', {
           momentInfo: {
             momentId: momentInfo.momentId,
-            momentName: momentInfo.momentName,
+            momentName: momentInfo.momentTitle,
           },
         })
       }
     >
       <TitleLine>
         <Title numberOfLines={1} ellipsizeMode="tail">
-          {momentInfo.momentName}
+          {momentInfo.momentTitle}
         </Title>
         <Date>{momentInfo.createdAt}</Date>
       </TitleLine>

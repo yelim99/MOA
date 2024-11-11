@@ -1,6 +1,6 @@
 export type MomentInfo = {
   momentId: string;
-  momentName: string;
+  momentTitle: string;
   momentOwner: string;
   createdAt: string;
 };

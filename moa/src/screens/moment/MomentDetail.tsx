@@ -18,7 +18,6 @@ import {MomentInfoDetail} from '../../types/moment';
 import {Alert} from 'react-native';
 import PinPostModal from '../../components/common/modal/PinPostModal';
 import {AxiosError} from 'axios';
-import {Member} from '../../types/moment';
 
 const Container = styled.ScrollView.attrs({
   nestedScrollEnabled: true,
