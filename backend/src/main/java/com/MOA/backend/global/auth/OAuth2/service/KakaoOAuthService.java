@@ -42,16 +42,12 @@ public class KakaoOAuthService {
                     entity,
                     String.class
             );
-
-            // 응답을 확인하기 위한 로깅
-            System.out.println("Kakao API 응답: " + response.getBody());
-
             Map<String, Object> userInfo = objectMapper.readValue(response.getBody(), Map.class);
 
             Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
 
             if (kakaoAccount == null) {
-                throw new RuntimeException("Kakao 계정 정보가 없습니다. 응답: " + response.getBody());
+                throw new RuntimeException("Kakao 계정 정보가 없습니다. 응답");
             }
 
             String email = (String) kakaoAccount.get("email");
@@ -63,17 +59,15 @@ public class KakaoOAuthService {
             User user;
 
             if (optionalUser.isPresent()) {
-                user = optionalUser.get();
+                return optionalUser.get();
             } else {
                 Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
                 String nickname = (profile != null) ? (String) profile.get("nickname") : "Unknown";
                 String image = (profile != null) ? (String) profile.get("thumbnail_image_url") : null;
 
                 user = new User(nickname, email, image);
-                userRepository.save(user);
+                return userRepository.save(user);
             }
-
-            return user;
 
         } catch (Exception e) {
             throw new RuntimeException("유저 프로필을 불러오는 것에 실패했습니다. 상세 오류: " + e.getMessage(), e);

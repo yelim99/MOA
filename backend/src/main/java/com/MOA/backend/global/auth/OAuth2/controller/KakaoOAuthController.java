@@ -28,6 +28,8 @@ public class KakaoOAuthController {
         String jwtToken = jwtUtil.generateAccessToken(user.getUserId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
 
+        jwtUtil.storeRefreshToken(user.getUserId(), refreshToken);
+
         Map<String, String> responseBody = new HashMap<>();
         responseBody.put("accessToken", jwtToken);
         responseBody.put("refreshToken", refreshToken);
