@@ -61,7 +61,7 @@ services:
       - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
       - /home/ubuntu/config/mongod.conf:/etc/mongod.conf
       - /home/ubuntu/config/mongo-init-replica.sh:/docker-entrypoint-initdb.d/mongo-init-replica.sh
-    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --config /etc/mongod.conf --bind_ip_all'
+    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
     networks:
       - mongoCluster
 
@@ -83,7 +83,7 @@ services:
       - /home/ubuntu/mongo-data2:/data/db
       - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
       - /home/ubuntu/config/mongod.conf:/etc/mongod.conf
-    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --config /etc/mongod.conf --bind_ip_all'
+    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
   mongo3:
     image: mongo:latest
@@ -103,7 +103,7 @@ services:
       - /home/ubuntu/mongo-data3:/data/db
       - /home/ubuntu/key/mongodb.key:/etc/mongodb.key
       - /home/ubuntu/config/mongod.conf:/etc/mongod.conf
-    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --config /etc/mongod.conf --bind_ip_all'
+    command: 'mongod --replSet myReplicaSet --keyFile /etc/mongodb.key --bind_ip_all'
 
 networks:
   mongoCluster:
