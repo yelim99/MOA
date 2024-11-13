@@ -22,6 +22,10 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -283,5 +287,19 @@ public class MomentService {
     // 기간이 만료된 모든 DeletedMoment 삭제
     public Long deleteDeletedMoment(Date currDate) {
         return deletedMomentRepository.deleteByExpiredAtBefore(currDate);
+    }
+
+    // 그룹 내 moment들의 남은 시간 반환
+    public Map<String, Date> getMomentExpireDate(List<String> momentIdList) {
+        Map<String, Date> expireDateMap = new HashMap<>();
+        for(String momentId : momentIdList) {
+            Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
+            Instant instant = moment.getCreatedAt().toInstant();
+            ZonedDateTime kst = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul")).plusDays(1);
+            Date kstDate = Date.from(kst.toInstant());
+            expireDateMap.put(momentId, kstDate);
+        }
+
+        return expireDateMap;
     }
 }
