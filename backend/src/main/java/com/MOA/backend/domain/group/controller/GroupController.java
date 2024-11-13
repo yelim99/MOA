@@ -22,12 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-<<<<<<< HEAD
 import java.util.*;
-=======
-import java.util.List;
-import java.util.Map;
->>>>>>> d836172d219380cc313d0fbe26929778a6cf41bf
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
