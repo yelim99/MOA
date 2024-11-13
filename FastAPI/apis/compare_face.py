@@ -11,6 +11,7 @@ import io
 import os
 import boto3
 import base64
+import time
 from dotenv import load_dotenv
 
 router = APIRouter()
@@ -84,6 +85,8 @@ async def compare_face(request: FaceCompareRequest):
                     print("Error occurred:", e)
 
                 # OpenCV로 이미지 디코딩 및 얼굴 임베딩 추출
+                start_time = time.time()  # 시작 시간 기록
+
                 np_img = np.frombuffer(image_data, np.uint8)
                 image = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
                 face_locations = face_recognition.face_locations(image)
@@ -97,6 +100,12 @@ async def compare_face(request: FaceCompareRequest):
                         print("일치")
                         break  # 일치하는 얼굴이 발견되면 다음 이미지로
                     print("불일치")
+
+        end_time = time.time()  # 종료 시간 기록
+
+        # 소요 시간 출력
+        elapsed_time = end_time - start_time
+        print(f"임베딩 추출 및 비교 소요 시간: {elapsed_time:.2f}초")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
