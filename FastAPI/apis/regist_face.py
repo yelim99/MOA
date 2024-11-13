@@ -32,8 +32,6 @@ class ImageRequest(BaseModel):
 @router.post("")
 async def register_face(request: ImageRequest):
 
-    print("안오는데?")
-
     image_url = request.image_url
     print(f"Fetching image from URL: {image_url}")
 
@@ -56,22 +54,13 @@ async def register_face(request: ImageRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # Spring으로 전송 준비 (임베딩 값을 바이트 형식으로 변환)
-    # face_embedding_bytes = np.array(face_embedding, dtype=np.float32).tobytes()
-
+    print(face_embedding)
     # 바이트로 변환 후 Base64 인코딩
     embedding_bytes = face_embedding.tobytes()
+
     encoded_embedding = base64.b64encode(embedding_bytes).decode('utf-8')
     print(encoded_embedding)
 
-    # 바이너리 데이터 반환
-    print("Returning face embedding as binary data.")
-    # return Response(content=encoded_embedding, media_type="application/octet-stream")
-    # return JSONResponse(content={"embedding": encoded_embedding})
+    # base64 데이터 반환
+    print("Returning face embedding as base64.")
     return Response(content=encoded_embedding)
-
-
-# 서버 실행
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)

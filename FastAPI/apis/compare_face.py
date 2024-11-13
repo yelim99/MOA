@@ -1,7 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Response
 from pydantic import BaseModel
 from fastapi import APIRouter
-from fastapi import HTTPException, Response  # Response 추가
+from typing import List
 import requests  # requests 라이브러리 추가
 import logging
 import face_recognition
@@ -10,6 +10,7 @@ import cv2
 import io
 import os
 import boto3
+import base64
 
 router = APIRouter()
 
@@ -23,20 +24,26 @@ pcs = set()
 s3 = boto3.client('s3', region_name='ap-northeast-2')
 bucket_name = 'moa-s3-bucket'
 
+boto3.set_stream_logger('boto3', level=logging.DEBUG)
+
 # 요청 데이터 모델 정의
 class FaceCompareRequest(BaseModel):
     group_id: int
-    moment_ids: list
-    reference_embedding: list
+    moment_ids: List[str]
+    reference_embedding: str
 
-@router.post("/")
+@router.post("")
 async def compare_face(request: FaceCompareRequest):
+
     group_id = request.group_id
     moment_ids = request.moment_ids
-    reference_embedding_array = np.array(request.reference_embedding, dtype=np.float32)
+    reference_embedding = request.reference_embedding
 
-    # S3`` 프리픽스 설정
-    prefix = f"group/{group_id}/moment/{moment_id}/"  
+    # base64 디코딩
+    reference_embedding_bytes = base64.b64decode(reference_embedding)
+
+    # numpy 배열로 변환 (float64 형식)
+    reference_embedding_array = np.frombuffer(reference_embedding_bytes, dtype=np.float64)
 
     matching_urls = []
 
@@ -45,15 +52,26 @@ async def compare_face(request: FaceCompareRequest):
          # 각 moment_id에 대해 S3 경로를 확인하고 처리
         for moment_id in moment_ids:
             prefix = f"group/{group_id}/moment/{moment_id}/"
-            response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+            print(prefix)
+            try:
+                response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+                print("response 성공")
+            except Exception as e:
+                print("Error occurred:", e)
 
             for obj in response.get('Contents', []):
                 file_key = obj['Key']
+                if obj['Size'] == 0:
+                    continue
                 file_url = f"https://{bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_key}"
-
+                print(file_url)
+                
                 # S3에서 이미지 다운로드
-                s3_object = s3.get_object(Bucket=bucket_name, Key=file_key)
-                image_data = s3_object['Body'].read()
+                try:
+                    s3_object = s3.get_object(Bucket=bucket_name, Key=file_key)
+                    image_data = s3_object['Body'].read()
+                except Exception as e:
+                    print("Error occurred:", e)
 
                 # OpenCV로 이미지 디코딩 및 얼굴 임베딩 추출
                 np_img = np.frombuffer(image_data, np.uint8)
@@ -66,10 +84,12 @@ async def compare_face(request: FaceCompareRequest):
                     match = face_recognition.compare_faces([reference_embedding_array], encoding, tolerance=0.45)
                     if match[0]:
                         matching_urls.append(file_url)
+                        print("일치")
                         break  # 일치하는 얼굴이 발견되면 다음 이미지로
+                    print("불일치")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
     # Spring으로 비교 결과 반환
-    return {"matching_urls": matching_urls}
+    return {"matchingUrls": matching_urls}
