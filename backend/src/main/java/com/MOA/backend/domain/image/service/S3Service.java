@@ -259,6 +259,7 @@ public class S3Service {
     public Map<String, Map<String, List<String>>> getImagesInGroup(Long groupId, List<String> momentIds) {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
         imagesByMoment.put("thumbImgs", new HashMap<>());
+        imagesByMoment.put("expiredAt", new HashMap<>());
         for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {

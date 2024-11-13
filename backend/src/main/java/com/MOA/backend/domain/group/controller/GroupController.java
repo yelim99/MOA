@@ -19,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
@@ -53,11 +50,13 @@ public class GroupController {
         List<User> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
+        Map<String, Date> momentExpireDate = momentService.getMomentExpireDate(momentService.getMomentIds(groupId));
 
         return ResponseEntity.ok().body(GroupDetailsResponse.builder()
                 .group(group)
                 .users(users)
                 .images(imagesInGroup)
+                .expiredAt(momentExpireDate)
                 .build());
     }
 
