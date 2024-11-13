@@ -1,0 +1,8 @@
+moa/
+moa_env/
+my_log.log
+uvicorn.log
+nohup.out
+cuda-keyring_1.1-1_all.deb
+cuda_11.4.2_470.57.02_linux.run
+dlib/
