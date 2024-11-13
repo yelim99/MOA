@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -58,9 +57,7 @@ public class MomentService {
         momentRepository.save(moment);
 
         // Spring Batch를 위한 DeletedMoment 생성
-
         // 시간 + 1 Day
-        log.info("moment.getCreatedAt: {}", moment.getCreatedAt());
         Date expiredDate = new Date(moment.getCreatedAt().getTime());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(expiredDate);
@@ -70,9 +67,8 @@ public class MomentService {
                 .momentId(moment.getId())
                 .groupId(moment.getGroupId())
                 .expiredAt(calendar.getTime()).build());
-        log.info("deletedMoment.getExpiredDate: {}", calendar.getTime());
 
-        log.info("Moment: {}가 생성되었습니다.", moment);
+        log.info("Moment: {}, expiredAt: {}", moment, calendar.getTime());
 
         return moment.getId().toHexString();
     }
@@ -96,9 +92,7 @@ public class MomentService {
         momentRepository.save(moment);
 
         // Spring Batch를 위한 DeletedMoment 생성
-
         // 시간 + 1 Day
-        log.info("moment.getCreatedAt: {}", moment.getCreatedAt());
         Date expiredDate = new Date(moment.getCreatedAt().getTime());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(expiredDate);
@@ -108,9 +102,8 @@ public class MomentService {
                 .momentId(moment.getId())
                 .groupId(moment.getGroupId())
                 .expiredAt(calendar.getTime()).build());
-        log.info("deletedMoment.getExpiredDate: {}", calendar.getTime());
 
-        log.info("Moment: {}", moment);
+        log.info("Moment: {}, expiredAt: {}", moment, calendar.getTime());
         String hexId = moment.getId().toHexString();
 
         momentRedisService.participateMoment(userId, hexId);

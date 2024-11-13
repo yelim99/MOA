@@ -227,7 +227,6 @@ public class S3Service {
     public Map<String, List<String>> getImagesInMoment(String momentId) {
         Map<String, List<String>> images = new HashMap<>();
 
-        List<String> orgImgs = new ArrayList<>();
         List<String> thumbImgs = new ArrayList<>();
 
         try {
@@ -242,13 +241,10 @@ public class S3Service {
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
             for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                        orgResult.getObjectSummaries().get(i).getKey())));
                 thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                         thumbResult.getObjectSummaries().get(i).getKey())));
             }
 
-            images.put("orgImgs", orgImgs);
             images.put("thumbImgs", thumbImgs);
 
         } catch (AmazonS3Exception e) {
@@ -262,10 +258,8 @@ public class S3Service {
     // Group 안의 모든 사진 URL 경로 조회
     public Map<String, Map<String, List<String>>> getImagesInGroup(Long groupId, List<String> momentIds) {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
-        imagesByMoment.put("orgImgs", new HashMap<>());
         imagesByMoment.put("thumbImgs", new HashMap<>());
         for(String momentId : momentIds) {
-            List<String> orgImgs = new ArrayList<>();
             List<String> thumbImgs = new ArrayList<>();
             try {
                 ListObjectsV2Request orgRequest = new ListObjectsV2Request()
@@ -279,15 +273,10 @@ public class S3Service {
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
                 for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                    orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                            orgResult.getObjectSummaries().get(i).getKey())));
                     thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                             thumbResult.getObjectSummaries().get(i).getKey())));
                 }
 
-                log.info("imageSources: {}", thumbImgs);
-
-                imagesByMoment.get("orgImgs").put(momentId, orgImgs);
                 imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);
 
             } catch (AmazonS3Exception e) {
