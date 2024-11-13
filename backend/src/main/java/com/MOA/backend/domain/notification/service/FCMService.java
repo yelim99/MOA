@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.TopicManagementResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -18,10 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -61,45 +62,45 @@ public class FCMService {
                 })
                 .onErrorReturn(0);
     }
-
-    /**
-     * @param fcmInvitationRequest
-     * @return
-     * @throws JsonProcessingException
-     */
-    public Mono<Integer> sendInvitationTo(FCMInvitationRequest fcmInvitationRequest) throws JsonProcessingException {
-        String message = makeInvitationMessage(fcmInvitationRequest);
-        log.info("Invitation Message: {}", message);
-        String accessToken = getAccessToken();
-
-        return webClient.post()
-                .uri(FCM_API_URL)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .bodyValue(message)
-                .retrieve()
-                .toBodilessEntity()
-                .map(response -> {
-                    if (response.getStatusCode().is2xxSuccessful()) {
-                        log.info("[+] FCM 초대 알림 전송 성공");
-                        return 1;
-                    } else {
-                        log.warn("[-] FCM 초대 알림 전송 실패 - 응답 코드: {}", response.getStatusCode());
-                        return 0;
-                    }
-                })
-                .doOnError(e -> log.error("[-] FCM 초대 알림 전송 오류: {}", e.getMessage()))
-                .onErrorResume(e -> {
-                    if (e instanceof WebClientRequestException) {
-                        log.warn("[-] 네트워크 연결 오류 발생: {}", e.getMessage());
-                        return Mono.just(-1); // 네트워크 오류에 대한 반환 값 설정
-                    } else if (e instanceof WebClientResponseException.Unauthorized) {
-                        log.warn("[-] 인증 오류 발생: {}", e.getMessage());
-                        return Mono.just(-2); // 인증 오류에 대한 반환 값 설정
-                    }
-                    return Mono.just(0); // 일반적인 예외에 대한 기본 처리
-                });
-
-    }
+//
+//    /**
+//     * @param fcmInvitationRequest
+//     * @return
+//     * @throws JsonProcessingException
+//     */
+//    public Mono<Integer> sendInvitationTo(FCMInvitationRequest fcmInvitationRequest) throws JsonProcessingException {
+//        String message = makeInvitationMessage(fcmInvitationRequest);
+//        log.info("Invitation Message: {}", message);
+//        String accessToken = getAccessToken();
+//
+//        return webClient.post()
+//                .uri(FCM_API_URL)
+//                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+//                .bodyValue(message)
+//                .retrieve()
+//                .toBodilessEntity()
+//                .map(response -> {
+//                    if (response.getStatusCode().is2xxSuccessful()) {
+//                        log.info("[+] FCM 초대 알림 전송 성공");
+//                        return 1;
+//                    } else {
+//                        log.warn("[-] FCM 초대 알림 전송 실패 - 응답 코드: {}", response.getStatusCode());
+//                        return 0;
+//                    }
+//                })
+//                .doOnError(e -> log.error("[-] FCM 초대 알림 전송 오류: {}", e.getMessage()))
+//                .onErrorResume(e -> {
+//                    if (e instanceof WebClientRequestException) {
+//                        log.warn("[-] 네트워크 연결 오류 발생: {}", e.getMessage());
+//                        return Mono.just(-1); // 네트워크 오류에 대한 반환 값 설정
+//                    } else if (e instanceof WebClientResponseException.Unauthorized) {
+//                        log.warn("[-] 인증 오류 발생: {}", e.getMessage());
+//                        return Mono.just(-2); // 인증 오류에 대한 반환 값 설정
+//                    }
+//                    return Mono.just(0); // 일반적인 예외에 대한 기본 처리
+//                });
+//
+//    }
 
 
     /**
@@ -147,40 +148,52 @@ public class FCMService {
         return om.writeValueAsString(fcmMessage);
     }
 
-    /**
-     * 초대를 위한 메세지를 만듭니다.
-     *
-     * @param fcmInvitationRequest
-     * @return
-     * @throws JsonProcessingException
-     */
-    private String makeInvitationMessage(FCMInvitationRequest fcmInvitationRequest) throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        FCMMessage fcmMessage = FCMMessage.builder()
-                .message(FCMMessage.Message.builder()
-                        .token(fcmInvitationRequest.getUserToken())
-                        .notification(FCMMessage.Notification.builder()
-                                .title("그룹 초대")
-                                .body(fcmInvitationRequest.getInviteName() + "님이 " + fcmInvitationRequest.getGroupName() + "그룹에 초대했습니다.")
-                                .build())
-                        .build())
-                .validateOnly(false)
-                .build();
-        return om.writeValueAsString(fcmMessage);
-    }
-
-//    public Mono<SubscribeResponse> subscribeToGroups(List<String> tokens, Long groupId){
-//        return Flux.fromIterable(groupIds)
-//                .flatMap(groupId -> {
-//                    String topic = groupId.toString();
-//                    try {
-//                        return FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic)
-//                                .then(Mono.just(groupId))
-//                                .doOnSuccess(id -> log.info)
-//                    } catch (FirebaseMessagingException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                })
+//    /**
+//     * 초대를 위한 메세지를 만듭니다.
+//     *
+//     * @param fcmInvitationRequest
+//     * @return
+//     * @throws JsonProcessingException
+//     */
+//    private String makeInvitationMessage(FCMInvitationRequest fcmInvitationRequest) throws JsonProcessingException {
+//        ObjectMapper om = new ObjectMapper();
+//        FCMMessage fcmMessage = FCMMessage.builder()
+//                .message(FCMMessage.Message.builder()
+//                        .token(fcmInvitationRequest.getUserToken())
+//                        .notification(FCMMessage.Notification.builder()
+//                                .title("그룹 초대")
+//                                .body(fcmInvitationRequest.getInviteName() + "님이 " + fcmInvitationRequest.getGroupName() + "그룹에 초대했습니다.")
+//                                .build())
+//                        .build())
+//                .validateOnly(false)
+//                .build();
+//        return om.writeValueAsString(fcmMessage);
 //    }
+
+    public Mono<SubscribeResponse> subscribeToGroups(String token, Long groupId) {
+        String topic = groupId.toString();
+
+        try {
+            List<String> tokens = Collections.singletonList(token);
+            TopicManagementResponse response = FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic);
+            int successCount = response.getSuccessCount();
+            int failureCount = response.getFailureCount();
+
+            log.info("성곻한 토큰 수 {}, {} 그룹에", successCount, topic);
+            if (failureCount > 0) {
+                log.warn("실패한 토큰 수 {}, {} 그룹에", failureCount, topic);
+                response.getErrors().forEach(error -> {
+                    log.error("Error subscribing token at index {}: {}", error.getIndex(), error.getReason());
+                });
+            }
+
+            SubscribeResponse subscribeResponse = new SubscribeResponse(successCount, failureCount);
+            return Mono.just(subscribeResponse);
+
+        } catch (FirebaseMessagingException e) {
+            log.error("FirebaseMessagingException when subscribing to topic: {}", e.getMessage());
+            return Mono.error(new RuntimeException("Failed to subscribe to topic", e));
+        }
+    }
 
 }

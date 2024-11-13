@@ -59,6 +59,7 @@ public class UserController {
         return userService.getUserGroups(jwtUtil.extractUserId(token));
     }
 
+    @Operation(summary = "유저의 디바이스 토큰 등록", description = "그룹에 가입하기전 반드시 디바이스 토큰을 등록해야합니다.")
     @PutMapping("/device-token")
     public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceTokenRequest) {
         userService.updateDeviceToken(deviceTokenRequest.getUserId(), deviceTokenRequest.getDeviceToken());

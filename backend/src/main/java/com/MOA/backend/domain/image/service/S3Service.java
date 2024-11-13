@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +54,7 @@ public class S3Service {
 
         long startTime = System.currentTimeMillis();
 
-        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        ExecutorService executorService = Executors.newFixedThreadPool(images.size());
         List<CompletableFuture<Void>> futures = new ArrayList<>();
 
         images.forEach(image -> {
@@ -67,22 +66,19 @@ public class S3Service {
             String originalPath = createOriginalImagePath(groupId, momentId);
             String thumbnailPath = createThumbnailImagePath(groupId, momentId);
 
-            // 원본 사진 업로드
-            CompletableFuture.runAsync(() -> uploadOriginalImage(image, originalPath + imageName), executorService);
-//            futures.add()
+            // 비동기 원본 사진 업로드
+            CompletableFuture<Void> originalFuture = CompletableFuture.runAsync(
+                    () -> uploadOriginalImage(image, originalPath + imageName), executorService);
+            futures.add(originalFuture);
 
+            // 동기 원본 사진 업로드
+//            uploadOriginalImage(image, originalPath + imageName);
             // 썸네일 사진 업로드
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
-
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
         executorService.shutdown();
-        try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException("비동기 원본 이미지 업로드가 완료되지 않았습니다.");
-        }
 
         // 종료 시간 기록 및 소요 시간 계산
         long endTime = System.currentTimeMillis();
@@ -127,6 +123,7 @@ public class S3Service {
 
     // 원본 이미지 업로드
     private void uploadOriginalImage(MultipartFile image, String imagePath) {
+        System.out.println("Uploading image " + imagePath + " on thread " + Thread.currentThread().getName());
         try (InputStream inputStream = image.getInputStream()) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(image.getSize());
