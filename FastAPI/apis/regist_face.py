@@ -1,7 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Response
+# from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from fastapi import APIRouter
-from fastapi import FastAPI, HTTPException, Response  # Response 추가
 import requests  # requests 라이브러리 추가
 import logging
 import face_recognition
@@ -9,6 +9,7 @@ import numpy as np
 import cv2
 import io
 import os
+import base64
 
 
 router = APIRouter()
@@ -28,8 +29,10 @@ class ImageRequest(BaseModel):
 # 추출된 임베딩 값을 다시 백으로 전달
 """
 # @app.post("/fast/register_face/")
-@router.post("/")
+@router.post("")
 async def register_face(request: ImageRequest):
+
+    print("안오는데?")
 
     image_url = request.image_url
     print(f"Fetching image from URL: {image_url}")
@@ -54,11 +57,18 @@ async def register_face(request: ImageRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
     # Spring으로 전송 준비 (임베딩 값을 바이트 형식으로 변환)
-    face_embedding_bytes = np.array(face_embedding, dtype=np.float32).tobytes()
+    # face_embedding_bytes = np.array(face_embedding, dtype=np.float32).tobytes()
+
+    # 바이트로 변환 후 Base64 인코딩
+    embedding_bytes = face_embedding.tobytes()
+    encoded_embedding = base64.b64encode(embedding_bytes).decode('utf-8')
+    print(encoded_embedding)
 
     # 바이너리 데이터 반환
     print("Returning face embedding as binary data.")
-    return Response(content=face_embedding_bytes, media_type="application/octet-stream")
+    # return Response(content=encoded_embedding, media_type="application/octet-stream")
+    # return JSONResponse(content={"embedding": encoded_embedding})
+    return Response(content=encoded_embedding)
 
 
 # 서버 실행
