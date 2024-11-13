@@ -78,6 +78,14 @@ public class UserService {
         userRepository.save(user);  // 엔티티 업데이트
     }
 
+//    // 등록된 임베딩 값 가져오기
+//    public byte[] getEmbedding(Long userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다" + userId));
+//
+//        return user.getFaceEmbedding();
+//    }
+
 
     public void updateDeviceToken(Long userId, String deviceToken) {
         userRepository.findById(userId).ifPresent(user -> {

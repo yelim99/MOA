@@ -18,8 +18,10 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Table(name = "`group`")
-@JsonIgnoreProperties({"memberships"})
+//@JsonIgnoreProperties({"memberships"})
+@JsonIgnoreProperties({"members"})
 public class Group extends BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

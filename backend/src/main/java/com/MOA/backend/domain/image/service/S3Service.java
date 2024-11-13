@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.image.service;
 
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
+import com.MOA.backend.domain.image.util.CompareFaceUtil;
 import com.MOA.backend.domain.image.util.RegistFaceUtil;
 import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
@@ -37,7 +38,8 @@ public class S3Service {
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
     private final JwtUtil jwtUtil;
-    private final RegistFaceUtil faceUtil;
+    private final RegistFaceUtil registFaceUtil;
+    private final CompareFaceUtil compareFaceUtil;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -157,14 +159,17 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
-        String imageName = "/user/" + loginUser.getUserEmail()
+        String imageName = "user/" + loginUser.getUserEmail()
                 + "/profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
         uploadOriginalImage(image, imageName);
         String fileUrl = amazonS3.getUrl(bucket, imageName).toString();
 
+        log.info("파일={}", fileUrl);
+
         // fast에서 임베딩 값 받아오기
-        byte[] faceEmbedding = faceUtil.GetFaceEmbeddingFromFast(fileUrl);
+        String faceEmbedding = registFaceUtil.GetFaceEmbeddingFromFast(fileUrl);
+        log.info("임베딩={}", faceEmbedding);
 
         // FaceEmbeddingDTO에 값 설정
         FaceEmbeddingDTO faceEmbeddingDTO = FaceEmbeddingDTO.builder()
@@ -173,8 +178,6 @@ public class S3Service {
                 .build();
 
         userService.updateFaceEmbedding(faceEmbeddingDTO);
-
-
 
         return fileUrl;
     }
@@ -317,4 +320,18 @@ public class S3Service {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
+
+    // 얼굴 비교하여 분류
+//    public List<String> compareFace(Long groupId) {
+//        // groupId로 momentId들 가져오기
+//        List<String> momentIds = momentService.getMomentIds(groupId);
+//        // 임베딩값 가져오기
+////        Long userId = jwtUtil.extractUserId(token);
+//        byte[] embedding = userService.getEmbedding(1L);
+//
+//        // fast에서 분류된 사진 url 리스트 받아오기
+//        List<String> ClassifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
+//
+//        return ClassifiedImgList;
+//    }
 }

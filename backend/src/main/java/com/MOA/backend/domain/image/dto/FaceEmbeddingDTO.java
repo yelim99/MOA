@@ -7,5 +7,5 @@ import lombok.Getter;
 @Builder
 public class FaceEmbeddingDTO {
     private Long userId;
-    private byte[] faceEmbedding;
+    private String faceEmbedding;
 }
