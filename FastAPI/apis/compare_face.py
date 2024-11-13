@@ -11,6 +11,7 @@ import io
 import os
 import boto3
 import base64
+from dotenv import load_dotenv
 
 router = APIRouter()
 
@@ -19,9 +20,18 @@ ROOT = os.path.dirname(__file__)
 logging.basicConfig(level=logging.INFO)
 pcs = set()
 
+# .env 파일 로드
+load_dotenv()
+
+# AWS 자격 증명 환경 변수 가져오기
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 # S3 클라이언트 설정
-s3 = boto3.client('s3', region_name='ap-northeast-2')
+s3 = boto3.client(
+    's3', region_name='ap-northeast-2', 
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key)
 bucket_name = 'moa-s3-bucket'
 
 boto3.set_stream_logger('boto3', level=logging.DEBUG)
