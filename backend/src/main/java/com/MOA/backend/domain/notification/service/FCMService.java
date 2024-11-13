@@ -23,9 +23,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FCMService {
-
-    @Value("${spring.fcm.key.path}")
-    private String SERVICE_ACCOUNT_JSON;
+    
     @Value("${spring.fcm.api.url}")
     private String FCM_API_URL;
 
@@ -62,7 +60,7 @@ public class FCMService {
     private String getAccessToken() {
         try {
             GoogleCredentials googleCredentials = GoogleCredentials
-                    .fromStream(new ClassPathResource(SERVICE_ACCOUNT_JSON).getInputStream())
+                    .fromStream(new ClassPathResource("firebase-adminsdk.json").getInputStream())
                     .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
             googleCredentials.refreshIfExpired();
             log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
