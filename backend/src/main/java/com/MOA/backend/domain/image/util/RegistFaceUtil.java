@@ -1,20 +1,37 @@
 package com.MOA.backend.domain.image.util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 @Component
 public class RegistFaceUtil {
 
-    private final WebClient webClient;
+    private WebClient webClient;
 
-    @Value("${fast.api.base-url}")
+    @Value("${fast.url}")
     private String fastBaseUrl;
 
+    private final WebClient.Builder webClientBuilder;
+
     public RegistFaceUtil(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    @PostConstruct
+    private void init() {
+        // @PostConstruct 메서드에서 WebClient 초기화
         this.webClient = webClientBuilder.baseUrl(fastBaseUrl).build();
+        log.info("FAST API Base URL 설정: {}", fastBaseUrl); // 설정 확인 로그
+    }
+
+    // WebClient를 사용할 메서드 정의
+    public WebClient getWebClient() {
+        return this.webClient;
     }
 
     //.FastAPI에 등록한 얼굴의 S3 URL을 보내고, BLOB 데이터(바이너리 데이터)를 받아오기

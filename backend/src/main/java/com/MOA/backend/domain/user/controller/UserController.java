@@ -1,7 +1,9 @@
 package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.user.dto.DeviceTokenRequest;
+import com.MOA.backend.domain.user.dto.UserResponse;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -23,6 +25,7 @@ public class UserController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+    private final S3Service s3Service;
 
     @Operation(summary = "유저 정보 수정", description = "JWT 토큰을 통해 유저 정보를 수정합니다.")
     @PutMapping
@@ -36,11 +39,15 @@ public class UserController {
 
     @Operation(summary = "유저 정보 상세조회", description = "JWT 토큰을 통해 유저 정보를 조회합니다.")
     @GetMapping
-    public ResponseEntity<User> getUserById(
+    public ResponseEntity<UserResponse> getUserById(
             @Parameter(description = "JWT 토큰", required = true)
             @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(token));
-        return user.map(ResponseEntity::ok)
+        return user.map(u -> {
+                    String userProfileImage = s3Service.getUserProfile(u.getUserEmail());
+                    UserResponse userResponse = new UserResponse(u, userProfileImage);
+                    return ResponseEntity.ok(userResponse);
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 

@@ -10,8 +10,6 @@ import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.services.s3.model.lifecycle.LifecycleFilter;
-import com.amazonaws.services.s3.model.lifecycle.LifecyclePrefixPredicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +21,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -49,24 +51,43 @@ public class S3Service {
          */
         Moment moment = momentService.getMomentEntity(momentId);
         Long groupId = moment.getGroupId();
-
         List<String> imageUrls = new ArrayList<>();
+
+        long startTime = System.currentTimeMillis();
+
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
+
         images.forEach(image -> {
-            if(image.isEmpty()) {
+            if (image.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
             }
 
-           String imageName = createImageName(image.getOriginalFilename());
-           String originalPath = createOriginalImagePath(groupId, momentId);
-           String thumbnailPath = createThumbnailImagePath(groupId, momentId);
+            String imageName = createImageName(image.getOriginalFilename());
+            String originalPath = createOriginalImagePath(groupId, momentId);
+            String thumbnailPath = createThumbnailImagePath(groupId, momentId);
 
-           // 원본 사진 업로드
-           uploadOriginalImage(image, originalPath + imageName);
+            // 원본 사진 업로드
+            CompletableFuture.runAsync(() -> uploadOriginalImage(image, originalPath + imageName), executorService);
+//            futures.add()
 
-           // 썸네일 사진 업로드
+            // 썸네일 사진 업로드
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
+
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("비동기 원본 이미지 업로드가 완료되지 않았습니다.");
+        }
+
+        // 종료 시간 기록 및 소요 시간 계산
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        System.out.println("Image upload process took: " + duration + " milliseconds");
 
         return imageUrls;
     }
@@ -92,11 +113,11 @@ public class S3Service {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
-        if(image.isEmpty()) {
+        if (image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
-        String imageName = "/user/" + loginUser.getUserEmail()
+        String imageName = "user/" + loginUser.getUserEmail()
                 + "/userImg".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
         uploadOriginalImage(image, imageName);
@@ -137,12 +158,12 @@ public class S3Service {
         try {
             String extension = imageName.substring(imageName.lastIndexOf(".")).toLowerCase();
 
-            if(!ALLOWED_EXTENSIONS.contains(extension)) {
+            if (!ALLOWED_EXTENSIONS.contains(extension)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다.");
             }
 
             return extension;
-        } catch(StringIndexOutOfBoundsException e) {
+        } catch (StringIndexOutOfBoundsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다.");
         }
     }
@@ -153,11 +174,11 @@ public class S3Service {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
-        if(image.isEmpty()) {
+        if (image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
-        String imageName = "/user/" + loginUser.getUserEmail()
+        String imageName = "user/" + loginUser.getUserEmail()
                 + "/profile".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
         uploadOriginalImage(image, imageName);
@@ -175,7 +196,6 @@ public class S3Service {
         userService.updateFaceEmbedding(faceEmbeddingDTO);
 
 
-
         return fileUrl;
     }
 
@@ -184,7 +204,7 @@ public class S3Service {
         List<String> removedImages = new ArrayList<>();
         imageUrls.forEach(imageUrl -> {
             try {
-                if(amazonS3.doesObjectExist(bucket, imageUrl)) {
+                if (amazonS3.doesObjectExist(bucket, imageUrl)) {
                     amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
                     removedImages.add(imageUrl);
                 } else {
@@ -209,13 +229,13 @@ public class S3Service {
 
             ListObjectsV2Result response = amazonS3.listObjectsV2(request);
 
-            if(!response.getObjectSummaries().isEmpty()) {
+            if (!response.getObjectSummaries().isEmpty()) {
                 String imageUrl = response.getObjectSummaries().get(0).getKey();
                 return amazonS3.getUrl(bucket, imageUrl).toString();
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
             }
-        } catch(AmazonS3Exception e) {
+        } catch (AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
@@ -238,7 +258,7 @@ public class S3Service {
             ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+            for (int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
                 orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                         orgResult.getObjectSummaries().get(i).getKey())));
                 thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
@@ -261,7 +281,7 @@ public class S3Service {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
         imagesByMoment.put("orgImgs", new HashMap<>());
         imagesByMoment.put("thumbImgs", new HashMap<>());
-        for(String momentId : momentIds) {
+        for (String momentId : momentIds) {
             List<String> orgImgs = new ArrayList<>();
             List<String> thumbImgs = new ArrayList<>();
             try {
@@ -275,7 +295,7 @@ public class S3Service {
                 ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+                for (int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
                     orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                             orgResult.getObjectSummaries().get(i).getKey())));
                     thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
@@ -307,13 +327,13 @@ public class S3Service {
 
             ListObjectsV2Result response = amazonS3.listObjectsV2(request);
 
-            if(!response.getObjectSummaries().isEmpty()) {
+            if (!response.getObjectSummaries().isEmpty()) {
                 String imageUrl = response.getObjectSummaries().get(0).getKey();
                 return amazonS3.getUrl(bucket, imageUrl).toString();
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
             }
-        } catch(AmazonS3Exception e) {
+        } catch (AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
