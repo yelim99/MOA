@@ -7,7 +7,9 @@ import com.MOA.backend.domain.moment.dto.response.MomentCreateResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentDetailResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentResponseDto;
 import com.MOA.backend.domain.moment.dto.response.MomentUpdateResponseDto;
+import com.MOA.backend.domain.moment.entity.DeletedMoment;
 import com.MOA.backend.domain.moment.entity.Moment;
+import com.MOA.backend.domain.moment.repository.DeletedMomentRepository;
 import com.MOA.backend.domain.moment.repository.MomentRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -31,6 +34,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class MomentService {
+    private final DeletedMomentRepository deletedMomentRepository;
 
     private final MomentRepository momentRepository;
     private final UserService userService;
@@ -56,6 +60,13 @@ public class MomentService {
                 .build();
 
         momentRepository.save(moment);
+
+        // Spring Batch를 위한 DeletedMoment 생성
+        deletedMomentRepository.save(DeletedMoment.builder()
+                .momentId(moment.getId())
+                .groupId(moment.getGroupId())
+                .expiredAt(moment.getCreatedAt()).build());
+
         log.info("Moment: {}가 생성되었습니다.", moment);
 
         return moment.getId().toHexString();
@@ -78,7 +89,16 @@ public class MomentService {
                 .uploadOption(momentCreateRequestDto.getUploadOption())
                 .build();
 
+        log.info("지금 시간: " + String.valueOf(new Date()));
+
         momentRepository.save(moment);
+
+        // Spring Batch를 위한 DeletedMoment 생성
+        deletedMomentRepository.save(DeletedMoment.builder()
+                .momentId(moment.getId())
+                .groupId(moment.getGroupId())
+                .expiredAt(moment.getCreatedAt()).build());
+
         log.info("Moment: {}", moment);
         String hexId = moment.getId().toHexString();
 
@@ -99,6 +119,9 @@ public class MomentService {
 
         // 2. MongoDB에서 해당 moment 삭제
         momentRepository.deleteById(momentId);
+
+        // 삭제할 도큐먼트에서도 삭제
+        deletedMomentRepository.deleteById(momentId);
     }
 
     // 순간 수정
@@ -256,5 +279,11 @@ public class MomentService {
                 .nickname(user.getUserName())
                 .imageSrc(user.getUserImage())
                 .build()).toList();
+    }
+
+    // 기간이 만료된 모든 DeletedMoment 삭제
+    @Transactional
+    public void deleteDeletedMoment(Date currDate) {
+        deletedMomentRepository.deleteByExpiredAtBefore(currDate);
     }
 }
