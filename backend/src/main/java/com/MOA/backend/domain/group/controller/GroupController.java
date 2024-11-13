@@ -8,7 +8,10 @@ import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.member.dto.response.MemberResponseDto;
 import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
+import com.MOA.backend.domain.moment.util.PinCodeUtil;
+import com.MOA.backend.domain.notification.service.FCMService;
 import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,8 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
@@ -31,17 +32,23 @@ import java.util.Optional;
 public class GroupController {
 
     private final GroupService groupService;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
     private final MomentService momentService;
     private final S3Service s3Service;
     private final MemberService memberService;
+    private final FCMService fcmService;
+    private final PinCodeUtil pinCodeUtil;
 
     @Operation(summary = "그룹 생성", description = "JWT 토큰을 통해 새로운 그룹을 생성합니다.")
     @PostMapping
     public ResponseEntity<Group> createGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
             @Valid @RequestBody GroupCreateDto groupDto) {
-        Group createdGroup = groupService.create(jwtUtil.extractUserId(jwtUtil.remove(token)), groupDto);
+        Long userId = jwtUtil.extractUserId(token);
+        Group createdGroup = groupService.create(userId, groupDto);
+        createdGroup.setGroupPin(pinCodeUtil.generatePinCode());
+        fcmService.subscribeToGroups(userService.findByUserId(userId).get().getDeviceToken(), createdGroup.getGroupId());
         return ResponseEntity.ok(createdGroup);
     }
 
@@ -93,7 +100,9 @@ public class GroupController {
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
         try {
-            groupService.joinGroup(jwtUtil.extractUserId(token), id);
+            Long userId = jwtUtil.extractUserId(token);
+            groupService.joinGroup(userId, id);
+            fcmService.subscribeToGroups(userService.findByUserId(userId).get().getDeviceToken(), id);
             return ResponseEntity.ok("그룹에 가입되었습니다.");
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

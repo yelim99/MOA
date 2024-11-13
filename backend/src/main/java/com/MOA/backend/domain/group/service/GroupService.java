@@ -5,7 +5,7 @@ import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
-import com.MOA.backend.domain.member.service.MemberService;
+import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +24,7 @@ public class GroupService {
     private final GroupRepository groupRepository;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
+    private final PinCodeUtil pinCodeUtil;
 
     // 그룹 생성
     @Transactional
@@ -32,7 +32,6 @@ public class GroupService {
         // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
         Group group = new Group();
         group.setGroupName(groupDto.getGroupName());
-        group.setGroupPin(groupDto.getPIN());
         group.setGroupDescription(groupDto.getGroupDescription());
         group.setGroupColor(groupDto.getColor());
         group.setGroupIcon(groupDto.getIcon());
@@ -56,7 +55,7 @@ public class GroupService {
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 그룹을 찾을 수 없습니다." + id));
 
         if (existingGroup.getGroupName() != null) existingGroup.setGroupName(groupDto.getGroupName());
-        if (existingGroup.getGroupPin() != null) existingGroup.setGroupPin(groupDto.getPIN());
+        if (existingGroup.getGroupPin() != null) existingGroup.setGroupPin(pinCodeUtil.generatePinCode());
         if (existingGroup.getGroupDescription() != null)
             existingGroup.setGroupDescription(groupDto.getGroupDescription());
         if (existingGroup.getGroupColor() != null) existingGroup.setGroupColor(groupDto.getColor());

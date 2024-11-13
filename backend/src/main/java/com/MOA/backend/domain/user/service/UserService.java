@@ -36,7 +36,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User signup(UserSignupRequestDto userSignupRequestDto) {
+    public void signup(UserSignupRequestDto userSignupRequestDto) {
 
         if (userRepository.findByUserEmail(userSignupRequestDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
@@ -50,7 +50,7 @@ public class UserService {
                 .userImage(userSignupRequestDto.getProfile())
                 .build();
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     @Transactional
