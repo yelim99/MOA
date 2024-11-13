@@ -37,7 +37,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 );
-        http.addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore( new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

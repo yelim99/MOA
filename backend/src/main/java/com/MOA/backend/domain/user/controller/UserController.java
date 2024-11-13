@@ -2,7 +2,6 @@ package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.service.S3Service;
-import com.MOA.backend.domain.user.dto.DeviceTokenRequest;
 import com.MOA.backend.domain.user.dto.UserResponse;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
@@ -61,8 +60,8 @@ public class UserController {
 
     @Operation(summary = "유저의 디바이스 토큰 등록", description = "그룹에 가입하기전 반드시 디바이스 토큰을 등록해야합니다.")
     @PutMapping("/device-token")
-    public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceTokenRequest) {
-        userService.updateDeviceToken(deviceTokenRequest.getUserId(), deviceTokenRequest.getDeviceToken());
+    public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody String deviceToken) {
+        userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceToken);
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }
