@@ -323,6 +323,11 @@ public class S3Service {
 
         String embedding = userService.getEmbedding(userId);
 
+        if (embedding == null || embedding.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "등록된 임베딩 값(사진)이 없습니다.");
+        }
+
+
         // fast에서 분류된 사진 url 리스트 받아오기
         List<String> classifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
 
