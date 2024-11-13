@@ -31,10 +31,7 @@ public class Moment {
     private String momentOwnerEmail;
     private String uploadOption;
 
-    @CreatedDate
     private Date createdAt;
-
-    @LastModifiedDate
     private Date updatedAt;
 
     @Builder
@@ -48,11 +45,14 @@ public class Moment {
         this.momentOwner = momentOwner;
         this.uploadOption = uploadOption;
         this.momentOwnerEmail = momentOwnerEmail;
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
     }
 
     public void update(MomentUpdateRequestDto momentUpdateRequestDto) {
         this.momentName = momentUpdateRequestDto.getMomentName();
         this.momentDescription = momentUpdateRequestDto.getMomentDescription();
+        this.updatedAt = new Date();
     }
 
     public void update(List<Long> userIds) {
