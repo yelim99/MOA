@@ -94,7 +94,7 @@ public class S3Service {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
-        if(image.isEmpty()) {
+        if (image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
@@ -179,6 +179,7 @@ public class S3Service {
 
         userService.updateFaceEmbedding(faceEmbeddingDTO);
 
+
         return fileUrl;
     }
 
@@ -187,7 +188,7 @@ public class S3Service {
         List<String> removedImages = new ArrayList<>();
         imageUrls.forEach(imageUrl -> {
             try {
-                if(amazonS3.doesObjectExist(bucket, imageUrl)) {
+                if (amazonS3.doesObjectExist(bucket, imageUrl)) {
                     amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
                     removedImages.add(imageUrl);
                 } else {
@@ -212,13 +213,13 @@ public class S3Service {
 
             ListObjectsV2Result response = amazonS3.listObjectsV2(request);
 
-            if(!response.getObjectSummaries().isEmpty()) {
+            if (!response.getObjectSummaries().isEmpty()) {
                 String imageUrl = response.getObjectSummaries().get(0).getKey();
                 return amazonS3.getUrl(bucket, imageUrl).toString();
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
             }
-        } catch(AmazonS3Exception e) {
+        } catch (AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
     }
@@ -227,6 +228,7 @@ public class S3Service {
     public Map<String, List<String>> getImagesInMoment(String momentId) {
         Map<String, List<String>> images = new HashMap<>();
 
+        List<String> orgImgs = new ArrayList<>();
         List<String> thumbImgs = new ArrayList<>();
 
         try {
@@ -245,6 +247,7 @@ public class S3Service {
                         thumbResult.getObjectSummaries().get(i).getKey())));
             }
 
+            images.put("orgImgs", orgImgs);
             images.put("thumbImgs", thumbImgs);
 
         } catch (AmazonS3Exception e) {
@@ -320,6 +323,11 @@ public class S3Service {
         List<String> momentIds = momentService.getMomentIds(groupId);
 
         String embedding = userService.getEmbedding(userId);
+
+        if (embedding == null || embedding.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "등록된 임베딩 값(사진)이 없습니다.");
+        }
+
 
         // fast에서 분류된 사진 url 리스트 받아오기
         List<String> classifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);

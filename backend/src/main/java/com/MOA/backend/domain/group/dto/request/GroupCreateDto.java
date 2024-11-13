@@ -7,7 +7,6 @@ import lombok.Data;
 @AllArgsConstructor
 public class GroupCreateDto {
     private String groupName;
-    private String PIN;
     private String groupDescription;
     private String color;
     private String icon;
