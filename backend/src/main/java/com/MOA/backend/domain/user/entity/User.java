@@ -4,10 +4,7 @@ import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,12 +12,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Setter
 @Getter
 @JsonIgnoreProperties({"memberships"})
 public class User extends BaseEntity {
 
-
+    @Builder
     public User(String userName, String userEmail, String userImage) {
         this.userName = userName;
         this.userEmail = userEmail;
@@ -51,9 +49,16 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String faceEmbedding;
 
-
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Member> memberships = new ArrayList<>();
 
+
+    public void update(String nickname, String userImage) {
+        this.userName = nickname;
+        this.userImage = userImage;
+    }
+
+    public void update(String nickname) {
+        this.userName = nickname;
+    }
 }
