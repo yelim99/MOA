@@ -8,7 +8,10 @@ import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.member.dto.response.MemberResponseDto;
 import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
+import com.MOA.backend.domain.moment.util.PinCodeUtil;
+import com.MOA.backend.domain.notification.service.FCMService;
 import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,8 +24,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
@@ -37,6 +38,7 @@ public class GroupController {
     private final S3Service s3Service;
     private final MemberService memberService;
     private final FCMService fcmService;
+    private final PinCodeUtil pinCodeUtil;
 
     @Operation(summary = "그룹 생성", description = "JWT 토큰을 통해 새로운 그룹을 생성합니다.")
     @PostMapping
@@ -45,6 +47,7 @@ public class GroupController {
             @Valid @RequestBody GroupCreateDto groupDto) {
         Long userId = jwtUtil.extractUserId(token);
         Group createdGroup = groupService.create(userId, groupDto);
+        createdGroup.setGroupPin(pinCodeUtil.generatePinCode());
         fcmService.subscribeToGroups(userService.findByUserId(userId).get().getDeviceToken(), createdGroup.getGroupId());
         return ResponseEntity.ok(createdGroup);
     }

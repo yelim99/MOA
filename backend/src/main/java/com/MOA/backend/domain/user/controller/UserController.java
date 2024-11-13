@@ -2,8 +2,6 @@ package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.service.S3Service;
-import com.MOA.backend.domain.user.dto.DeviceTokenRequest;
-import com.MOA.backend.domain.user.dto.UserUpdateRequestDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -36,7 +34,7 @@ public class UserController {
             @RequestParam(name = "nickname") String nickname,
             @RequestPart(name = "image", required = false) MultipartFile image) {
         User updatedUser;
-        if(image == null || image.isEmpty()) {
+        if (image == null || image.isEmpty()) {
             updatedUser = userService.updateUser(jwtUtil.extractUserId(token), nickname);
         } else {
             String imageUrl = s3Service.uploadUserImg(token, image);
@@ -64,8 +62,8 @@ public class UserController {
     }
 
     @PutMapping("/device-token")
-    public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceTokenRequest) {
-        userService.updateDeviceToken(deviceTokenRequest.getUserId(), deviceTokenRequest.getDeviceToken());
+    public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody String deviceToken) {
+        userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceToken);
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }
