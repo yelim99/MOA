@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
-@Slf4j
 @Component
+@Slf4j
 public class RegistFaceUtil {
 
     private WebClient webClient;
@@ -34,8 +34,9 @@ public class RegistFaceUtil {
         return this.webClient;
     }
 
+
     //.FastAPI에 등록한 얼굴의 S3 URL을 보내고, BLOB 데이터(바이너리 데이터)를 받아오기
-    public byte[] GetFaceEmbeddingFromFast(String imgUrl) {
+    public String GetFaceEmbeddingFromFast(String imgUrl) {
         return this.webClient.post()
                 // fast로 보내는 url
                 .uri("/fast/regist_face")
@@ -45,26 +46,26 @@ public class RegistFaceUtil {
                 .retrieve()
                 // 응답 데이터를 바이너리 배열(byte[])로 변환하고,
                 // block() 메서드를 사용하여 비동기 응답을 동기 방식으로 처리해 최종적으로 바이너리 데이터를 반환
-                .bodyToMono(byte[].class)
+                .bodyToMono(String.class)
                 .block();  // 동기 방식으로 처리
 
     }
 
     // 이미지 URL을 FastAPI로 보내기 위한 DTO
     public static class ImageRequest {
-        @JsonProperty("imgUrl")
-        private String imgUrl;
+        @JsonProperty("image_url")
+        private String image_url;
 
-        public ImageRequest(String imgUrl) {
-            this.imgUrl = imgUrl;
+        public ImageRequest(String image_url) {
+            this.image_url = image_url;
         }
 
-        public String getImgUrl() {
-            return imgUrl;
+        public String getImage_url() {
+            return image_url;
         }
 
-        public void setImgUrl(String imgUrl) {
-            this.imgUrl = imgUrl;
+        public void setImage_url(String image_url) {
+            this.image_url = image_url;
         }
     }
 

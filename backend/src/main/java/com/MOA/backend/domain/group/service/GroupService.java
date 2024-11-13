@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -65,8 +66,10 @@ public class GroupService {
     }
 
     // 그룹 상세 조회
-    public Optional<Group> getGroupById(Long id) {
-        return groupRepository.findById(id);
+    public Group getGroupById(Long id) {
+        Group group = groupRepository.findByGroupId(id)
+                .orElseThrow(() -> new NoSuchElementException("그룹이 없습니다."));
+        return group;
     }
 
     // groupId에 해당하는 모든 유저

@@ -5,7 +5,6 @@ import com.MOA.backend.global.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-import org.apache.commons.lang3.builder.ToStringExclude;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +15,10 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Table(name = "`group`")
-@JsonIgnoreProperties({"memberships"})
+//@JsonIgnoreProperties({"memberships"})
+@JsonIgnoreProperties({"members"})
 public class Group extends BaseEntity {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +41,7 @@ public class Group extends BaseEntity {
     private String groupColor;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @ToString.Exclude
+    @ToString.Exclude  // toString 메서드에서 무한 호출 방지
     private List<Member> members = new ArrayList<>();
 
 }

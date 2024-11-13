@@ -2,7 +2,8 @@ package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.service.S3Service;
-import com.MOA.backend.domain.user.dto.UserResponse;
+import com.MOA.backend.domain.user.dto.DeviceTokenRequest;
+import com.MOA.backend.domain.user.dto.UserUpdateRequestDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,30 +25,33 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private final JwtUtil jwtUtil;
     private final S3Service s3Service;
+    private final JwtUtil jwtUtil;
 
     @Operation(summary = "유저 정보 수정", description = "JWT 토큰을 통해 유저 정보를 수정합니다.")
     @PutMapping
     public ResponseEntity<User> updateUser(
             @Parameter(description = "JWT 토큰", required = true)
             @RequestHeader("Authorization") String token,
-            @RequestBody User userDetails) {
-        User updatedUser = userService.updateUser(jwtUtil.extractUserId(token), userDetails);
+            @RequestParam(name = "nickname") String nickname,
+            @RequestPart(name = "image", required = false) MultipartFile image) {
+        User updatedUser;
+        if(image == null || image.isEmpty()) {
+            updatedUser = userService.updateUser(jwtUtil.extractUserId(token), nickname);
+        } else {
+            String imageUrl = s3Service.uploadUserImg(token, image);
+            updatedUser = userService.updateUser(jwtUtil.extractUserId(token), nickname, imageUrl);
+        }
         return ResponseEntity.ok(updatedUser);
     }
 
     @Operation(summary = "유저 정보 상세조회", description = "JWT 토큰을 통해 유저 정보를 조회합니다.")
     @GetMapping
-    public ResponseEntity<UserResponse> getUserById(
+    public ResponseEntity<User> getUserById(
             @Parameter(description = "JWT 토큰", required = true)
             @RequestHeader("Authorization") String token) {
         Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(token));
-        return user.map(u -> {
-                    String userProfileImage = s3Service.getUserProfile(u.getUserEmail());
-                    UserResponse userResponse = new UserResponse(u, userProfileImage);
-                    return ResponseEntity.ok(userResponse);
-                })
+        return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -58,10 +63,9 @@ public class UserController {
         return userService.getUserGroups(jwtUtil.extractUserId(token));
     }
 
-    @Operation(summary = "유저의 디바이스 토큰 등록", description = "그룹에 가입하기전 반드시 디바이스 토큰을 등록해야합니다.")
     @PutMapping("/device-token")
-    public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody String deviceToken) {
-        userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceToken);
+    public ResponseEntity<?> updateDeviceToken(@RequestBody DeviceTokenRequest deviceTokenRequest) {
+        userService.updateDeviceToken(deviceTokenRequest.getUserId(), deviceTokenRequest.getDeviceToken());
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }

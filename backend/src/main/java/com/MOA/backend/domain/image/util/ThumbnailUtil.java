@@ -50,7 +50,6 @@ public class ThumbnailUtil {
 
             if (directory != null && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-                log.info("orientation : {}", orientation);
                 switch (orientation) {
                     case 1: // 정상 (회전 없음)
                         return image;

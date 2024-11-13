@@ -8,9 +8,7 @@ import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.member.dto.response.MemberResponseDto;
 import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
-import com.MOA.backend.domain.notification.service.FCMService;
 import com.MOA.backend.domain.user.entity.User;
-import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,6 +21,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
@@ -53,7 +53,7 @@ public class GroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroupDetails(
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
-        Group group = groupService.getGroupById(groupId).orElseThrow();
+        Group group = groupService.getGroupById(groupId);
         List<User> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
@@ -91,7 +91,7 @@ public class GroupController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "그룹 가입", description = "JWT 토큰을 통해 사용자가 특정 그룹에 가입하고 알림 구독을 합니다.")
+    @Operation(summary = "그룹 가입", description = "JWT 토큰을 통해 사용자가 특정 그룹에 가입합니다.")
     @PostMapping("{id}/join")
     public ResponseEntity<String> joinGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,

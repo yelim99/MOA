@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.image.service;
 
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
+import com.MOA.backend.domain.image.util.CompareFaceUtil;
 import com.MOA.backend.domain.image.util.RegistFaceUtil;
 import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
@@ -10,6 +11,8 @@ import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.lifecycle.LifecycleFilter;
+import com.amazonaws.services.s3.model.lifecycle.LifecyclePrefixPredicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,9 +24,6 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +38,8 @@ public class S3Service {
     private final MomentService momentService;
     private final AmazonS3 amazonS3;
     private final JwtUtil jwtUtil;
-    private final RegistFaceUtil faceUtil;
+    private final RegistFaceUtil registFaceUtil;
+    private final CompareFaceUtil compareFaceUtil;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -50,40 +51,24 @@ public class S3Service {
          */
         Moment moment = momentService.getMomentEntity(momentId);
         Long groupId = moment.getGroupId();
+
         List<String> imageUrls = new ArrayList<>();
-
-        long startTime = System.currentTimeMillis();
-
-        ExecutorService executorService = Executors.newFixedThreadPool(images.size());
-        List<CompletableFuture<Void>> futures = new ArrayList<>();
-
         images.forEach(image -> {
-            if (image.isEmpty()) {
+            if(image.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
             }
 
-            String imageName = createImageName(image.getOriginalFilename());
-            String originalPath = createOriginalImagePath(groupId, momentId);
-            String thumbnailPath = createThumbnailImagePath(groupId, momentId);
+           String imageName = createImageName(image.getOriginalFilename());
+           String originalPath = createOriginalImagePath(groupId, momentId);
+           String thumbnailPath = createThumbnailImagePath(groupId, momentId);
 
-            // 비동기 원본 사진 업로드
-            CompletableFuture<Void> originalFuture = CompletableFuture.runAsync(
-                    () -> uploadOriginalImage(image, originalPath + imageName), executorService);
-            futures.add(originalFuture);
+           // 원본 사진 업로드
+           uploadOriginalImage(image, originalPath + imageName);
 
-            // 동기 원본 사진 업로드
-//            uploadOriginalImage(image, originalPath + imageName);
-            // 썸네일 사진 업로드
+           // 썸네일 사진 업로드
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        executorService.shutdown();
-
-        // 종료 시간 기록 및 소요 시간 계산
-        long endTime = System.currentTimeMillis();
-        long duration = endTime - startTime;
-        System.out.println("Image upload process took: " + duration + " milliseconds");
 
         return imageUrls;
     }
@@ -123,7 +108,6 @@ public class S3Service {
 
     // 원본 이미지 업로드
     private void uploadOriginalImage(MultipartFile image, String imagePath) {
-        System.out.println("Uploading image " + imagePath + " on thread " + Thread.currentThread().getName());
         try (InputStream inputStream = image.getInputStream()) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(image.getSize());
@@ -155,12 +139,12 @@ public class S3Service {
         try {
             String extension = imageName.substring(imageName.lastIndexOf(".")).toLowerCase();
 
-            if (!ALLOWED_EXTENSIONS.contains(extension)) {
+            if(!ALLOWED_EXTENSIONS.contains(extension)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "허용되지 않는 파일 확장자입니다.");
             }
 
             return extension;
-        } catch (StringIndexOutOfBoundsException e) {
+        } catch(StringIndexOutOfBoundsException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일입니다.");
         }
     }
@@ -171,7 +155,7 @@ public class S3Service {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
-        if (image.isEmpty()) {
+        if(image.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
         }
 
@@ -181,8 +165,11 @@ public class S3Service {
         uploadOriginalImage(image, imageName);
         String fileUrl = amazonS3.getUrl(bucket, imageName).toString();
 
+        log.info("파일={}", fileUrl);
+
         // fast에서 임베딩 값 받아오기
-        byte[] faceEmbedding = faceUtil.GetFaceEmbeddingFromFast(fileUrl);
+        String faceEmbedding = registFaceUtil.GetFaceEmbeddingFromFast(fileUrl);
+        log.info("임베딩={}", faceEmbedding);
 
         // FaceEmbeddingDTO에 값 설정
         FaceEmbeddingDTO faceEmbeddingDTO = FaceEmbeddingDTO.builder()
@@ -255,9 +242,7 @@ public class S3Service {
             ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            for (int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                        orgResult.getObjectSummaries().get(i).getKey())));
+            for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
                 thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                         thumbResult.getObjectSummaries().get(i).getKey())));
             }
@@ -276,10 +261,8 @@ public class S3Service {
     // Group 안의 모든 사진 URL 경로 조회
     public Map<String, Map<String, List<String>>> getImagesInGroup(Long groupId, List<String> momentIds) {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
-        imagesByMoment.put("orgImgs", new HashMap<>());
         imagesByMoment.put("thumbImgs", new HashMap<>());
-        for (String momentId : momentIds) {
-            List<String> orgImgs = new ArrayList<>();
+        for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {
                 ListObjectsV2Request orgRequest = new ListObjectsV2Request()
@@ -292,16 +275,11 @@ public class S3Service {
                 ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                for (int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                    orgImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                            orgResult.getObjectSummaries().get(i).getKey())));
+                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
                     thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                             thumbResult.getObjectSummaries().get(i).getKey())));
                 }
 
-                log.info("imageSources: {}", thumbImgs);
-
-                imagesByMoment.get("orgImgs").put(momentId, orgImgs);
                 imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);
 
             } catch (AmazonS3Exception e) {
@@ -324,14 +302,31 @@ public class S3Service {
 
             ListObjectsV2Result response = amazonS3.listObjectsV2(request);
 
-            if (!response.getObjectSummaries().isEmpty()) {
+            if(!response.getObjectSummaries().isEmpty()) {
                 String imageUrl = response.getObjectSummaries().get(0).getKey();
                 return amazonS3.getUrl(bucket, imageUrl).toString();
             } else {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "이미지를 찾을 수 없습니다.");
             }
-        } catch (AmazonS3Exception e) {
+        } catch(AmazonS3Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "이미지를 가져오는 중 오류가 발생했습니다.", e);
         }
+    }
+
+    // 얼굴 비교하여 분류
+    public List<String> compareFace(String token, Long groupId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        // groupId로 momentId들 가져오기
+        List<String> momentIds = momentService.getMomentIds(groupId);
+
+        String embedding = userService.getEmbedding(userId);
+
+        // fast에서 분류된 사진 url 리스트 받아오기
+        List<String> classifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
+
+//        log.info(classifiedImgList.toString());
+        return classifiedImgList;
     }
 }

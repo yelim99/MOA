@@ -2,6 +2,7 @@ package com.MOA.backend.domain.user.entity;
 
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.global.entity.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,12 +13,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
-@Data
+@AllArgsConstructor
+@Setter
 @Getter
 @JsonIgnoreProperties({"memberships"})
 public class User extends BaseEntity {
 
-
+    @Builder
     public User(String userName, String userEmail, String userImage) {
         this.userName = userName;
         this.userEmail = userEmail;
@@ -45,13 +47,20 @@ public class User extends BaseEntity {
     @Column(name = "device_token")
     private String deviceToken;
 
-    @Lob
-    @Column()
-    private byte[] faceEmbedding;
-
+    @Column(columnDefinition = "TEXT")
+    private String faceEmbedding;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @ToString.Exclude
+    @ToString.Exclude  // toString 메서드에서 무한 호출 방지
     private List<Member> memberships = new ArrayList<>();
 
+
+    public void update(String nickname, String userImage) {
+        this.userName = nickname;
+        this.userImage = userImage;
+    }
+
+    public void update(String nickname) {
+        this.userName = nickname;
+    }
 }
