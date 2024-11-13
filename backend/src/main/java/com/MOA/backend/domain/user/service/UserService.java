@@ -32,7 +32,7 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public User signup(UserSignupRequestDto userSignupRequestDto) {
+    public void signup(UserSignupRequestDto userSignupRequestDto) {
 
         if (userRepository.findByUserEmail(userSignupRequestDto.getEmail()).isPresent()) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
@@ -45,7 +45,7 @@ public class UserService {
         newUser.setUserName(userSignupRequestDto.getNickname());
         newUser.setUserImage(userSignupRequestDto.getProfile());
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
     }
 
     // 유저 업데이트

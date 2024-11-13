@@ -1,15 +1,11 @@
 package com.MOA.backend.domain.notification.service;
 
-import com.MOA.backend.domain.notification.dto.request.FCMInvitationRequest;
 import com.MOA.backend.domain.notification.dto.request.FCMMessage;
-import com.MOA.backend.domain.notification.dto.request.FCMRequest;
-import com.MOA.backend.domain.notification.dto.response.SubscribeResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.TopicManagementResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -17,8 +13,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -37,13 +31,8 @@ public class FCMService {
 
     private final WebClient webClient;
 
-    /**
-     * @param fcmDto
-     * @param groupId
-     * @throws JsonProcessingException
-     */
-    public Mono<Integer> sendMessageToGroup(FCMRequest fcmDto, Long groupId) throws JsonProcessingException {
-        String message = makeGroupMessage(fcmDto, groupId);
+    public Mono<Integer> sendMessageToGroup(String userName, Long groupId) throws JsonProcessingException {
+        String message = makeGroupMessage(userName, groupId);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
         log.info("Access Token: {}", accessToken);
@@ -62,7 +51,67 @@ public class FCMService {
                 })
                 .onErrorReturn(0);
     }
-//
+
+
+    /**
+     * fcm에서는 토큰을 통해 타겟에 메세지를 전송하는 방식.
+     * firebase에서 제공하는 sdk를 통해 만들어지는 accesstoken
+     *
+     * @return 토큰
+     */
+    private String getAccessToken() {
+        try {
+            GoogleCredentials googleCredentials = GoogleCredentials
+                    .fromStream(new ClassPathResource(SERVICE_ACCOUNT_JSON).getInputStream())
+                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+            googleCredentials.refreshIfExpired();
+            log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
+
+            return googleCredentials.getAccessToken().getTokenValue();
+        } catch (IOException e) {
+            throw new RuntimeException("파일을 읽는데 실패 했습니다.");
+        }
+    }
+
+    /**
+     * 입력받는 dto를 통해 topic을 구독하는
+     * 사람들에게 보내는 메세지를 만듭니다.
+     *
+     * @param userName
+     * @param groupId
+     * @return JSON 형식의 메세지 문자열
+     * @throws JsonProcessingException
+     */
+    private String makeGroupMessage(String userName, Long groupId) throws JsonProcessingException {
+        ObjectMapper om = new ObjectMapper();
+        FCMMessage fcmMessage = FCMMessage
+                .builder()
+                .message(FCMMessage.Message.builder()
+                        .topic(groupId.toString())
+                        .notification(FCMMessage.Notification.builder()
+                                .title("새로운 사진이 업로드되었습니다") // 고정된 제목
+                                .body(userName + "님이 그룹에 새로운 사진을 추가했습니다. 확인해보세요!") // 고정된 본문
+                                .build())
+                        .build())
+                .validateOnly(false)
+                .build();
+        return om.writeValueAsString(fcmMessage);
+    }
+
+    public void subscribeToGroups(String token, Long groupId) {
+        String topic = groupId.toString();
+        try {
+            // 단일 token을 topic에 구독
+            FirebaseMessaging.getInstance().subscribeToTopic(Collections.singletonList(token), topic);
+            log.info("토큰 '{}'이 '{}' 그룹에 성공적으로 구독되었습니다.", token, topic);
+        } catch (FirebaseMessagingException e) {
+            log.error("토큰 '{}'을 '{}' 그룹에 구독하는 중 오류 발생: {}", token, topic, e.getMessage());
+            throw new RuntimeException("구독 실패: " + e.getMessage(), e); // 필요시 예외 재던짐
+        }
+    }
+
+
+    //
 //    /**
 //     * @param fcmInvitationRequest
 //     * @return
@@ -103,51 +152,6 @@ public class FCMService {
 //    }
 
 
-    /**
-     * fcm에서는 토큰을 통해 타겟에 메세지를 전송하는 방식.
-     * firebase에서 제공하는 sdk를 통해 만들어지는 accesstoken
-     *
-     * @return 토큰
-     */
-    private String getAccessToken() {
-        try {
-            GoogleCredentials googleCredentials = GoogleCredentials
-                    .fromStream(new ClassPathResource(SERVICE_ACCOUNT_JSON).getInputStream())
-                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-            googleCredentials.refreshIfExpired();
-            log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
-
-            return googleCredentials.getAccessToken().getTokenValue();
-        } catch (IOException e) {
-            throw new RuntimeException("파일을 읽는데 실패 했습니다.");
-        }
-    }
-
-    /**
-     * 입력받는 dto를 통해 topic을 구독하는
-     * 사람들에게 보내는 메세지를 만듭니다.
-     *
-     * @param fcmDto
-     * @param groupId
-     * @return JSON 형식의 메세지 문자열
-     * @throws JsonProcessingException
-     */
-    private String makeGroupMessage(FCMRequest fcmDto, Long groupId) throws JsonProcessingException {
-        ObjectMapper om = new ObjectMapper();
-        FCMMessage fcmMessage = FCMMessage
-                .builder()
-                .message(FCMMessage.Message.builder()
-                        .topic(groupId.toString())
-                        .notification(FCMMessage.Notification.builder()
-                                .title(fcmDto.getTitle())
-                                .body(fcmDto.getBody())
-                                .build())
-                        .build())
-                .validateOnly(false)
-                .build();
-        return om.writeValueAsString(fcmMessage);
-    }
-
 //    /**
 //     * 초대를 위한 메세지를 만듭니다.
 //     *
@@ -170,30 +174,5 @@ public class FCMService {
 //        return om.writeValueAsString(fcmMessage);
 //    }
 
-    public Mono<SubscribeResponse> subscribeToGroups(String token, Long groupId) {
-        String topic = groupId.toString();
-
-        try {
-            List<String> tokens = Collections.singletonList(token);
-            TopicManagementResponse response = FirebaseMessaging.getInstance().subscribeToTopic(tokens, topic);
-            int successCount = response.getSuccessCount();
-            int failureCount = response.getFailureCount();
-
-            log.info("성곻한 토큰 수 {}, {} 그룹에", successCount, topic);
-            if (failureCount > 0) {
-                log.warn("실패한 토큰 수 {}, {} 그룹에", failureCount, topic);
-                response.getErrors().forEach(error -> {
-                    log.error("Error subscribing token at index {}: {}", error.getIndex(), error.getReason());
-                });
-            }
-
-            SubscribeResponse subscribeResponse = new SubscribeResponse(successCount, failureCount);
-            return Mono.just(subscribeResponse);
-
-        } catch (FirebaseMessagingException e) {
-            log.error("FirebaseMessagingException when subscribing to topic: {}", e.getMessage());
-            return Mono.error(new RuntimeException("Failed to subscribe to topic", e));
-        }
-    }
 
 }
