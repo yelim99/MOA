@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Tag(name = "Group", description = "유저 관련 API")
@@ -48,7 +49,7 @@ public class GroupController {
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroupDetails(
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
-        Group group = groupService.getGroupById(groupId).orElseThrow();
+        Group group = groupService.getGroupById(groupId);
         List<User> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
