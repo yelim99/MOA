@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -43,9 +40,8 @@ public class MomentService {
     private final JwtUtil jwtUtil;
 
     // 그룹에서 사진 업로드 시 바로 Moment 생성
-    @Transactional
     public String createMomentForGroup(String token, Long groupId, List<MultipartFile> images) {
-        if (images == null || images.size() == 0) {
+        if (images == null || images.isEmpty()) {
             throw new RuntimeException("잘못된 요청입니다.");
         }
 
@@ -62,10 +58,19 @@ public class MomentService {
         momentRepository.save(moment);
 
         // Spring Batch를 위한 DeletedMoment 생성
+
+        // 시간 + 1 Day
+        log.info("moment.getCreatedAt: {}", moment.getCreatedAt());
+        Date expiredDate = new Date(moment.getCreatedAt().getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(expiredDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+
         deletedMomentRepository.save(DeletedMoment.builder()
                 .momentId(moment.getId())
                 .groupId(moment.getGroupId())
-                .expiredAt(moment.getCreatedAt()).build());
+                .expiredAt(calendar.getTime()).build());
+        log.info("deletedMoment.getExpiredDate: {}", calendar.getTime());
 
         log.info("Moment: {}가 생성되었습니다.", moment);
 
@@ -73,7 +78,6 @@ public class MomentService {
     }
 
     // 순간 생성
-    @Transactional
     public MomentCreateResponseDto createMoment(String token, MomentCreateRequestDto momentCreateRequestDto) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -89,15 +93,22 @@ public class MomentService {
                 .uploadOption(momentCreateRequestDto.getUploadOption())
                 .build();
 
-        log.info("지금 시간: " + String.valueOf(new Date()));
-
         momentRepository.save(moment);
 
         // Spring Batch를 위한 DeletedMoment 생성
+
+        // 시간 + 1 Day
+        log.info("moment.getCreatedAt: {}", moment.getCreatedAt());
+        Date expiredDate = new Date(moment.getCreatedAt().getTime());
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(expiredDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+
         deletedMomentRepository.save(DeletedMoment.builder()
                 .momentId(moment.getId())
                 .groupId(moment.getGroupId())
-                .expiredAt(moment.getCreatedAt()).build());
+                .expiredAt(calendar.getTime()).build());
+        log.info("deletedMoment.getExpiredDate: {}", calendar.getTime());
 
         log.info("Moment: {}", moment);
         String hexId = moment.getId().toHexString();
@@ -112,7 +123,6 @@ public class MomentService {
     }
 
     // 순간 삭제
-    @Transactional
     public void deleteMoment(String momentId) {
         // 1. Redis에서 유저가 참여한 관계 매핑 먼저 지우기
         momentRedisService.deleteMomentParticipation(momentId);
@@ -125,7 +135,6 @@ public class MomentService {
     }
 
     // 순간 수정
-    @Transactional
     public MomentUpdateResponseDto updateMoment(String momentId, MomentUpdateRequestDto momentUpdateCreateDto) {
         Moment moment = momentRepository.findById(momentId).orElseThrow();
         moment.update(momentUpdateCreateDto);
@@ -195,7 +204,6 @@ public class MomentService {
     }
 
     // 순간 참여하기
-    @Transactional
     public MomentDetailResponseDto participate(String token, String momentId, String pin) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -230,7 +238,6 @@ public class MomentService {
     }
 
     // 순간 퇴장하기
-    @Transactional
     public void userExit(String token, String momentId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -269,7 +276,6 @@ public class MomentService {
         return momentIds;
     }
 
-    @Transactional(readOnly = true)
     public List<MemberInfoResponseDto> getMomentMembers(String momentId) {
         Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
         List<Long> userIds = moment.getUserIds();
@@ -282,8 +288,7 @@ public class MomentService {
     }
 
     // 기간이 만료된 모든 DeletedMoment 삭제
-    @Transactional
-    public void deleteDeletedMoment(Date currDate) {
-        deletedMomentRepository.deleteByExpiredAtBefore(currDate);
+    public Long deleteDeletedMoment(Date currDate) {
+        return deletedMomentRepository.deleteByExpiredAtBefore(currDate);
     }
 }
