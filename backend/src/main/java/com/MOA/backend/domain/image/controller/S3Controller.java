@@ -61,4 +61,13 @@ public class S3Controller {
         return ResponseEntity.ok(Map.of("url", s3Service.uploadUserImg(token, image)));
     }
 
+//    @PostMapping("/img/{group_id}/compare")
+//    ResponseEntity<List<String>> compareImage(
+////            @RequestHeader("Authorization") String token,
+//            @PathVariable("group_id") Long groupId
+//    ) {
+//        List<String> imgUrls = s3Service.compareFace(groupId);
+//        return ResponseEntity.ok(imgUrls);
+//    }
+
 }

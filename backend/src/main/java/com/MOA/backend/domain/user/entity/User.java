@@ -48,9 +48,8 @@ public class User extends BaseEntity {
     @Column(name = "device_token")
     private String deviceToken;
 
-    @Lob
-    @Column()
-    private byte[] faceEmbedding;
+    @Column(columnDefinition = "TEXT")
+    private String faceEmbedding;
 
 
 

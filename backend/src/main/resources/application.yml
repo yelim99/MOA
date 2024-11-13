@@ -61,7 +61,6 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 3GB
-
 logging:
   level:
     org:
@@ -83,7 +82,5 @@ cloud:
     bucket: ${S3_BUCKET_NAME}
   stack:
     auto: false
-
 fast:
-  api:
-    base-url: ${FAST_BASE_URL}
+  url: ${FAST_BASE_URL}
