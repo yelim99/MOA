@@ -6,8 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -31,10 +29,7 @@ public class Moment {
     private String momentOwnerEmail;
     private String uploadOption;
 
-    @CreatedDate
     private Date createdAt;
-
-    @LastModifiedDate
     private Date updatedAt;
 
     @Builder
@@ -48,13 +43,18 @@ public class Moment {
         this.momentOwner = momentOwner;
         this.uploadOption = uploadOption;
         this.momentOwnerEmail = momentOwnerEmail;
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
     }
 
+    // Moment 내용을 수정할 때에는 updatedAt 수정 O
     public void update(MomentUpdateRequestDto momentUpdateRequestDto) {
         this.momentName = momentUpdateRequestDto.getMomentName();
         this.momentDescription = momentUpdateRequestDto.getMomentDescription();
+        this.updatedAt = new Date();
     }
 
+    // 순간에 참여하는 유저 정보를 변경할 때에는 updatedAt 반영 X
     public void update(List<Long> userIds) {
         this.userIds = userIds;
     }
