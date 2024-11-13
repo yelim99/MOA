@@ -61,6 +61,12 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 3GB
+  batch:
+    job:
+      enabled: false  # 서버 재시작 시 배치 자동실행 방지
+    jdbc:
+      initialize-schema: always
+
 logging:
   level:
     org:
