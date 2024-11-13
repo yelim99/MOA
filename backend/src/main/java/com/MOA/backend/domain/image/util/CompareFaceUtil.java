@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.image.util;
 
+import com.MOA.backend.domain.image.dto.response.MatchingUrlsDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Base64;
+import com.MOA.backend.domain.image.dto.response.MatchingUrlsDTO;
 
 @Component
 @Slf4j
@@ -21,10 +22,6 @@ public class CompareFaceUtil {
     private String fastBaseUrl;
 
     private final WebClient.Builder webClientBuilder;
-
-//    public CompareFaceUtil(WebClient.Builder webClientBuilder) {
-//        this.webClient = webClientBuilder.baseUrl(fastBaseUrl).build();
-//    }
 
     public CompareFaceUtil(WebClient.Builder webClientBuilder) {
         this.webClientBuilder = webClientBuilder;
@@ -42,32 +39,32 @@ public class CompareFaceUtil {
         return this.webClient;
     }
 
+
     //.FastAPI에 group_id와 moment_ids, 임베딩 값을 보내고 분류된 사진 리스트 받아오기
-    public List<String> getClassifiedImgsFromFast(Long groupId, List<String> momentIds, byte[] embedding) {
-        MatchingUrlsResponse response = this.webClient.post()
+    public List<String> getClassifiedImgsFromFast(Long groupId, List<String> momentIds, String embedding) {
+        MatchingUrlsDTO response = this.webClient.post()
                 .uri("/fast/compare_face")
                 .header("Content-Type", "application/json")
                 .bodyValue(new FaceComparisonRequest(groupId, momentIds, embedding))
                 .retrieve()
-                .bodyToMono(MatchingUrlsResponse.class)
+                .bodyToMono(MatchingUrlsDTO.class)
                 .block();
 
+        log.info(response.getMatchingUrls().toString());
         // response가 null이 아니면 matching_urls를 반환, 아니면 빈 리스트 반환
         return response != null ? response.getMatchingUrls() : new ArrayList<>();
     }
 
     // FaceComparisonRequest를 위한 DTO 클래스
     public static class FaceComparisonRequest {
-//        private byte[] reference_embedding;
         private String reference_embedding;
         private Long group_id;
         private List<String> moment_ids;
 
-        public FaceComparisonRequest(Long group_id, List<String> moment_ids, byte[] reference_embedding) {
+        public FaceComparisonRequest(Long group_id, List<String> moment_ids, String reference_embedding) {
             this.group_id = group_id;
             this.moment_ids = moment_ids;
-//            this.reference_embedding = reference_embedding;
-            this.reference_embedding = Base64.getEncoder().encodeToString(reference_embedding);  // Base64 인코딩
+            this.reference_embedding = reference_embedding;
         }
 
         public String getReference_embedding() {
@@ -95,16 +92,5 @@ public class CompareFaceUtil {
         }
     }
 
-    public class MatchingUrlsResponse {
-        private List<String> matching_urls;
-
-        public List<String> getMatchingUrls() {
-            return matching_urls;
-        }
-
-        public void setMatchingUrls(List<String> matching_urls) {
-            this.matching_urls = matching_urls;
-        }
-    }
 
 }

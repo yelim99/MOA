@@ -322,16 +322,19 @@ public class S3Service {
     }
 
     // 얼굴 비교하여 분류
-//    public List<String> compareFace(Long groupId) {
-//        // groupId로 momentId들 가져오기
-//        List<String> momentIds = momentService.getMomentIds(groupId);
-//        // 임베딩값 가져오기
-////        Long userId = jwtUtil.extractUserId(token);
-//        byte[] embedding = userService.getEmbedding(1L);
-//
-//        // fast에서 분류된 사진 url 리스트 받아오기
-//        List<String> ClassifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
-//
-//        return ClassifiedImgList;
-//    }
+    public List<String> compareFace(String token, Long groupId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        // groupId로 momentId들 가져오기
+        List<String> momentIds = momentService.getMomentIds(groupId);
+
+        String embedding = userService.getEmbedding(userId);
+
+        // fast에서 분류된 사진 url 리스트 받아오기
+        List<String> classifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
+
+//        log.info(classifiedImgList.toString());
+        return classifiedImgList;
+    }
 }
