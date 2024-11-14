@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.image.controller;
 
+import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.moment.service.MomentService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class S3Controller {
 
     private final S3Service s3Service;
     private final MomentService momentService;
+    private final GroupService groupService;
 
     @PostMapping("/moment/{moment_id}/upload")
     ResponseEntity<List<String>> uploadImages(
@@ -34,7 +36,7 @@ public class S3Controller {
     ) {
         List<String> urls =
                 s3Service.uploadImages(momentService.createMomentForGroup(token, groupId, images), images);
-
+        groupService.updateGroupImagesCount(groupId, (long) images.size());
         return ResponseEntity.ok(urls);
     }
 
