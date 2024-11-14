@@ -25,6 +25,9 @@ public class Group extends BaseEntity {
     @Column(name = "group_id")
     private Long groupId;
 
+    @Column(name = "group_owner_id")
+    private Long groupOwnerId;
+
     @Column(name = "group_pin")
     private String groupPin;
 

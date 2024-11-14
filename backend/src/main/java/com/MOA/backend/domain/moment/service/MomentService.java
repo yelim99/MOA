@@ -263,6 +263,11 @@ public class MomentService {
     public List<String> getMomentIds(Long groupId) {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 
+        if (moments.isEmpty()) {
+            log.info("그룹 '{}'에 순간이 존재하지 않습니다.", groupId);
+            return Collections.emptyList();
+        }
+
         List<String> momentIds = moments.stream().map(moment -> moment.getId().toHexString()).toList();
         log.info("momentIds: {}", momentIds);
 

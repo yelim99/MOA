@@ -2,6 +2,8 @@ package com.MOA.backend.domain.group.controller;
 
 import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
 import com.MOA.backend.domain.group.dto.response.GroupDetailsResponse;
+import com.MOA.backend.domain.group.dto.response.GroupOwnerResponse;
+import com.MOA.backend.domain.group.dto.response.UserInGroupDetailResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.service.S3Service;
@@ -10,7 +12,6 @@ import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.notification.service.FCMService;
-import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,7 +59,9 @@ public class GroupController {
             @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
         Group group = groupService.getGroupById(token, groupId);
-        List<User> users = groupService.getGroupUsers(groupId);
+        long groupOwnerId = group.getGroupOwnerId();
+        GroupOwnerResponse groupOwnerResponse = new GroupOwnerResponse(groupOwnerId, userService.findByUserId(groupOwnerId).get().getUserName(), userService.findByUserId(groupOwnerId).get().getUserImage());
+        List<UserInGroupDetailResponse> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
         Map<String, Date> momentExpireDate = momentService.getMomentExpireDate(momentService.getMomentIds(groupId));
