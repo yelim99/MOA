@@ -307,7 +307,6 @@ public class MomentService {
         Long userId = jwtUtil.extractUserId(token);
         MomentDetailResponseDto moment = getMoment(token, momentId);
         String uploadOption = moment.getUploadOption();
-        log.info("uploadOption: {}", uploadOption);
         Boolean option = uploadOption.equals("ALL") ? Boolean.TRUE : Boolean.FALSE;
         if (option.equals(Boolean.TRUE)) {
             return Boolean.TRUE;
