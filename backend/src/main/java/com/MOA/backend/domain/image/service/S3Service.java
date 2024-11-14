@@ -102,6 +102,7 @@ public class S3Service {
                 + "/userImg".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
         uploadThumbnailImage(image, imageName);
+        log.info("유저 이미지가 성공적으로 저장되었습니다. {} / {}", imageName, amazonS3.getUrl(bucket, imageName).toString());
 
         return amazonS3.getUrl(bucket, imageName).toString();
     }
