@@ -55,8 +55,9 @@ public class GroupController {
     @Operation(summary = "그룹 상세 조회", description = "그룹 ID를 통해 특정 그룹의 상세 정보를 조회합니다.")
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroupDetails(
+            @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
-        Group group = groupService.getGroupById(groupId);
+        Group group = groupService.getGroupById(token, groupId);
         List<User> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
@@ -102,14 +103,15 @@ public class GroupController {
     @PostMapping("{id}/join")
     public ResponseEntity<String> joinGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
-            @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "그룹 ID", required = true) @PathVariable Long id,
+            @RequestParam(name = "PIN") String pin) {
         try {
             Long userId = jwtUtil.extractUserId(token);
-            groupService.joinGroup(userId, id);
+            groupService.joinGroup(userId, id, pin);
             fcmService.subscribeToGroups(userService.findByUserId(userId).get().getDeviceToken(), id);
             return ResponseEntity.ok("그룹에 가입되었습니다.");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이미 가입된 그룹이거나, PIN번호가 잘못되었습니다.");
         }
     }
 
