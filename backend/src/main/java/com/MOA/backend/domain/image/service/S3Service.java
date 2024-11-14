@@ -101,7 +101,8 @@ public class S3Service {
         String imageName = "user/" + loginUser.getUserEmail()
                 + "/userImg".concat(getFileExtension(Objects.requireNonNull(image.getOriginalFilename())));
 
-        uploadOriginalImage(image, imageName);
+        uploadThumbnailImage(image, imageName);
+        log.info("유저 이미지가 성공적으로 저장되었습니다. {} / {}", imageName, amazonS3.getUrl(bucket, imageName).toString());
 
         return amazonS3.getUrl(bucket, imageName).toString();
     }
@@ -120,7 +121,7 @@ public class S3Service {
         }
     }
 
-    // 썸네일 이미지 업로드
+    // 썸네일 이미지 업로드 (quality: 0.5배)
     private void uploadThumbnailImage(MultipartFile thumbnailImage, String imagePath) {
         try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 0.5)) {
             ObjectMetadata objectMetadata = new ObjectMetadata();
