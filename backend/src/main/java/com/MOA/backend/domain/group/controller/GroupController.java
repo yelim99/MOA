@@ -16,13 +16,14 @@ import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Tag(name = "Group", description = "유저 관련 API")
 @RestController
@@ -43,7 +44,7 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<Group> createGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
-            @Valid @RequestBody GroupCreateDto groupDto) {
+            @RequestBody GroupCreateDto groupDto) {
         Long userId = jwtUtil.extractUserId(token);
         Group createdGroup = groupService.create(userId, groupDto);
         createdGroup.setGroupPin(pinCodeUtil.generatePinCode());
@@ -73,7 +74,7 @@ public class GroupController {
     @PutMapping("/{id}")
     public ResponseEntity<Group> updateGroup(
             @Parameter(description = "그룹 ID", required = true) @PathVariable long id,
-            @Valid @RequestBody GroupCreateDto groupDto) {
+            @RequestBody GroupCreateDto groupDto) {
         Group updatedGroup = groupService.update(id, groupDto);
         return ResponseEntity.ok(updatedGroup);
     }
@@ -91,7 +92,9 @@ public class GroupController {
     public ResponseEntity<Void> leaveGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
-        groupService.leaveGroup(jwtUtil.extractUserId(token), id);
+        Long userId = jwtUtil.extractUserId(token);
+        groupService.leaveGroup(userId, id);
+        fcmService.unsubscribeFromGroups(userService.findByUserId(userId).get().getDeviceToken(), id);
         return ResponseEntity.noContent().build();
     }
 
@@ -111,8 +114,9 @@ public class GroupController {
     }
 
     @PatchMapping("/{groupId}")
-    public ResponseEntity<MemberResponseDto> modifyMemberNickname(@RequestHeader("Authorization") String token,
-                                                                  @RequestParam(name = "nickname") String nickname) {
+    public ResponseEntity<MemberResponseDto> modifyMemberNickname(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "nickname") String nickname) {
         return ResponseEntity.ok(memberService.modifyMemberNickname(jwtUtil.extractUserId(token), nickname));
     }
 }
