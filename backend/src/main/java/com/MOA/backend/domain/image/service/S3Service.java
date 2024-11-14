@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -46,28 +48,32 @@ public class S3Service {
 
     // 이미지 업로드
     public List<String> uploadImages(String momentId, List<MultipartFile> images) {
-        /* 해당 Moment 먼저 찾기
-            - Moment에 GroupId랑 MomentId가 다 들어가 있음
-         */
         Moment moment = momentService.getMomentEntity(momentId);
         Long groupId = moment.getGroupId();
 
         List<String> imageUrls = new ArrayList<>();
+
+        // 1. 썸네일 이미지를 먼저 업로드하여 클라이언트에 응답
         images.forEach(image -> {
-            if(image.isEmpty()) {
+            if (image.isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "빈 파일은 업로드할 수 없습니다.");
             }
 
-           String imageName = createImageName(image.getOriginalFilename());
-           String originalPath = createOriginalImagePath(groupId, momentId);
-           String thumbnailPath = createThumbnailImagePath(groupId, momentId);
+            String imageName = createImageName(image.getOriginalFilename());
+            String thumbnailPath = createThumbnailImagePath(groupId, momentId);
 
-           // 원본 사진 업로드
-           uploadOriginalImage(image, originalPath + imageName);
-
-           // 썸네일 사진 업로드
+            // 썸네일 이미지 업로드 및 URL 추가
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
+        });
+
+        // 2. 원본 이미지를 비동기적으로 업로드
+        images.forEach(image -> {
+            String imageName = createImageName(image.getOriginalFilename());
+            String originalPath = createOriginalImagePath(groupId, momentId);
+
+            // 비동기 원본 이미지 업로드
+            uploadOriginalImageAsync(image, originalPath + imageName);
         });
 
         return imageUrls;
@@ -119,6 +125,23 @@ public class S3Service {
         } catch (IOException e) {
             throw new RuntimeException("원본 사진 업로드에 실패하였습니다. {}", e);
         }
+    }
+
+    // 비동기 원본 이미지 업로드
+    @Async
+    public CompletableFuture<Void> uploadOriginalImageAsync(MultipartFile image, String imagePath) {
+        return CompletableFuture.runAsync(() -> {
+            try (InputStream inputStream = image.getInputStream()) {
+                ObjectMetadata objectMetadata = new ObjectMetadata();
+                objectMetadata.setContentLength(image.getSize());
+                objectMetadata.setContentType(image.getContentType());
+
+                amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+            } catch (IOException e) {
+                throw new RuntimeException("원본 사진 업로드에 실패하였습니다.", e);
+            }
+        });
     }
 
     // 썸네일 이미지 업로드 (quality: 0.5배)
