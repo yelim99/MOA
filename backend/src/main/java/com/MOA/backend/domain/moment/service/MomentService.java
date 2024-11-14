@@ -25,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -264,7 +263,8 @@ public class MomentService {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 
         if (moments.isEmpty()) {
-            throw new NoSuchElementException("순간이 존재하지 않습니다.");
+            log.info("그룹 '{}'에 순간이 존재하지 않습니다.", groupId);
+            return Collections.emptyList();
         }
 
         List<String> momentIds = moments.stream().map(moment -> moment.getId().toHexString()).toList();

@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.group.service;
 
 import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
+import com.MOA.backend.domain.group.dto.response.UserInGroupDetailResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +34,7 @@ public class GroupService {
         // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
         Group group = new Group();
         group.setGroupName(groupDto.getGroupName());
+        group.setGroupOwnerId(userId);
         group.setGroupDescription(groupDto.getGroupDescription());
         group.setGroupColor(groupDto.getColor());
         group.setGroupIcon(groupDto.getIcon());
@@ -84,10 +85,10 @@ public class GroupService {
     }
 
     // groupId에 해당하는 모든 유저
-    public List<User> getGroupUsers(Long groupId) {
+    public List<UserInGroupDetailResponse> getGroupUsers(Long groupId) {
         List<Member> memberships = memberRepository.findByGroupGroupId(groupId);
         return memberships.stream()
-                .map(Member::getUser)
+                .map(member -> new UserInGroupDetailResponse(member.getUser().getUserId(), member.getUser().getUserName(), member.getUser().getUserImage()))
                 .collect(Collectors.toList());
     }
 

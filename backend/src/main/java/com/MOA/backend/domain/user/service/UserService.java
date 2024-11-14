@@ -1,19 +1,16 @@
 package com.MOA.backend.domain.user.service;
 
+import com.MOA.backend.domain.group.dto.response.GroupsReponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
-import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
-import com.MOA.backend.domain.user.dto.UserUpdateRequestDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
-import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -75,12 +72,23 @@ public class UserService {
         return user;
     }
 
-    public List<Group> getUserGroups(Long userId) {
+    public List<GroupsReponse> getUserGroups(Long userId) {
 
         List<Member> memberships = memberRepository.findByUserUserId(userId);
 
         return memberships.stream()
-                .map(Member::getGroup)
+                .map(member -> {
+                    Group group = member.getGroup();
+                    long memberCount = memberRepository.countByGroupGroupId(group.getGroupId());
+                    return new GroupsReponse(
+                            group.getGroupId(),
+                            group.getGroupName(),
+                            group.getGroupColor(),
+                            group.getGroupIcon(),
+                            group.getGroupTotalImages(),
+                            memberCount
+                    );
+                })
                 .collect(Collectors.toList());
     }
 

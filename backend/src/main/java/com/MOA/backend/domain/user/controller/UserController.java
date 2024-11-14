@@ -1,6 +1,6 @@
 package com.MOA.backend.domain.user.controller;
 
-import com.MOA.backend.domain.group.entity.Group;
+import com.MOA.backend.domain.group.dto.response.GroupsReponse;
 import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
@@ -55,7 +55,7 @@ public class UserController {
 
     @Operation(summary = "유저가 포함된 그룹들 조회", description = "유저가 속한 그룹 목록을 조회합니다.")
     @GetMapping("/groups")
-    public List<Group> getMyGroups(
+    public List<GroupsReponse> getMyGroups(
             @Parameter(description = "JWT 토큰", required = true)
             @RequestHeader("Authorization") String token) {
         return userService.getUserGroups(jwtUtil.extractUserId(token));
