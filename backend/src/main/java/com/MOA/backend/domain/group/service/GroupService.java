@@ -8,6 +8,7 @@ import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,10 +45,20 @@ public class GroupService {
         return savedGroup;
     }
 
-
     // 그룹 삭제
     public void delete(Long id) {
         groupRepository.deleteById(id);
+    }
+
+    public void updateGroupImagesCount(Long groupId, Long increase) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
+
+        long updatedCount = group.getGroupTotalImages() + increase;
+        group.setGroupTotalImages(updatedCount);
+
+        // 변경 사항을 저장
+        groupRepository.save(group);
     }
 
     // 그룹 업데이트
