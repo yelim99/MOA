@@ -108,4 +108,13 @@ public class MomentController {
         momentService.userExit(token, momentId);
         return ResponseEntity.ok().body("성공적으로 퇴장되었습니다.");
     }
+
+    // 업로드할 수 있는 사람인지 검증
+    @GetMapping("{moment_id}/upload")
+    public ResponseEntity<Boolean> validateUploadOption(
+            @RequestHeader("Authorization") String token,
+            @PathVariable(name = "moment_id") String momentId
+    ) {
+        return ResponseEntity.ok().body(momentService.validateUploadAuthority(token, momentId));
+    }
 }
