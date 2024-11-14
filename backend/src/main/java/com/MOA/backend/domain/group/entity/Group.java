@@ -25,6 +25,9 @@ public class Group extends BaseEntity {
     @Column(name = "group_id")
     private Long groupId;
 
+    @Column(name = "group_owner_id")
+    private Long groupOwnerId;
+
     @Column(name = "group_pin")
     private String groupPin;
 
@@ -39,6 +42,9 @@ public class Group extends BaseEntity {
 
     @Column(name = "group_color")
     private String groupColor;
+
+    @Column(name = "group_total_images", columnDefinition = "BIGINT DEFAULT 0")
+    private long groupTotalImages;
 
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude  // toString 메서드에서 무한 호출 방지

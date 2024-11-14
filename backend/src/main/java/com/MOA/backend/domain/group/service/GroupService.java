@@ -1,6 +1,7 @@
 package com.MOA.backend.domain.group.service;
 
 import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
+import com.MOA.backend.domain.group.dto.response.UserInGroupDetailResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.repository.GroupRepository;
 import com.MOA.backend.domain.member.entity.Member;
@@ -8,6 +9,9 @@ import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
+import com.MOA.backend.global.auth.jwt.service.JwtUtil;
+import com.MOA.backend.global.exception.ForbiddenAccessException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,7 @@ public class GroupService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final PinCodeUtil pinCodeUtil;
+    private final JwtUtil jwtUtil;
 
     // 그룹 생성
     @Transactional
@@ -32,6 +37,7 @@ public class GroupService {
         // Group 엔티티를 생성하고 DTO의 값들을 설정합니다.
         Group group = new Group();
         group.setGroupName(groupDto.getGroupName());
+        group.setGroupOwnerId(userId);
         group.setGroupDescription(groupDto.getGroupDescription());
         group.setGroupColor(groupDto.getColor());
         group.setGroupIcon(groupDto.getIcon());
@@ -43,10 +49,20 @@ public class GroupService {
         return savedGroup;
     }
 
-
     // 그룹 삭제
     public void delete(Long id) {
         groupRepository.deleteById(id);
+    }
+
+    public void updateGroupImagesCount(Long groupId, Long increase) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
+
+        long updatedCount = group.getGroupTotalImages() + increase;
+        group.setGroupTotalImages(updatedCount);
+
+        // 변경 사항을 저장
+        groupRepository.save(group);
     }
 
     // 그룹 업데이트
@@ -65,17 +81,27 @@ public class GroupService {
     }
 
     // 그룹 상세 조회
-    public Group getGroupById(Long id) {
-        Group group = groupRepository.findByGroupId(id)
+    public Group getGroupById(String token, Long groupId) {
+        Long userId = jwtUtil.extractUserId(token);
+        Group group = groupRepository.findByGroupId(groupId)
                 .orElseThrow(() -> new NoSuchElementException("그룹이 없습니다."));
-        return group;
+        List<Long> myGroupIds = memberRepository.findByUserUserId(userId)
+                .stream().map(member -> member.getGroup().getGroupId()).toList();
+        if(groupId.equals(602L)) {
+            return group;
+        } else if(myGroupIds.contains(groupId)){
+            return group;
+        } else {
+            throw new ForbiddenAccessException("가입된 그룹이 아닙니다.");
+        }
+
     }
 
     // groupId에 해당하는 모든 유저
-    public List<User> getGroupUsers(Long groupId) {
+    public List<UserInGroupDetailResponse> getGroupUsers(Long groupId) {
         List<Member> memberships = memberRepository.findByGroupGroupId(groupId);
         return memberships.stream()
-                .map(Member::getUser)
+                .map(member -> new UserInGroupDetailResponse(member.getUser().getUserId(), member.getUser().getUserName(), member.getUser().getUserImage()))
                 .collect(Collectors.toList());
     }
 
@@ -83,11 +109,16 @@ public class GroupService {
         return memberRepository.existsByUserUserId(userId);
     }
 
-    public void joinGroup(Long userId, Long groupId) {
+    public void joinGroup(Long userId, Long groupId, String pin) {
         if (!isUserInGroup(userId)) {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
-            addUserToGroup(userId, group);
+
+            if(pin.equals(group.getGroupPin())) {
+                addUserToGroup(userId, group);
+            } else {
+                throw new IllegalArgumentException("PIN번호가 일치하지 않습니다.");
+            }
         } else {
             throw new IllegalArgumentException("이미 그룹에 속해 있습니다.");
         }

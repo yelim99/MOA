@@ -22,6 +22,10 @@ import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -260,7 +264,8 @@ public class MomentService {
         List<Moment> moments = momentRepository.findAllByGroupId(groupId);
 
         if (moments.isEmpty()) {
-            throw new NoSuchElementException("순간이 존재하지 않습니다.");
+            log.info("그룹 '{}'에 순간이 존재하지 않습니다.", groupId);
+            return Collections.emptyList();
         }
 
         List<String> momentIds = moments.stream().map(moment -> moment.getId().toHexString()).toList();
@@ -283,5 +288,40 @@ public class MomentService {
     // 기간이 만료된 모든 DeletedMoment 삭제
     public Long deleteDeletedMoment(Date currDate) {
         return deletedMomentRepository.deleteByExpiredAtBefore(currDate);
+    }
+
+    // 그룹 내 moment들의 남은 시간 반환
+    public Map<String, Date> getMomentExpireDate(List<String> momentIdList) {
+        Map<String, Date> expireDateMap = new HashMap<>();
+        for(String momentId : momentIdList) {
+            Moment moment = momentRepository.findById(momentId).orElseThrow(NoSuchElementException::new);
+            Instant instant = moment.getCreatedAt().toInstant();
+            ZonedDateTime kst = ZonedDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul")).plusDays(1);
+            Date kstDate = Date.from(kst.toInstant());
+            expireDateMap.put(momentId, kstDate);
+        }
+
+        return expireDateMap;
+    }
+
+    public Boolean validateUploadAuthority(String token, String momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        MomentDetailResponseDto moment = getMoment(token, momentId);
+        String uploadOption = moment.getUploadOption();
+        Boolean option = uploadOption.equals("ALL") ? Boolean.TRUE : Boolean.FALSE;
+        if (option.equals(Boolean.TRUE)) {
+            return Boolean.TRUE;
+        } else {
+            Optional<User> optionalUser = userService.findByUserId(userId);
+            if (optionalUser.isPresent()) {
+                Long loginUserId = optionalUser.get().getUserId();
+                if (moment.getMomentOwner().getUserId().equals(loginUserId)) {
+                    return Boolean.TRUE;
+                } else {
+                    return Boolean.FALSE;
+                }
+            }
+        }
+        return Boolean.FALSE;
     }
 }

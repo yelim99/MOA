@@ -1,24 +1,26 @@
 package com.MOA.backend.domain.group.dto.response;
 
 import com.MOA.backend.domain.group.entity.Group;
-import com.MOA.backend.domain.user.entity.User;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class GroupDetailsResponse {
     private Group group;
-    private List<User> users;
+    private GroupOwnerResponse groupOwner;
+    private List<UserInGroupDetailResponse> users;
     private Map<String, Map<String, List<String>>> images;
+    private Map<String, Date> expiredAt;
+
     @Builder
-    public GroupDetailsResponse(Group group, List<User> users,
-                                Map<String, Map<String, List<String>>> images) {
+    public GroupDetailsResponse(Group group, GroupOwnerResponse groupOwner, List<UserInGroupDetailResponse> users,
+                                Map<String, Map<String, List<String>>> images, Map<String, Date> expiredAt) {
         this.group = group;
+        this.groupOwner = groupOwner;
         this.users = users.isEmpty() ? new ArrayList<>() : users;
         this.images = images.isEmpty() ? new HashMap<>() : images;
+        this.expiredAt = expiredAt.isEmpty() ? new HashMap<>() : expiredAt;
     }
 }

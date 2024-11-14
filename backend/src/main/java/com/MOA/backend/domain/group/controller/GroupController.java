@@ -2,6 +2,8 @@ package com.MOA.backend.domain.group.controller;
 
 import com.MOA.backend.domain.group.dto.request.GroupCreateDto;
 import com.MOA.backend.domain.group.dto.response.GroupDetailsResponse;
+import com.MOA.backend.domain.group.dto.response.GroupOwnerResponse;
+import com.MOA.backend.domain.group.dto.response.UserInGroupDetailResponse;
 import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.service.S3Service;
@@ -10,18 +12,17 @@ import com.MOA.backend.domain.member.service.MemberService;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.notification.service.FCMService;
-import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class GroupController {
     @PostMapping
     public ResponseEntity<Group> createGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
-            @Valid @RequestBody GroupCreateDto groupDto) {
+            @RequestBody GroupCreateDto groupDto) {
         Long userId = jwtUtil.extractUserId(token);
         Group createdGroup = groupService.create(userId, groupDto);
         createdGroup.setGroupPin(pinCodeUtil.generatePinCode());
@@ -55,16 +56,21 @@ public class GroupController {
     @Operation(summary = "그룹 상세 조회", description = "그룹 ID를 통해 특정 그룹의 상세 정보를 조회합니다.")
     @GetMapping("/{groupId}")
     public ResponseEntity<?> getGroupDetails(
+            @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable(name = "groupId") Long groupId) {
-        Group group = groupService.getGroupById(groupId);
-        List<User> users = groupService.getGroupUsers(groupId);
+        Group group = groupService.getGroupById(token, groupId);
+        long groupOwnerId = group.getGroupOwnerId();
+        GroupOwnerResponse groupOwnerResponse = new GroupOwnerResponse(groupOwnerId, userService.findByUserId(groupOwnerId).get().getUserName(), userService.findByUserId(groupOwnerId).get().getUserImage());
+        List<UserInGroupDetailResponse> users = groupService.getGroupUsers(groupId);
         Map<String, Map<String, List<String>>> imagesInGroup =
                 s3Service.getImagesInGroup(groupId, momentService.getMomentIds(groupId));
+        Map<String, Date> momentExpireDate = momentService.getMomentExpireDate(momentService.getMomentIds(groupId));
 
         return ResponseEntity.ok().body(GroupDetailsResponse.builder()
                 .group(group)
                 .users(users)
                 .images(imagesInGroup)
+                .expiredAt(momentExpireDate)
                 .build());
     }
 
@@ -72,7 +78,7 @@ public class GroupController {
     @PutMapping("/{id}")
     public ResponseEntity<Group> updateGroup(
             @Parameter(description = "그룹 ID", required = true) @PathVariable long id,
-            @Valid @RequestBody GroupCreateDto groupDto) {
+            @RequestBody GroupCreateDto groupDto) {
         Group updatedGroup = groupService.update(id, groupDto);
         return ResponseEntity.ok(updatedGroup);
     }
@@ -90,7 +96,9 @@ public class GroupController {
     public ResponseEntity<Void> leaveGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
             @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
-        groupService.leaveGroup(jwtUtil.extractUserId(token), id);
+        Long userId = jwtUtil.extractUserId(token);
+        groupService.leaveGroup(userId, id);
+        fcmService.unsubscribeFromGroups(userService.findByUserId(userId).get().getDeviceToken(), id);
         return ResponseEntity.noContent().build();
     }
 
@@ -98,20 +106,22 @@ public class GroupController {
     @PostMapping("{id}/join")
     public ResponseEntity<String> joinGroup(
             @Parameter(description = "JWT 토큰", required = true) @RequestHeader("Authorization") String token,
-            @Parameter(description = "그룹 ID", required = true) @PathVariable Long id) {
+            @Parameter(description = "그룹 ID", required = true) @PathVariable Long id,
+            @RequestParam(name = "PIN") String pin) {
         try {
             Long userId = jwtUtil.extractUserId(token);
-            groupService.joinGroup(userId, id);
+            groupService.joinGroup(userId, id, pin);
             fcmService.subscribeToGroups(userService.findByUserId(userId).get().getDeviceToken(), id);
             return ResponseEntity.ok("그룹에 가입되었습니다.");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이미 가입된 그룹이거나, PIN번호가 잘못되었습니다.");
         }
     }
 
     @PatchMapping("/{groupId}")
-    public ResponseEntity<MemberResponseDto> modifyMemberNickname(@RequestHeader("Authorization") String token,
-                                                                  @RequestParam(name = "nickname") String nickname) {
+    public ResponseEntity<MemberResponseDto> modifyMemberNickname(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "nickname") String nickname) {
         return ResponseEntity.ok(memberService.modifyMemberNickname(jwtUtil.extractUserId(token), nickname));
     }
 }

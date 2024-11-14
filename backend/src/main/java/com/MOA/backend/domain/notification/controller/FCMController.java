@@ -31,16 +31,4 @@ public class FCMController {
                 .doOnError(e -> log.error("푸시 메세지 전송 중 에러 발생: {}", e.getMessage()))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(0, HttpStatus.INTERNAL_SERVER_ERROR)));
     }
-
-//    @PostMapping("/invite")
-//    public Mono<ResponseEntity<Integer>> sendGroupInvitation(@RequestHeader("Authorization") String jwtToken) throws JsonProcessingException {
-//        log.debug("[+] 그룹 초대 메세지를 전송합니다.");
-//        Long userId = jwtUtil.extractUserId(jwtToken);
-//        User user = userService.findByUserId(userId).get();
-//        FCMInvitationRequest fcmInvitationRequest = new FCMInvitationRequest()
-//        return fcmService.sendInvitationTo(fcmInvitationRequest)
-//                .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
-//                .doOnError(e -> log.error("그룹 초대 메세지 전송 중 에러 발생: {}", e.getMessage()))
-//                .onErrorResume(e -> Mono.just(new ResponseEntity<>(0, HttpStatus.INTERNAL_SERVER_ERROR)));
-//    }
 }
