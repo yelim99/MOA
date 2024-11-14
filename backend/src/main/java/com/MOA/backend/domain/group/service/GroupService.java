@@ -8,6 +8,8 @@ import com.MOA.backend.domain.member.repository.MemberRepository;
 import com.MOA.backend.domain.moment.util.PinCodeUtil;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
+import com.MOA.backend.global.auth.jwt.service.JwtUtil;
+import com.MOA.backend.global.exception.ForbiddenAccessException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ public class GroupService {
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final PinCodeUtil pinCodeUtil;
+    private final JwtUtil jwtUtil;
 
     // 그룹 생성
     @Transactional
@@ -65,10 +68,20 @@ public class GroupService {
     }
 
     // 그룹 상세 조회
-    public Group getGroupById(Long id) {
-        Group group = groupRepository.findByGroupId(id)
+    public Group getGroupById(String token, Long groupId) {
+        Long userId = jwtUtil.extractUserId(token);
+        Group group = groupRepository.findByGroupId(groupId)
                 .orElseThrow(() -> new NoSuchElementException("그룹이 없습니다."));
-        return group;
+        List<Long> myGroupIds = memberRepository.findByUserUserId(userId)
+                .stream().map(member -> member.getGroup().getGroupId()).toList();
+        if(groupId.equals(602L)) {
+            return group;
+        } else if(myGroupIds.contains(groupId)){
+            return group;
+        } else {
+            throw new ForbiddenAccessException("가입된 그룹이 아닙니다.");
+        }
+
     }
 
     // groupId에 해당하는 모든 유저
@@ -83,11 +96,16 @@ public class GroupService {
         return memberRepository.existsByUserUserId(userId);
     }
 
-    public void joinGroup(Long userId, Long groupId) {
+    public void joinGroup(Long userId, Long groupId, String pin) {
         if (!isUserInGroup(userId)) {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
-            addUserToGroup(userId, group);
+
+            if(pin.equals(group.getGroupPin())) {
+                addUserToGroup(userId, group);
+            } else {
+                throw new IllegalArgumentException("PIN번호가 일치하지 않습니다.");
+            }
         } else {
             throw new IllegalArgumentException("이미 그룹에 속해 있습니다.");
         }
