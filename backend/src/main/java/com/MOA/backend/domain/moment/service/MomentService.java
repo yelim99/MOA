@@ -302,4 +302,25 @@ public class MomentService {
 
         return expireDateMap;
     }
+
+    public Boolean validateUploadAuthority(String token, String momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        MomentDetailResponseDto moment = getMoment(token, momentId);
+        String uploadOption = moment.getUploadOption();
+        Boolean option = uploadOption.equals("ALL") ? Boolean.TRUE : Boolean.FALSE;
+        if (option.equals(Boolean.TRUE)) {
+            return Boolean.TRUE;
+        } else {
+            Optional<User> optionalUser = userService.findByUserId(userId);
+            if (optionalUser.isPresent()) {
+                Long loginUserId = optionalUser.get().getUserId();
+                if (moment.getMomentOwner().getUserId().equals(loginUserId)) {
+                    return Boolean.TRUE;
+                } else {
+                    return Boolean.FALSE;
+                }
+            }
+        }
+        return Boolean.FALSE;
+    }
 }
