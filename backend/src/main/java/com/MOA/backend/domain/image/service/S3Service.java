@@ -11,8 +11,6 @@ import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.services.s3.model.lifecycle.LifecycleFilter;
-import com.amazonaws.services.s3.model.lifecycle.LifecyclePrefixPredicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,19 +59,13 @@ public class S3Service {
 
             String imageName = createImageName(image.getOriginalFilename());
             String thumbnailPath = createThumbnailImagePath(groupId, momentId);
+            String originalImagePath = createOriginalImagePath(groupId, momentId);
 
             // 썸네일 이미지 업로드 및 URL 추가
+            uploadOriginalImage(image, originalImagePath + imageName);
+
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
-        });
-
-        // 2. 원본 이미지를 비동기적으로 업로드
-        images.forEach(image -> {
-            String imageName = createImageName(image.getOriginalFilename());
-            String originalPath = createOriginalImagePath(groupId, momentId);
-
-            // 비동기 원본 이미지 업로드
-            uploadOriginalImageAsync(image, originalPath + imageName);
         });
 
         return imageUrls;
@@ -125,23 +117,6 @@ public class S3Service {
         } catch (IOException e) {
             throw new RuntimeException("원본 사진 업로드에 실패하였습니다. {}", e);
         }
-    }
-
-    // 비동기 원본 이미지 업로드
-    @Async
-    public CompletableFuture<Void> uploadOriginalImageAsync(MultipartFile image, String imagePath) {
-        return CompletableFuture.runAsync(() -> {
-            try (InputStream inputStream = image.getInputStream()) {
-                ObjectMetadata objectMetadata = new ObjectMetadata();
-                objectMetadata.setContentLength(image.getSize());
-                objectMetadata.setContentType(image.getContentType());
-
-                amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
-            } catch (IOException e) {
-                throw new RuntimeException("원본 사진 업로드에 실패하였습니다.", e);
-            }
-        });
     }
 
     // 썸네일 이미지 업로드 (quality: 0.5배)
@@ -254,26 +229,20 @@ public class S3Service {
     public Map<String, List<String>> getImagesInMoment(String momentId) {
         Map<String, List<String>> images = new HashMap<>();
 
-        List<String> orgImgs = new ArrayList<>();
         List<String> thumbImgs = new ArrayList<>();
 
         try {
-            ListObjectsV2Request orgRequest = new ListObjectsV2Request()
-                    .withBucketName(bucket)
-                    .withPrefix("group/602/moment/" + momentId + "/original");
             ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
                     .withBucketName(bucket)
                     .withPrefix("group/602/moment/" + momentId + "/thumbnail");
 
-            ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
+            for(int i = 0; i < thumbResult.getObjectSummaries().size(); i++) {
                 thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
                         thumbResult.getObjectSummaries().get(i).getKey())));
             }
 
-            images.put("orgImgs", orgImgs);
             images.put("thumbImgs", thumbImgs);
 
         } catch (AmazonS3Exception e) {
@@ -289,6 +258,10 @@ public class S3Service {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
         imagesByMoment.put("thumbImgs", new HashMap<>());
         imagesByMoment.put("expiredAt", new HashMap<>());
+
+        if(momentIds.isEmpty()) {
+            return imagesByMoment;
+        }
         for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {
