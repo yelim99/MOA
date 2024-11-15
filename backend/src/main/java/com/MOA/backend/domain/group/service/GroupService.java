@@ -122,8 +122,7 @@ public class GroupService {
     }
 
     public void joinGroup(Long userId, Long groupId, String pin) {
-        List<Long> groupIds = findMyGroup(userId).stream().map(member -> member.getGroup().getGroupId()).toList();
-        if (!groupIds.contains(groupId)) {
+        if (!isUserInGroup(userId)) {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
 

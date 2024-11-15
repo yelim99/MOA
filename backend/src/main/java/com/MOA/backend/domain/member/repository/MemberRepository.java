@@ -17,8 +17,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findByGroupGroupIdAndUserUserId(Long groupId, Long userId);
 
-    @Query("select m from Member m where m.user = :userId")
-    List<Member> findAllByUserId(Long userId);
+    Boolean existsByUserUserId(Long userId);
 
     List<Member> findAllByUserUserId(Long userId);
 
