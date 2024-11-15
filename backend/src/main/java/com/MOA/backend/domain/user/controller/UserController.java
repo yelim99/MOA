@@ -2,6 +2,7 @@ package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.dto.response.GroupsReponse;
 import com.MOA.backend.domain.image.service.S3Service;
+import com.MOA.backend.domain.user.dto.DeviceTokenRequest;
 import com.MOA.backend.domain.user.dto.UserInfoResponse;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 @Tag(name = "User", description = "유저 관련 API")
 @RestController
@@ -63,8 +63,8 @@ public class UserController {
     }
 
     @PutMapping("/device-token")
-    public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody String deviceToken) {
-        userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceToken);
+    public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody DeviceTokenRequest deviceTokenRequest) {
+        userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceTokenRequest.getDeviceToken());
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }
