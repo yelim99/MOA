@@ -258,6 +258,10 @@ public class S3Service {
         Map<String, Map<String, List<String>>> imagesByMoment = new HashMap<>();
         imagesByMoment.put("thumbImgs", new HashMap<>());
         imagesByMoment.put("expiredAt", new HashMap<>());
+
+        if(momentIds.isEmpty()) {
+            return imagesByMoment;
+        }
         for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {
