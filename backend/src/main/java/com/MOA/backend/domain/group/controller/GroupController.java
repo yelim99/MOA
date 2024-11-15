@@ -68,6 +68,7 @@ public class GroupController {
 
         return ResponseEntity.ok().body(GroupDetailsResponse.builder()
                 .group(group)
+                .groupOwner(groupOwnerResponse)
                 .users(users)
                 .images(imagesInGroup)
                 .expiredAt(momentExpireDate)
