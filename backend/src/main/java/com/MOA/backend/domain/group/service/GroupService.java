@@ -13,6 +13,7 @@ import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.MOA.backend.global.exception.ForbiddenAccessException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class GroupService {
 
     private final GroupRepository groupRepository;
@@ -50,9 +52,20 @@ public class GroupService {
     }
 
     // 그룹 삭제
+    @Transactional
     public void delete(Long id) {
-        groupRepository.deleteById(id);
+        Group group = groupRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Group not found with id " + id));
+
+        // 연결된 멤버들의 그룹 해제
+        group.getMembers().forEach(member -> member.setGroup(null));
+
+        // 그룹 삭제
+        groupRepository.delete(group);
     }
+
+
+
 
     public void updateGroupImagesCount(Long groupId, Long increase) {
         Group group = groupRepository.findById(groupId)
@@ -87,9 +100,9 @@ public class GroupService {
                 .orElseThrow(() -> new NoSuchElementException("그룹이 없습니다."));
         List<Long> myGroupIds = memberRepository.findByUserUserId(userId)
                 .stream().map(member -> member.getGroup().getGroupId()).toList();
-        if(groupId.equals(602L)) {
+        if (groupId.equals(602L)) {
             return group;
-        } else if(myGroupIds.contains(groupId)){
+        } else if (myGroupIds.contains(groupId)) {
             return group;
         } else {
             throw new ForbiddenAccessException("가입된 그룹이 아닙니다.");
@@ -114,7 +127,7 @@ public class GroupService {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
 
-            if(pin.equals(group.getGroupPin())) {
+            if (pin.equals(group.getGroupPin())) {
                 addUserToGroup(userId, group);
             } else {
                 throw new IllegalArgumentException("PIN번호가 일치하지 않습니다.");
@@ -125,9 +138,31 @@ public class GroupService {
 
     }
 
+    @Transactional
     public void leaveGroup(Long userId, Long groupId) {
-        memberRepository.deleteByGroupGroupIdAndUserUserId(userId, groupId);
+        Member member = memberRepository.findByGroupGroupIdAndUserUserId(groupId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Member not found in group"));
+
+        // 그룹의 멤버 리스트에서 해당 멤버 제거
+        Group group = member.getGroup();
+        group.getMembers().remove(member);
+
+        // 사용자의 멤버십 리스트에서 해당 멤버 제거
+        User user = member.getUser();
+        user.getMemberships().remove(member);
+
+        // 멤버 엔티티 삭제
+        memberRepository.delete(member);
+
+        // 변경 사항을 영속성 컨텍스트에 반영
+        groupRepository.save(group);
+        userRepository.save(user);
     }
+
+
+
+
+
 
     private void addUserToGroup(Long userId, Group group) {
         User user = userRepository.findById(userId)
