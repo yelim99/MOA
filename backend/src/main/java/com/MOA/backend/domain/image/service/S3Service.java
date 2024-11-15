@@ -191,6 +191,9 @@ public class S3Service {
 
         log.info("파일={}", fileUrl);
 
+        // 유저 정보 업데이트
+        loginUser.updateRegisterImage(fileUrl);
+
         // fast에서 임베딩 값 받아오기
         String faceEmbedding = registFaceUtil.GetFaceEmbeddingFromFast(fileUrl);
         log.info("임베딩={}", faceEmbedding);
@@ -202,7 +205,6 @@ public class S3Service {
                 .build();
 
         userService.updateFaceEmbedding(faceEmbeddingDTO);
-
 
         return fileUrl;
     }

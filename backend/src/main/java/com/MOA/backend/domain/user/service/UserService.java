@@ -5,6 +5,7 @@ import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
+import com.MOA.backend.domain.user.dto.UserInfoResponse;
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
@@ -121,6 +122,20 @@ public class UserService {
 
     public List<User> getUsers(List<Long> userIds) {
         return userRepository.findAllByUserIdIn(userIds);
+    }
+
+    public UserInfoResponse getUserInfo(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다" + userId));
+
+        return UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .userName(user.getUserName())
+                .userImage(user.getUserImage())
+                .role(user.getRole())
+                .deviceToken(user.getDeviceToken())
+                .registerImage(user.getRegisterImage())
+                .build();
     }
 
 }

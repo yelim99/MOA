@@ -2,6 +2,7 @@ package com.MOA.backend.domain.user.controller;
 
 import com.MOA.backend.domain.group.dto.response.GroupsReponse;
 import com.MOA.backend.domain.image.service.S3Service;
+import com.MOA.backend.domain.user.dto.UserInfoResponse;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -45,12 +46,12 @@ public class UserController {
 
     @Operation(summary = "유저 정보 상세조회", description = "JWT 토큰을 통해 유저 정보를 조회합니다.")
     @GetMapping
-    public ResponseEntity<User> getUserById(
+    public ResponseEntity<UserInfoResponse> getUserById(
             @Parameter(description = "JWT 토큰", required = true)
             @RequestHeader("Authorization") String token) {
-        Optional<User> user = userService.findByUserId(jwtUtil.extractUserId(token));
-        return user.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+
+        UserInfoResponse userInfo = userService.getUserInfo(jwtUtil.extractUserId(token));
+        return ResponseEntity.ok(userInfo);
     }
 
     @Operation(summary = "유저가 포함된 그룹들 조회", description = "유저가 속한 그룹 목록을 조회합니다.")
