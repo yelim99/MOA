@@ -127,6 +127,7 @@ public class GroupService {
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
 
             if (pin.equals(group.getGroupPin())) {
+                log.info("pin: {}. groupPin: {}", pin, group.getGroupPin());
                 addUserToGroup(userId, group);
             } else {
                 throw new IllegalArgumentException("PIN번호가 일치하지 않습니다.");
