@@ -39,6 +39,9 @@ boto3.set_stream_logger('boto3', level=logging.DEBUG)
 # YOLO 모델 로드
 model = YOLO('../model/food-detection.pt')
 
+# YOLO 얼굴 검출 모델 로드
+face_model = YOLO('../model/face-detection.pt')
+
 # 최소 정확도 및 색상 정의
 CONFIDENCE_THRESHOLD = 0.6
 
@@ -88,13 +91,19 @@ async def detect_food(request: FoodDetectionRequest):
                 # YOLO 모델로 음식 검출 수행
                 detection = model(frame)[0]
 
+                # YOLO 모델로 얼굴 검출 수행
+                face_detection = face_model(frame)[0]
+
                 # 검출된 객체 확인
                 if not detection.boxes.data.tolist():
                     print("검출된 객체가 없습니다.")
                     continue
                 else:
-                    print("검출")
-                    matching_urls.append(file_url)
+                    if face_detection.boxes.data.tolist():
+                        print("얼굴 포함")
+                    else:
+                        print("음식사진이다!")
+                        matching_urls.append(file_url)
                 
 
                 # detected = False
