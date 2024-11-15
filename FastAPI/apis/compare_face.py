@@ -102,12 +102,14 @@ async def compare_face(request: FaceCompareRequest):
             file_keys = [obj['Key'] for obj in response.get('Contents', []) if obj['Size'] > 0]
 
             # 병렬 처리 시작
+            start_time_all = time.time()  # 전체 처리 시작 시간
             with ThreadPoolExecutor(max_workers=4) as executor:
                 results = executor.map(process_file, file_keys)
 
             for result in results:
                 if result:  # None이 아닌 URL만 추가
                     matching_urls.append(result)
+            print(f"Total processing time {time.time() - start_time_all:.2f} seconds")
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
