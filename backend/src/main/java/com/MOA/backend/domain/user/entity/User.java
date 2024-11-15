@@ -50,6 +50,9 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String faceEmbedding;
 
+    @Column(name = "register_image")
+    private String registerImage;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude  // toString 메서드에서 무한 호출 방지
     private List<Member> memberships = new ArrayList<>();
@@ -62,5 +65,9 @@ public class User extends BaseEntity {
 
     public void update(String nickname) {
         this.userName = nickname;
+    }
+
+    public void updateRegisterImage(String registerImage) {
+        this.registerImage = registerImage;
     }
 }
