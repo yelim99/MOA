@@ -117,17 +117,16 @@ public class GroupService {
                 .collect(Collectors.toList());
     }
 
-    public Boolean isUserInGroup(Long userId) {
-        return memberRepository.existsByUserUserId(userId);
+    public boolean isUserInGroup(Long groupId, Long userId) {
+        return memberRepository.existsByGroupGroupIdAndUserUserId(groupId, userId);
     }
 
+    @Transactional
     public void joinGroup(Long userId, Long groupId, String pin) {
-        log.info("여기까지는 오는거니?????????????????????????????????");
-        if (!isUserInGroup(userId)) {
+        if (!isUserInGroup(groupId, userId)) {
             Group group = groupRepository.findById(groupId)
                     .orElseThrow(() -> new IllegalArgumentException("해당하는 그룹이 없습니다" + groupId));
 
-            log.info("pin: {}. groupPin: {}", pin, group.getGroupPin());
             if (pin.equals(group.getGroupPin())) {
                 addUserToGroup(userId, group);
             } else {
