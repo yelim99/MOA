@@ -72,4 +72,13 @@ public class S3Controller {
         return ResponseEntity.ok(imgUrls);
     }
 
+    @PostMapping("/img/{group_id}/food")
+    ResponseEntity<List<String>> detectFoodImage(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("group_id") Long groupId
+    ) {
+        List<String> imgUrls = s3Service.detectFood(token, groupId);
+        return ResponseEntity.ok(imgUrls);
+    }
+
 }

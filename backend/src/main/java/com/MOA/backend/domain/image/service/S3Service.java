@@ -2,6 +2,7 @@ package com.MOA.backend.domain.image.service;
 
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
 import com.MOA.backend.domain.image.util.CompareFaceUtil;
+import com.MOA.backend.domain.image.util.DetectFoodUtil;
 import com.MOA.backend.domain.image.util.RegistFaceUtil;
 import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
@@ -17,8 +18,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,6 +47,7 @@ public class S3Service {
     private final JwtUtil jwtUtil;
     private final RegistFaceUtil registFaceUtil;
     private final CompareFaceUtil compareFaceUtil;
+    private final DetectFoodUtil detectFoodUtil;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -358,5 +364,20 @@ public class S3Service {
 
 //        log.info(classifiedImgList.toString());
         return classifiedImgList;
+    }
+
+    // 음식 사진 분류
+    public List<String> detectFood(String token, Long groupId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        // groupId로 momentId들 가져오기
+        List<String> momentIds = momentService.getMomentIds(groupId);
+
+        // fast에서 분류된 이미지 url 리스트 받아오기
+        List<String> classifiedFoodImgList = detectFoodUtil.getDetectedFoodImgsFromFast(groupId, momentIds);
+
+        log.info(classifiedFoodImgList.toString());
+        return classifiedFoodImgList;
     }
 }
