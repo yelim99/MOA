@@ -13,6 +13,7 @@ import boto3
 import base64
 import time
 from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
 
 router = APIRouter()
 
@@ -58,9 +59,35 @@ async def compare_face(request: FaceCompareRequest):
 
     matching_urls = []
 
-    # S3에서 특정 경로의 모든 파일 가져오기
+    def process_file(file_key):
+        file_url = f"https://{bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_key}"
+        try:
+            # S3에서 이미지 다운로드
+            s3_object = s3.get_object(Bucket=bucket_name, Key=file_key)
+            image_data = s3_object['Body'].read()
+
+            # OpenCV로 이미지 디코딩 및 얼굴 임베딩 추출
+            np_img = np.frombuffer(image_data, np.uint8)
+            image = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
+            height, width = image.shape[:2]
+            new_width = 640
+            new_height = int((new_width / width) * height)
+            resized_image = cv2.resize(image, (new_width, new_height))
+            face_locations = face_recognition.face_locations(resized_image)
+            face_encodings = face_recognition.face_encodings(resized_image, face_locations)
+
+            # 얼굴 비교
+            for encoding in face_encodings:
+                match = face_recognition.compare_faces([reference_embedding_array], encoding, tolerance=0.45)
+                if match[0]:
+                    print("일치")
+                    return file_url  # 일치하는 URL 반환
+                print("불일치")
+        except Exception as e:
+            print(f"Error processing file {file_key}: {e}")
+        return None
+
     try:
-         # 각 moment_id에 대해 S3 경로를 확인하고 처리
         for moment_id in moment_ids:
             prefix = f"group/{group_id}/moment/{moment_id}/"
             print(prefix)
@@ -70,42 +97,17 @@ async def compare_face(request: FaceCompareRequest):
             except Exception as e:
                 print("Error occurred:", e)
 
-            for obj in response.get('Contents', []):
-                file_key = obj['Key']
-                if obj['Size'] == 0:
-                    continue
-                file_url = f"https://{bucket_name}.s3.ap-northeast-2.amazonaws.com/{file_key}"
-                print(file_url)
-                
-                # S3에서 이미지 다운로드
-                try:
-                    s3_object = s3.get_object(Bucket=bucket_name, Key=file_key)
-                    image_data = s3_object['Body'].read()
-                except Exception as e:
-                    print("Error occurred:", e)
+            # for obj in response.get('Contents', []):
+            #     file_key
+            file_keys = [obj['Key'] for obj in response.get('Contents', []) if obj['Size'] > 0]
 
-                # OpenCV로 이미지 디코딩 및 얼굴 임베딩 추출
-                start_time = time.time()  # 시작 시간 기록
+            # 병렬 처리 시작
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                results = executor.map(process_file, file_keys)
 
-                np_img = np.frombuffer(image_data, np.uint8)
-                image = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
-                face_locations = face_recognition.face_locations(image)
-                face_encodings = face_recognition.face_encodings(image, face_locations)
-
-                # 얼굴 비교
-                for encoding in face_encodings:
-                    match = face_recognition.compare_faces([reference_embedding_array], encoding, tolerance=0.45)
-                    if match[0]:
-                        matching_urls.append(file_url)
-                        print("일치")
-                        break  # 일치하는 얼굴이 발견되면 다음 이미지로
-                    print("불일치")
-
-        end_time = time.time()  # 종료 시간 기록
-
-        # 소요 시간 출력
-        elapsed_time = end_time - start_time
-        print(f"임베딩 추출 및 비교 소요 시간: {elapsed_time:.2f}초")
+            for result in results:
+                if result:  # None이 아닌 URL만 추가
+                    matching_urls.append(result)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
