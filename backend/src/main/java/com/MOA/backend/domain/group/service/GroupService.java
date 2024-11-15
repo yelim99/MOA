@@ -53,18 +53,17 @@ public class GroupService {
 
     // 그룹 삭제
     @Transactional
-    public void delete(Long id) {
-        Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Group not found with id " + id));
-
+    public void delete(Long groupId) {
+        List<UserInGroupDetailResponse> users = getGroupUsers(groupId);
         // 연결된 멤버들의 그룹 해제
-        group.getMembers().forEach(member -> member.setGroup(null));
-
+        for (UserInGroupDetailResponse u : users) {
+            leaveGroup(u.getUserId(), groupId);
+        }
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException(groupId + "그런 그룹 없는데용?"));
         // 그룹 삭제
         groupRepository.delete(group);
     }
-
-
 
 
     public void updateGroupImagesCount(Long groupId, Long increase) {
@@ -158,10 +157,6 @@ public class GroupService {
         groupRepository.save(group);
         userRepository.save(user);
     }
-
-
-
-
 
 
     private void addUserToGroup(Long userId, Group group) {
