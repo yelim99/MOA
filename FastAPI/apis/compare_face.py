@@ -89,8 +89,13 @@ async def compare_face(request: FaceCompareRequest):
 
                 np_img = np.frombuffer(image_data, np.uint8)
                 image = cv2.imdecode(np_img, cv2.IMREAD_COLOR)
-                face_locations = face_recognition.face_locations(image)
-                face_encodings = face_recognition.face_encodings(image, face_locations)
+
+                height, width = image.shape[:2]
+                new_width = 640
+                new_height = int((new_width / width) * height)
+                resized_image = cv2.resize(image, (new_width, new_height))
+                face_locations = face_recognition.face_locations(resized_image)
+                face_encodings = face_recognition.face_encodings(resized_image, face_locations)
 
                 # 얼굴 비교
                 for encoding in face_encodings:
