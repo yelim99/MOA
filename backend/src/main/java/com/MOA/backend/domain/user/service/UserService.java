@@ -27,7 +27,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
-    private final MomentService momentService;
     private final MomentRepository momentRepository;
 
 
@@ -61,11 +60,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다.: " + userId));
 
-        user.update(nickname, imageUrl);
-        userRepository.save(user);
-
         // 내가 만든 순간들 가져오기
-        List<Moment> myMoment = momentService.getMyMoment(userId);
+        List<Moment> myMoment = momentRepository.findAllByMomentOwner(user.getUserName());
 
         // 내가 만든 순간들의 momentOwner 닉네임도 수정해주기
         for(Moment m : myMoment) {
@@ -73,6 +69,9 @@ public class UserService {
 //            momentRepository.save(m);
         }
         momentRepository.saveAll(myMoment);
+
+        user.update(nickname, imageUrl);
+        userRepository.save(user);
 
         return user;
     }
@@ -82,17 +81,18 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 아이디의 유저를 찾을 수 없습니다.: " + userId));
 
-        user.update(nickname);
-        userRepository.save(user);
-
         // 내가 만든 순간들 가져오기
-        List<Moment> myMoment = momentService.getMyMoment(userId);
+        List<Moment> myMoment = momentRepository.findAllByMomentOwner(user.getUserName());
 
         // 내가 만든 순간들의 momentOwner 닉네임도 수정해주기
         for(Moment m : myMoment) {
             m.update(nickname);
-            momentRepository.save(m);
+//            momentRepository.save(m);
         }
+        momentRepository.saveAll(myMoment);
+
+        user.update(nickname);
+        userRepository.save(user);
 
         return user;
     }
