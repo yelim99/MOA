@@ -58,4 +58,9 @@ public class Moment {
     public void update(List<Long> userIds) {
         this.userIds = userIds;
     }
+
+    // 유저가 마이페이지에서 닉네임 변경 시 내가 만든 순간 (momentOwner)도 바꿔주기
+    public void update(String momentOwner) {
+        this.momentOwner = momentOwner;
+    }
 }

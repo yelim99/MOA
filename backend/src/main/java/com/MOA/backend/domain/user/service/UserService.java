@@ -5,6 +5,9 @@ import com.MOA.backend.domain.group.entity.Group;
 import com.MOA.backend.domain.image.dto.FaceEmbeddingDTO;
 import com.MOA.backend.domain.member.entity.Member;
 import com.MOA.backend.domain.member.repository.MemberRepository;
+import com.MOA.backend.domain.moment.entity.Moment;
+import com.MOA.backend.domain.moment.repository.MomentRepository;
+import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.dto.UserInfoResponse;
 import com.MOA.backend.domain.user.dto.UserSignupRequestDto;
 import com.MOA.backend.domain.user.entity.User;
@@ -24,6 +27,8 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
+    private final MomentService momentService;
+    private final MomentRepository momentRepository;
 
 
     public Optional<User> findByUserEmail(String userEmail) {
@@ -59,6 +64,16 @@ public class UserService {
         user.update(nickname, imageUrl);
         userRepository.save(user);
 
+        // 내가 만든 순간들 가져오기
+        List<Moment> myMoment = momentService.getMyMoment(userId);
+
+        // 내가 만든 순간들의 momentOwner 닉네임도 수정해주기
+        for(Moment m : myMoment) {
+            m.update(nickname);
+//            momentRepository.save(m);
+        }
+        momentRepository.saveAll(myMoment);
+
         return user;
     }
 
@@ -69,6 +84,15 @@ public class UserService {
 
         user.update(nickname);
         userRepository.save(user);
+
+        // 내가 만든 순간들 가져오기
+        List<Moment> myMoment = momentService.getMyMoment(userId);
+
+        // 내가 만든 순간들의 momentOwner 닉네임도 수정해주기
+        for(Moment m : myMoment) {
+            m.update(nickname);
+            momentRepository.save(m);
+        }
 
         return user;
     }

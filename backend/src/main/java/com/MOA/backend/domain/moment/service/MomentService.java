@@ -324,4 +324,13 @@ public class MomentService {
         }
         return Boolean.FALSE;
     }
+
+    // 내가 만든 순간 가져오기
+    public List<Moment> getMyMoment(Long userId) {
+        User loginUser = userService.findByUserId(userId)
+                .orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        List<Moment> myMoment = momentRepository.findAllByMomentOwner(loginUser.getUserName());
+        return myMoment;
+    }
 }
