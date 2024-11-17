@@ -62,7 +62,7 @@ async def compare_face(request: FaceCompareRequest):
     try:
          # 각 moment_id에 대해 S3 경로를 확인하고 처리
         for moment_id in moment_ids:
-            prefix = f"group/{group_id}/moment/{moment_id}/"
+            prefix = f"group/{group_id}/moment/{moment_id}/thumbnail"
             print(prefix)
             try:
                 response = s3.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
