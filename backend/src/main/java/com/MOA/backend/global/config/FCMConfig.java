@@ -30,7 +30,7 @@ public class FCMConfig {
             FirebaseApp.initializeApp(options);
             log.info("파이어베이스 서버와의 연결에 성공했습니다.");
         } catch (IOException e) {
-            log.error("파이어베이스 서버와의 연결에 실패했습니다.", e);
+            log.error("파이어베이스 서버와의 연결에 실패했습니다. 인증 파일 경로: {}", SERVICE_ACCOUNT_JSON, e);
         }
     }
 
@@ -38,11 +38,16 @@ public class FCMConfig {
         String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
 
         if (serviceAccountPath != null && !serviceAccountPath.isEmpty()) {
-            log.info("환경 변수로 지정된 Firebase 인증 파일 경로: " + serviceAccountPath);
+            log.info("환경 변수로 지정된 Firebase 인증 파일 경로: {}", serviceAccountPath);
             return new FileInputStream(serviceAccountPath);
         } else {
             log.info("클래스패스에서 Firebase 인증 파일을 로드합니다.");
-            return new ClassPathResource("firebase-adminsdk.json").getInputStream();
+            InputStream stream = new ClassPathResource("firebase-adminsdk.json").getInputStream();
+            if (stream == null) {
+                throw new IOException("클래스패스에서 firebase-adminsdk.json 파일을 찾을 수 없습니다.");
+            }
+            return stream;
         }
     }
+
 }
