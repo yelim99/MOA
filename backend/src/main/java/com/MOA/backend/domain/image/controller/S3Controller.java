@@ -85,12 +85,24 @@ public class S3Controller {
         return ResponseEntity.ok(imgUrls);
     }
 
+    // 음식 사진 분류 (그룹에서)
     @PostMapping("/img/{group_id}/food")
     ResponseEntity<List<String>> detectFoodImage(
             @RequestHeader("Authorization") String token,
             @PathVariable("group_id") Long groupId
     ) {
         List<String> imgUrls = s3Service.detectFood(token, groupId);
+        return ResponseEntity.ok(imgUrls);
+    }
+
+    // 음식 사진 분류 (순간에서)
+    @PostMapping("/img/{group_id}/{moment_id}/food")
+    ResponseEntity<List<String>> detectFoodImageInMoment(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("group_id") Long groupId,
+            @PathVariable("moment_id") ObjectId momentId
+    ) {
+        List<String> imgUrls = s3Service.detectFoodInMoment(token, groupId, momentId);
         return ResponseEntity.ok(imgUrls);
     }
 
