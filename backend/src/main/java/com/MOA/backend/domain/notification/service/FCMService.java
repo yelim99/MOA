@@ -59,7 +59,7 @@ public class FCMService {
      */
     private String getAccessToken() {
         try {
-            String serviceAccountPath = "/home/ubuntu/config/firebase-adminsdk.json"; // 하드코딩된 경로
+            String serviceAccountPath = "home/ubuntu/config/firebase-adminsdk.json"; // 하드코딩된 경로
             log.info("Firebase 인증 파일을 직접 경로에서 로드합니다: {}", serviceAccountPath);
 
             FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath);
