@@ -41,13 +41,22 @@ public class FCMConfig {
             log.info("환경 변수로 지정된 Firebase 인증 파일 경로: {}", serviceAccountPath);
             return new FileInputStream(serviceAccountPath);
         } else {
-            log.info("클래스패스에서 Firebase 인증 파일을 로드합니다.");
-            InputStream stream = new ClassPathResource("firebase-adminsdk.json").getInputStream();
-            if (stream == null) {
-                throw new IOException("클래스패스에서 firebase-adminsdk.json 파일을 찾을 수 없습니다.");
+            // 기본 경로 처리
+            String defaultPath = "/home/ubuntu/config/firebase-adminsdk.json";
+            log.warn("환경 변수가 설정되지 않았습니다. 기본 경로를 사용합니다: {}", defaultPath);
+
+            try {
+                return new FileInputStream(defaultPath);
+            } catch (IOException e) {
+                log.error("기본 경로에서도 Firebase 인증 파일을 찾을 수 없습니다. 클래스패스를 시도합니다.");
+                InputStream stream = new ClassPathResource("firebase-adminsdk.json").getInputStream();
+                if (stream == null) {
+                    throw new IOException("클래스패스에서 firebase-adminsdk.json 파일을 찾을 수 없습니다.");
+                }
+                return stream;
             }
-            return stream;
         }
     }
+
 
 }
