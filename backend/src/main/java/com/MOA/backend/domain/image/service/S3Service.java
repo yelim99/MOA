@@ -14,6 +14,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -319,7 +320,7 @@ public class S3Service {
         }
     }
 
-    // 얼굴 비교하여 분류
+    // 얼굴 비교하여 분류 (그룹)
     public List<String> compareFace(String token, Long groupId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
@@ -341,13 +342,50 @@ public class S3Service {
         return classifiedImgList;
     }
 
-    // 음식 사진 분류
+    // 얼굴 비교하여 분류 (순간)
+    public List<String> compareFaceInMoment(String token, Long groupId, ObjectId momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        List<String> momentIds = new ArrayList<>();
+        momentIds.add(momentId.toHexString());
+
+        String embedding = userService.getEmbedding(userId);
+
+        if (embedding == null || embedding.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "등록된 임베딩 값(사진)이 없습니다.");
+        }
+
+        // fast에서 분류된 사진 url 리스트 받아오기
+        List<String> classifiedImgList = compareFaceUtil.getClassifiedImgsFromFast(groupId, momentIds, embedding);
+
+//        log.info(classifiedImgList.toString());
+        return classifiedImgList;
+    }
+
+    // 음식 사진 분류 (그룹)
     public List<String> detectFood(String token, Long groupId) {
         Long userId = jwtUtil.extractUserId(token);
         User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
 
         // groupId로 momentId들 가져오기
         List<String> momentIds = momentService.getMomentIds(groupId);
+
+        // fast에서 분류된 이미지 url 리스트 받아오기
+        List<String> classifiedFoodImgList = detectFoodUtil.getDetectedFoodImgsFromFast(groupId, momentIds);
+
+        log.info(classifiedFoodImgList.toString());
+        return classifiedFoodImgList;
+    }
+
+    // 음식 사진 분류 (순간)
+    public List<String> detectFoodInMoment(String token, Long groupId, ObjectId momentId) {
+        Long userId = jwtUtil.extractUserId(token);
+        User loginUser = userService.findByUserId(userId).orElseThrow(() -> new NoSuchElementException("회원이 없습니다."));
+
+        // 순간 아이디 리스트에 해당 순간 아이디 추가
+        List<String> momentIds = new ArrayList<>();
+        momentIds.add(momentId.toHexString());
 
         // fast에서 분류된 이미지 url 리스트 받아오기
         List<String> classifiedFoodImgList = detectFoodUtil.getDetectedFoodImgsFromFast(groupId, momentIds);

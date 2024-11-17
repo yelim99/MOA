@@ -4,6 +4,7 @@ import com.MOA.backend.domain.group.service.GroupService;
 import com.MOA.backend.domain.image.service.S3Service;
 import com.MOA.backend.domain.moment.service.MomentService;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,6 +64,7 @@ public class S3Controller {
         return ResponseEntity.ok(Map.of("url", s3Service.uploadUserImg(token, image)));
     }
 
+    // 얼굴 분류 (그룹에서)
     @PostMapping("/img/{group_id}/compare")
     ResponseEntity<List<String>> compareImage(
             @RequestHeader("Authorization") String token,
@@ -72,12 +74,35 @@ public class S3Controller {
         return ResponseEntity.ok(imgUrls);
     }
 
+    // 얼굴 분류 (순간에서)
+    @PostMapping("/img/{group_id}/{moment_id}/compare")
+    ResponseEntity<List<String>> compareImageInMoment(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("group_id") Long groupId,
+            @PathVariable("moment_id") ObjectId momentId
+    ) {
+        List<String> imgUrls = s3Service.compareFaceInMoment(token, groupId, momentId);
+        return ResponseEntity.ok(imgUrls);
+    }
+
+    // 음식 사진 분류 (그룹에서)
     @PostMapping("/img/{group_id}/food")
     ResponseEntity<List<String>> detectFoodImage(
             @RequestHeader("Authorization") String token,
             @PathVariable("group_id") Long groupId
     ) {
         List<String> imgUrls = s3Service.detectFood(token, groupId);
+        return ResponseEntity.ok(imgUrls);
+    }
+
+    // 음식 사진 분류 (순간에서)
+    @PostMapping("/img/{group_id}/{moment_id}/food")
+    ResponseEntity<List<String>> detectFoodImageInMoment(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("group_id") Long groupId,
+            @PathVariable("moment_id") ObjectId momentId
+    ) {
+        List<String> imgUrls = s3Service.detectFoodInMoment(token, groupId, momentId);
         return ResponseEntity.ok(imgUrls);
     }
 
