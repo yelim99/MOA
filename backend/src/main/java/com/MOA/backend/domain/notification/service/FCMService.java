@@ -10,11 +10,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -59,17 +59,23 @@ public class FCMService {
      */
     private String getAccessToken() {
         try {
+            String serviceAccountPath = "/home/ubuntu/config/firebase-adminsdk.json"; // 하드코딩된 경로
+            log.info("Firebase 인증 파일을 직접 경로에서 로드합니다: {}", serviceAccountPath);
+
+            FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath);
             GoogleCredentials googleCredentials = GoogleCredentials
-                    .fromStream(new ClassPathResource("firebase-adminsdk.json").getInputStream())
+                    .fromStream(serviceAccountStream)
                     .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
             googleCredentials.refreshIfExpired();
-            log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
 
+            log.info("getAccessToken() - googleCredentials: {}", googleCredentials.getAccessToken().getTokenValue());
             return googleCredentials.getAccessToken().getTokenValue();
         } catch (IOException e) {
-            throw new RuntimeException("파일을 읽는데 실패 했습니다.");
+            log.error("Firebase 인증 파일을 읽는 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("파일을 읽는데 실패 했습니다.", e);
         }
     }
+
 
     /**
      * 입력받는 dto를 통해 topic을 구독하는
