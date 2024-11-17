@@ -59,20 +59,29 @@ public class FCMService {
      */
     private String getAccessToken() {
         try {
-            String serviceAccountPath = "/home/ubuntu/config/firebase-adminsdk.json"; // 하드코딩된 경로
-            log.info("Firebase 인증 파일을 직접 경로에서 로드합니다: {}", serviceAccountPath);
+            // 환경 변수로 Firebase 인증 파일 경로를 가져옵니다.
+            String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+            if (serviceAccountPath == null || serviceAccountPath.isEmpty()) {
+                log.error("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
+                throw new IOException("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
+            }
 
-            FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath);
-            GoogleCredentials googleCredentials = GoogleCredentials
-                    .fromStream(serviceAccountStream)
-                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-            googleCredentials.refreshIfExpired();
+            log.info("Firebase 인증 파일을 환경 변수 경로에서 로드합니다: {}", serviceAccountPath);
 
-            log.info("getAccessToken() - googleCredentials: {}", googleCredentials.getAccessToken().getTokenValue());
-            return googleCredentials.getAccessToken().getTokenValue();
+            // 환경 변수에 설정된 경로에서 파일 스트림을 생성
+            try (FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath)) {
+                GoogleCredentials googleCredentials = GoogleCredentials
+                        .fromStream(serviceAccountStream)
+                        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+                googleCredentials.refreshIfExpired();
+
+                String accessToken = googleCredentials.getAccessToken().getTokenValue();
+                log.info("getAccessToken() - 성공적으로 액세스 토큰을 가져왔습니다.");
+                return accessToken;
+            }
         } catch (IOException e) {
             log.error("Firebase 인증 파일을 읽는 중 오류 발생: {}", e.getMessage(), e);
-            throw new RuntimeException("파일을 읽는데 실패 했습니다.", e);
+            throw new RuntimeException("Firebase 인증 파일을 읽는데 실패했습니다.", e);
         }
     }
 

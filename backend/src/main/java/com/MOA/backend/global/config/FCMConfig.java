@@ -7,8 +7,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +30,10 @@ public class FCMConfig {
             FirebaseApp.initializeApp(options);
             log.info("파이어베이스 서버와의 연결에 성공했습니다.");
         } catch (IOException e) {
-            log.error("파이어베이스 서버와의 연결에 실패했습니다. 인증 파일 경로: {}", SERVICE_ACCOUNT_JSON, e);
+            log.error("파이어베이스 서버와의 연결에 실패했습니다. 환경 변수 또는 기본 경로에서 인증 파일을 확인하세요.", e);
         }
     }
+
 
     private InputStream getServiceAccountStream() throws IOException {
         String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
@@ -41,19 +42,14 @@ public class FCMConfig {
             log.info("환경 변수로 지정된 Firebase 인증 파일 경로: {}", serviceAccountPath);
             return new FileInputStream(serviceAccountPath);
         } else {
-            // 기본 경로 처리
+            // 환경 변수가 없을 경우 기본 경로 사용
             String defaultPath = "/home/ubuntu/config/firebase-adminsdk.json";
             log.warn("환경 변수가 설정되지 않았습니다. 기본 경로를 사용합니다: {}", defaultPath);
 
-            try {
+            if (new File(defaultPath).exists()) {
                 return new FileInputStream(defaultPath);
-            } catch (IOException e) {
-                log.error("기본 경로에서도 Firebase 인증 파일을 찾을 수 없습니다. 클래스패스를 시도합니다.");
-                InputStream stream = new ClassPathResource("firebase-adminsdk.json").getInputStream();
-                if (stream == null) {
-                    throw new IOException("클래스패스에서 firebase-adminsdk.json 파일을 찾을 수 없습니다.");
-                }
-                return stream;
+            } else {
+                throw new IOException("Firebase 인증 파일을 찾을 수 없습니다: " + defaultPath);
             }
         }
     }
