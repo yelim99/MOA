@@ -36,7 +36,8 @@ public class FCMConfig {
 
 
     private InputStream getServiceAccountStream() throws IOException {
-        String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+//        String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+        String serviceAccountPath = SERVICE_ACCOUNT_JSON;
 
         if (serviceAccountPath != null && !serviceAccountPath.isEmpty()) {
             log.info("환경 변수로 지정된 Firebase 인증 파일 경로: {}", serviceAccountPath);

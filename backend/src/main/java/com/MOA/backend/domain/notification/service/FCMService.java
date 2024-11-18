@@ -1,11 +1,15 @@
 package com.MOA.backend.domain.notification.service;
 
 import com.MOA.backend.domain.notification.dto.request.FCMMessage;
+import com.MOA.backend.domain.notification.dto.request.MessageDto;
+import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
@@ -28,9 +32,14 @@ public class FCMService {
     private String FCM_API_URL;
 
     private final WebClient webClient;
+    private final UserRepository userRepository;
 
-    public Mono<Integer> sendMessageToGroup(String userName, Long groupId) throws JsonProcessingException {
-        String message = makeGroupMessage(userName, groupId);
+    public Mono<Integer> sendMessageToGroup(Long userId, MessageDto messageDto) throws JsonProcessingException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("없는데요?"));
+        Long groupId = messageDto.getGroupId();
+        String condition = String.format("'%s' in topics && !('%s' in topics)", groupId, userId);
+        String message = makeGroupMessage(user.getUserName(), messageDto, condition);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
         log.info("Access Token: {}", accessToken);
@@ -91,20 +100,22 @@ public class FCMService {
      * 사람들에게 보내는 메세지를 만듭니다.
      *
      * @param userName
-     * @param groupId
      * @return JSON 형식의 메세지 문자열
      * @throws JsonProcessingException
      */
-    private String makeGroupMessage(String userName, Long groupId) throws JsonProcessingException {
+    private String makeGroupMessage(String userName, MessageDto messageDto, String condition) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
+        Long groupId = messageDto.getGroupId();
+        Long imageCount = messageDto.getImageCount();
         FCMMessage fcmMessage = FCMMessage
                 .builder()
                 .message(FCMMessage.Message.builder()
                         .topic(groupId.toString())
                         .notification(FCMMessage.Notification.builder()
                                 .title("새로운 사진이 업로드되었습니다") // 고정된 제목
-                                .body(userName + "님이 그룹에 새로운 사진을 추가했습니다. 확인해보세요!") // 고정된 본문
+                                .body(userName + "님이 그룹에 새로운 사진 " + imageCount + "장을 추가했습니다. 확인해보세요!") // 고정된 본문
                                 .build())
+                        .condition(condition)
                         .build())
                 .validateOnly(false)
                 .build();
