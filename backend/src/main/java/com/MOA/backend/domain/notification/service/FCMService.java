@@ -1,7 +1,6 @@
 package com.MOA.backend.domain.notification.service;
 
 import com.MOA.backend.domain.notification.dto.request.FCMMessage;
-import com.MOA.backend.domain.notification.dto.request.MessageDto;
 import com.MOA.backend.domain.user.entity.User;
 import com.MOA.backend.domain.user.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -34,12 +33,11 @@ public class FCMService {
     private final WebClient webClient;
     private final UserRepository userRepository;
 
-    public Mono<Integer> sendMessageToGroup(Long userId, MessageDto messageDto) throws JsonProcessingException {
+    public Mono<Integer> sendMessageToGroup(Long userId, Long groupId) throws JsonProcessingException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("없는데요?"));
-        Long groupId = messageDto.getGroupId();
         String condition = String.format("'%s' in topics && !('%s' in topics)", groupId, user.getDeviceToken());
-        String message = makeGroupMessage(user.getUserName(), messageDto, condition);
+        String message = makeGroupMessage(user.getUserName(), condition);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
         log.info("Access Token: {}", accessToken);
@@ -116,7 +114,7 @@ public class FCMService {
      * @return JSON 형식의 메세지 문자열
      * @throws JsonProcessingException
      */
-    private String makeGroupMessage(String userName, MessageDto messageDto, String condition) throws JsonProcessingException {
+    private String makeGroupMessage(String userName, String condition) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         FCMMessage fcmMessage = FCMMessage
                 .builder()
