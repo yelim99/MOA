@@ -39,7 +39,7 @@ public class BatchSchedulerImpl implements BatchScheduler {
         }
     }
 
-    @Scheduled(cron = "0 0 14 * * *")
+    @Scheduled(cron = "0 0 3 * * *")
     public void runScheduledJob() {
         Date expiredDate = new Date();
         JobParameters jobParameters = new JobParametersBuilder()
