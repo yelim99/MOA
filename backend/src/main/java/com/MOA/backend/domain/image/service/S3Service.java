@@ -55,7 +55,7 @@ public class S3Service {
     private String bucket;
 
     // 이미지 업로드
-    public List<String> uploadImages(String momentId, List<MultipartFile> images) {
+    public List<String> uploadImages(String token, String momentId, List<MultipartFile> images) {
         Moment moment = momentService.getMomentEntity(momentId);
         Long groupId = moment.getGroupId();
 
