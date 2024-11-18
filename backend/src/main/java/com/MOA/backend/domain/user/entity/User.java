@@ -5,7 +5,9 @@ import com.MOA.backend.global.entity.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,7 @@ public class User extends BaseEntity {
         this.userEmail = userEmail;
         this.userImage = userImage;
         this.role = "ROLE_USER";
+        this.uploadCount = 0L;
     }
 
     @Id
@@ -53,6 +56,10 @@ public class User extends BaseEntity {
     @Column(name = "register_image")
     private String registerImage;
 
+    @Column(name = "upload_count")
+    @ColumnDefault("0")
+    private Long uploadCount;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @ToString.Exclude  // toString 메서드에서 무한 호출 방지
     private List<Member> memberships = new ArrayList<>();
@@ -69,5 +76,9 @@ public class User extends BaseEntity {
 
     public void updateRegisterImage(String registerImage) {
         this.registerImage = registerImage;
+    }
+
+    public void updateUploadCount(Long count) {
+        this.uploadCount += count;
     }
 }
