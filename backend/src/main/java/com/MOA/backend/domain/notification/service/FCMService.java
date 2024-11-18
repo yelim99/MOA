@@ -36,8 +36,7 @@ public class FCMService {
     public Mono<Integer> sendMessageToGroup(Long userId, Long groupId) throws JsonProcessingException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("없는데요?"));
-        String condition = String.format("'%s' in topics && !('%s' in topics)", groupId.toString(), user.getUserName());
-        String message = makeGroupMessage(user.getUserName(), condition);
+        String message = makeGroupMessage(user.getUserName(), groupId);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
         log.info("Access Token: {}", accessToken);
@@ -114,16 +113,16 @@ public class FCMService {
      * @return JSON 형식의 메세지 문자열
      * @throws JsonProcessingException
      */
-    private String makeGroupMessage(String userName, String condition) throws JsonProcessingException {
+    private String makeGroupMessage(String userName, Long groupId) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
         FCMMessage fcmMessage = FCMMessage
                 .builder()
                 .message(FCMMessage.Message.builder()
+                        .topic(groupId.toString())
                         .notification(FCMMessage.Notification.builder()
                                 .title("새로운 사진이 업로드되었습니다") // 고정된 제목
                                 .body(userName + "님이 그룹에 새로운 사진을 추가했습니다. 확인해보세요!") // 고정된 본문
                                 .build())
-                        .condition(condition)
                         .build())
                 .validateOnly(false)
                 .build();
