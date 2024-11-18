@@ -23,10 +23,11 @@ public class S3Controller {
 
     @PostMapping("/moment/{moment_id}/upload")
     ResponseEntity<List<String>> uploadImages(
+            @RequestHeader("Authorization") String token,
             @PathVariable("moment_id") String momentId,
             @RequestPart("images") List<MultipartFile> images
     ) {
-        return ResponseEntity.ok(s3Service.uploadImages(momentId, images));
+        return ResponseEntity.ok(s3Service.uploadImages(token, momentId, images));
     }
 
     @PostMapping("/group/{groupId}/upload")
@@ -36,7 +37,7 @@ public class S3Controller {
             @RequestPart List<MultipartFile> images
     ) {
         List<String> urls =
-                s3Service.uploadImages(momentService.createMomentForGroup(token, groupId, images), images);
+                s3Service.uploadImages(token, momentService.createMomentForGroup(token, groupId, images), images);
         groupService.updateGroupImagesCount(groupId, (long) images.size());
         return ResponseEntity.ok(urls);
     }
