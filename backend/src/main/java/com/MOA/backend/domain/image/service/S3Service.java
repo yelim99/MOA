@@ -8,8 +8,10 @@ import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.repository.UserRepository;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import software.amazon.awssdk.core.exception.SdkClientException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -47,12 +51,13 @@ public class S3Service {
     private final RegistFaceUtil registFaceUtil;
     private final CompareFaceUtil compareFaceUtil;
     private final DetectFoodUtil detectFoodUtil;
+    private final UserRepository userRepository;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
 
     // 이미지 업로드
-    public List<String> uploadImages(String momentId, List<MultipartFile> images) {
+    public List<String> uploadImages(String token, String momentId, List<MultipartFile> images) {
         Moment moment = momentService.getMomentEntity(momentId);
         Long groupId = moment.getGroupId();
 
@@ -74,6 +79,14 @@ public class S3Service {
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
+
+        Long userId = jwtUtil.extractUserId(token);
+        Optional<User> optionalUser = userService.findByUserId(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.updateUploadCount((long) imageUrls.size());
+            userRepository.save(user);
+        }
 
         return imageUrls;
     }
@@ -121,24 +134,54 @@ public class S3Service {
 
             amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
+
+        } catch (AmazonServiceException e) {
+            log.error("S3 Service Exception: Error Code - {}, Status Code - {}, AWS Error Message - {}",
+                    e.getErrorCode(), e.getStatusCode(), e.getErrorMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패", e);
+
+        } catch (SdkClientException e) {
+            log.error("S3 Client Exception: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "S3 클라이언트 연결 실패", e);
+
         } catch (IOException e) {
-            throw new RuntimeException("원본 사진 업로드에 실패하였습니다. {}", e);
+            log.error("IOException: {}", e.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 입력 스트림", e);
         }
     }
 
     // 썸네일 이미지 업로드 (quality: 0.5배)
-    private void uploadThumbnailImage(MultipartFile thumbnailImage, String imagePath) {
-        try (InputStream inputStream = ThumbnailUtil.getThumbnail(thumbnailImage, 0.5)) {
+    private void uploadThumbnailImage(MultipartFile image, String imagePath) {
+        try (InputStream originalStream = ThumbnailUtil.getThumbnail(image, 0.5)) {
+            // InputStream 크기를 계산하기 위해 데이터 읽기
+            byte[] thumbnailBytes = originalStream.readAllBytes();
+            InputStream inputStream = new ByteArrayInputStream(thumbnailBytes);
+
             ObjectMetadata objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(inputStream.available());
+            objectMetadata.setContentLength(thumbnailBytes.length); // 정확한 크기 설정
             objectMetadata.setContentType("image/jpeg");
 
             amazonS3.putObject(new PutObjectRequest(bucket, imagePath, inputStream, objectMetadata)
                     .withCannedAcl(CannedAccessControlList.PublicRead));
+
         } catch (IOException e) {
-            throw new RuntimeException("썸네일 사진 업로드에 실패하였습니다. {}", e);
+            // IOException 처리
+            log.error("썸네일 생성 또는 업로드 실패: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "썸네일 업로드 실패", e);
+
+        } catch (AmazonServiceException e) {
+            // AWS S3 관련 서비스 오류
+            log.error("AWS S3 서비스 오류: Error Code - {}, Status Code - {}, Message - {}",
+                    e.getErrorCode(), e.getStatusCode(), e.getErrorMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드 실패", e);
+
+        } catch (SdkClientException e) {
+            // AWS SDK 클라이언트 연결 오류
+            log.error("AWS SDK 클라이언트 오류: {}", e.getMessage(), e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "S3 클라이언트 연결 실패", e);
         }
     }
+
 
     // 확장자 구하기
     private String getFileExtension(String imageName) {
@@ -245,9 +288,13 @@ public class S3Service {
 
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            for(int i = 0; i < thumbResult.getObjectSummaries().size(); i++) {
-                thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                        thumbResult.getObjectSummaries().get(i).getKey())));
+            if(thumbResult.getObjectSummaries().isEmpty()) {
+                images.put("thumbImgs", new ArrayList<>());
+                return images;
+            }
+
+            for(S3ObjectSummary summary : thumbResult.getObjectSummaries()) {
+                thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket, summary.getKey())));
             }
 
             images.put("thumbImgs", thumbImgs);
@@ -272,19 +319,18 @@ public class S3Service {
         for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {
-                ListObjectsV2Request orgRequest = new ListObjectsV2Request()
-                        .withBucketName(bucket)
-                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/original");
                 ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
                         .withBucketName(bucket)
                         .withPrefix("group/" + groupId + "/moment/" + momentId + "/thumbnail");
 
-                ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                    thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                            thumbResult.getObjectSummaries().get(i).getKey())));
+                if(thumbResult.getObjectSummaries().isEmpty()) {
+                    continue;
+                }
+
+                for(S3ObjectSummary summary : thumbResult.getObjectSummaries()) {
+                    thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket, summary.getKey())));
                 }
 
                 imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);

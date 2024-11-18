@@ -33,7 +33,7 @@ public class JwtUtil {
     }
 
     public String generateAccessToken(Long userId) {
-        long tokenPeriod = 1000L * 60L * 60L;
+        long tokenPeriod = 1000L * 60L * 60L * 6L;
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
 

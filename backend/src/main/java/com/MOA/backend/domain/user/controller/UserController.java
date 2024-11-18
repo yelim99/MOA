@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     private final UserService userService;
@@ -65,6 +67,7 @@ public class UserController {
     @PutMapping("/device-token")
     public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody DeviceTokenRequest deviceTokenRequest) {
         userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceTokenRequest.getDeviceToken());
+        log.info("@@@@@@@@@@@@여기가 디바이스토큰이야" + deviceTokenRequest.getDeviceToken());
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }
