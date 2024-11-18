@@ -118,13 +118,12 @@ public class FCMService {
      */
     private String makeGroupMessage(String userName, MessageDto messageDto, String condition) throws JsonProcessingException {
         ObjectMapper om = new ObjectMapper();
-        Long imageCount = messageDto.getImageCount();
         FCMMessage fcmMessage = FCMMessage
                 .builder()
                 .message(FCMMessage.Message.builder()
                         .notification(FCMMessage.Notification.builder()
                                 .title("새로운 사진이 업로드되었습니다") // 고정된 제목
-                                .body(userName + "님이 그룹에 새로운 사진 " + imageCount + "장을 추가했습니다. 확인해보세요!") // 고정된 본문
+                                .body(userName + "님이 그룹에 새로운 사진을 추가했습니다. 확인해보세요!") // 고정된 본문
                                 .build())
                         .condition(condition)
                         .build())
