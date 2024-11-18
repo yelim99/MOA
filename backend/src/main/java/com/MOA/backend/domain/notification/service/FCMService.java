@@ -36,7 +36,7 @@ public class FCMService {
     public Mono<Integer> sendMessageToGroup(Long userId, Long groupId) throws JsonProcessingException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("없는데요?"));
-        String condition = String.format("'%s' in topics && !('%s' in topics)", groupId.toString(), user.getDeviceToken());
+        String condition = String.format("'%s' in topics && !('%s' in topics)", groupId.toString(), user.getUserName());
         String message = makeGroupMessage(user.getUserName(), condition);
         log.info("+++++++{}", message);
         String accessToken = getAccessToken();
