@@ -67,7 +67,7 @@ public class UserController {
     @PutMapping("/device-token")
     public ResponseEntity<?> updateDeviceToken(@RequestHeader("Authorization") String jwtToken, @RequestBody DeviceTokenRequest deviceTokenRequest) {
         userService.updateDeviceToken(jwtUtil.extractUserId(jwtToken), deviceTokenRequest.getDeviceToken());
-        log.info(deviceTokenRequest.getDeviceToken());
+        log.info("@@@@@@@@@@@@여기가 디바이스토큰이야" + deviceTokenRequest.getDeviceToken());
         return ResponseEntity.ok("디바이스 토큰이 등록되었습니다.");
     }
 }
