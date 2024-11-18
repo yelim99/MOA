@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class  FCMMessage {
+public class FCMMessage {
 
     private boolean validateOnly;
     private Message message;
@@ -20,6 +20,7 @@ public class  FCMMessage {
         private Notification notification;
         private String token;
         private String topic;
+        private String condition;
     }
 
     @Builder

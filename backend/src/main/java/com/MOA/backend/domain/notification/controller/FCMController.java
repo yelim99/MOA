@@ -1,5 +1,6 @@
 package com.MOA.backend.domain.notification.controller;
 
+import com.MOA.backend.domain.notification.dto.request.MessageDto;
 import com.MOA.backend.domain.notification.service.FCMService;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
@@ -22,11 +23,10 @@ public class FCMController {
     private final UserService userService;
 
     @PostMapping
-    public Mono<ResponseEntity<Integer>> pushFcmMessageToGroup(@RequestHeader("Authorization") String jwtToken, @RequestBody Long groupId) throws JsonProcessingException {
+    public Mono<ResponseEntity<Integer>> pushFcmMessageToGroup(@RequestHeader("Authorization") String jwtToken, @RequestBody MessageDto messageDto) throws JsonProcessingException {
         log.debug("[+] 푸시 메세지를 전송합니다.");
         Long userId = jwtUtil.extractUserId(jwtToken);
-        String userName = userService.findByUserId(userId).get().getUserName();
-        return fcmService.sendMessageToGroup(userName, groupId)
+        return fcmService.sendMessageToGroup(userId, messageDto)
                 .map(result -> new ResponseEntity<>(result, HttpStatus.OK))
                 .doOnError(e -> log.error("푸시 메세지 전송 중 에러 발생: {}", e.getMessage()))
                 .onErrorResume(e -> Mono.just(new ResponseEntity<>(0, HttpStatus.INTERNAL_SERVER_ERROR)));
