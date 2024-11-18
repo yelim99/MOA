@@ -25,7 +25,8 @@ pipeline {
             steps {
                 echo 'Deploying with Docker Compose...'
                 sh '''
-                    docker-compose up -d --build --no-recreate
+                    docker-compose down
+                    docker-compose up -d --build
                 '''
             }
         }
