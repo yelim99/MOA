@@ -245,9 +245,13 @@ public class S3Service {
 
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            for(int i = 0; i < thumbResult.getObjectSummaries().size(); i++) {
-                thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                        thumbResult.getObjectSummaries().get(i).getKey())));
+            if(!thumbResult.getObjectSummaries().isEmpty()) {
+                images.put("thumbImgs", new ArrayList<>());
+                return images;
+            }
+
+            for(S3ObjectSummary summary : thumbResult.getObjectSummaries()) {
+                thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket, summary.getKey())));
             }
 
             images.put("thumbImgs", thumbImgs);
@@ -272,19 +276,18 @@ public class S3Service {
         for(String momentId : momentIds) {
             List<String> thumbImgs = new ArrayList<>();
             try {
-                ListObjectsV2Request orgRequest = new ListObjectsV2Request()
-                        .withBucketName(bucket)
-                        .withPrefix("group/" + groupId + "/moment/" + momentId + "/original");
                 ListObjectsV2Request thumbRequest = new ListObjectsV2Request()
                         .withBucketName(bucket)
                         .withPrefix("group/" + groupId + "/moment/" + momentId + "/thumbnail");
 
-                ListObjectsV2Result orgResult = amazonS3.listObjectsV2(orgRequest);
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                for(int i = 0; i < orgResult.getObjectSummaries().size(); i++) {
-                    thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket,
-                            thumbResult.getObjectSummaries().get(i).getKey())));
+                if(!thumbResult.getObjectSummaries().isEmpty()) {
+                    continue;
+                }
+
+                for(S3ObjectSummary summary : thumbResult.getObjectSummaries()) {
+                    thumbImgs.add(String.valueOf(amazonS3.getUrl(bucket, summary.getKey())));
                 }
 
                 imagesByMoment.get("thumbImgs").put(momentId, thumbImgs);
