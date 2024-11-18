@@ -278,7 +278,7 @@ public class S3Service {
 
             ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-            if(!thumbResult.getObjectSummaries().isEmpty()) {
+            if(thumbResult.getObjectSummaries().isEmpty()) {
                 images.put("thumbImgs", new ArrayList<>());
                 return images;
             }
@@ -315,7 +315,7 @@ public class S3Service {
 
                 ListObjectsV2Result thumbResult = amazonS3.listObjectsV2(thumbRequest);
 
-                if(!thumbResult.getObjectSummaries().isEmpty()) {
+                if(thumbResult.getObjectSummaries().isEmpty()) {
                     continue;
                 }
 

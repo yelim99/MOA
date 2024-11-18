@@ -48,7 +48,13 @@ public class ThumbnailUtil {
             Metadata metadata = ImageMetadataReader.readMetadata(tempFile);
             ExifIFD0Directory directory = metadata.getDirectory(ExifIFD0Directory.class);
 
-            if (directory != null && directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+            // EXIF 데이터가 없거나 ORIENTATION 태그가 없는 경우
+            if (directory == null || !directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
+                log.info("관련 메타 데이터가 없으니 이미지를 그대로 반환합니다.");
+                return image; // EXIF 데이터가 없으면 원본 이미지를 반환
+            }
+
+            if (directory.containsTag(ExifIFD0Directory.TAG_ORIENTATION)) {
                 int orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
                 switch (orientation) {
                     case 1: // 정상 (회전 없음)
