@@ -8,6 +8,7 @@ import com.MOA.backend.domain.image.util.ThumbnailUtil;
 import com.MOA.backend.domain.moment.entity.Moment;
 import com.MOA.backend.domain.moment.service.MomentService;
 import com.MOA.backend.domain.user.entity.User;
+import com.MOA.backend.domain.user.repository.UserRepository;
 import com.MOA.backend.domain.user.service.UserService;
 import com.MOA.backend.global.auth.jwt.service.JwtUtil;
 import com.amazonaws.AmazonServiceException;
@@ -50,6 +51,7 @@ public class S3Service {
     private final RegistFaceUtil registFaceUtil;
     private final CompareFaceUtil compareFaceUtil;
     private final DetectFoodUtil detectFoodUtil;
+    private final UserRepository userRepository;
 
     @Value("${cloud.s3.bucket}")
     private String bucket;
@@ -77,6 +79,14 @@ public class S3Service {
             uploadThumbnailImage(image, thumbnailPath + imageName);
             imageUrls.add(amazonS3.getUrl(bucket, thumbnailPath + imageName).toString());
         });
+
+        Long userId = jwtUtil.extractUserId(token);
+        Optional<User> optionalUser = userService.findByUserId(userId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.updateUploadCount((long) imageUrls.size());
+            userRepository.save(user);
+        }
 
         return imageUrls;
     }
