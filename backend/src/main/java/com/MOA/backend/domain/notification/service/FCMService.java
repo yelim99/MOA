@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -66,46 +66,46 @@ public class FCMService {
      *
      * @return 토큰
      */
-//    private String getAccessToken() {
-//        try {
-//            // 환경 변수로 Firebase 인증 파일 경로를 가져옵니다.
-//            String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
-//            if (serviceAccountPath == null || serviceAccountPath.isEmpty()) {
-//                log.error("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
-//                throw new IOException("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
-//            }
-//
-//            log.info("Firebase 인증 파일을 환경 변수 경로에서 로드합니다: {}", serviceAccountPath);
-//
-//            // 환경 변수에 설정된 경로에서 파일 스트림을 생성
-//            try (FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath)) {
-//                GoogleCredentials googleCredentials = GoogleCredentials
-//                        .fromStream(serviceAccountStream)
-//                        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-//                googleCredentials.refreshIfExpired();
-//
-//                String accessToken = googleCredentials.getAccessToken().getTokenValue();
-//                log.info("getAccessToken() - 성공적으로 액세스 토큰을 가져왔습니다.");
-//                return accessToken;
-//            }
-//        } catch (IOException e) {
-//            log.error("Firebase 인증 파일을 읽는 중 오류 발생: {}", e.getMessage(), e);
-//            throw new RuntimeException("Firebase 인증 파일을 읽는데 실패했습니다.", e);
-//        }
-//    }
     private String getAccessToken() {
         try {
-            GoogleCredentials googleCredentials = GoogleCredentials
-                    .fromStream(new ClassPathResource("firebase-adminsdk.json").getInputStream())
-                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
-            googleCredentials.refreshIfExpired();
-            log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
+            // 환경 변수로 Firebase 인증 파일 경로를 가져옵니다.
+            String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
+            if (serviceAccountPath == null || serviceAccountPath.isEmpty()) {
+                log.error("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
+                throw new IOException("환경 변수 GOOGLE_APPLICATION_CREDENTIALS가 설정되지 않았습니다.");
+            }
 
-            return googleCredentials.getAccessToken().getTokenValue();
+            log.info("Firebase 인증 파일을 환경 변수 경로에서 로드합니다: {}", serviceAccountPath);
+
+            // 환경 변수에 설정된 경로에서 파일 스트림을 생성
+            try (FileInputStream serviceAccountStream = new FileInputStream(serviceAccountPath)) {
+                GoogleCredentials googleCredentials = GoogleCredentials
+                        .fromStream(serviceAccountStream)
+                        .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+                googleCredentials.refreshIfExpired();
+
+                String accessToken = googleCredentials.getAccessToken().getTokenValue();
+                log.info("getAccessToken() - 성공적으로 액세스 토큰을 가져왔습니다.");
+                return accessToken;
+            }
         } catch (IOException e) {
-            throw new RuntimeException("파일을 읽는데 실패 했습니다.");
+            log.error("Firebase 인증 파일을 읽는 중 오류 발생: {}", e.getMessage(), e);
+            throw new RuntimeException("Firebase 인증 파일을 읽는데 실패했습니다.", e);
         }
     }
+//    private String getAccessToken() {
+//        try {
+//            GoogleCredentials googleCredentials = GoogleCredentials
+//                    .fromStream(new ClassPathResource("firebase-adminsdk.json").getInputStream())
+//                    .createScoped(List.of("https://www.googleapis.com/auth/cloud-platform"));
+//            googleCredentials.refreshIfExpired();
+//            log.info("getAccessToken() - googleCredentials: {} ", googleCredentials.getAccessToken().getTokenValue());
+//
+//            return googleCredentials.getAccessToken().getTokenValue();
+//        } catch (IOException e) {
+//            throw new RuntimeException("파일을 읽는데 실패 했습니다.");
+//        }
+//    }
 
 
     /**
