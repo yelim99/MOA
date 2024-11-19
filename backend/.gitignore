@@ -1,4 +1,5 @@
 ###### 내가 따로 추가 ######
+firebase-adminsdk.json
 .env
 /src/main/generated/**
 #########################
