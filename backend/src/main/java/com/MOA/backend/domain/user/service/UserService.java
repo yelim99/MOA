@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @Transactional
 @AllArgsConstructor
 public class UserService {
-
+//
     private final UserRepository userRepository;
     private final MemberRepository memberRepository;
     private final MomentRepository momentRepository;
