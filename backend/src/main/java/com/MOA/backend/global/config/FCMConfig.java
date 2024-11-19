@@ -36,7 +36,6 @@ public class FCMConfig {
 
 
     private InputStream getServiceAccountStream() throws IOException {
-//        String serviceAccountPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS");
         String serviceAccountPath = SERVICE_ACCOUNT_JSON;
 
         if (serviceAccountPath != null && !serviceAccountPath.isEmpty()) {
