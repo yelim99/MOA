@@ -261,7 +261,7 @@ public class MomentService {
     }
 
     public List<String> getMomentIds(Long groupId) {
-        List<Moment> moments = momentRepository.findAllByGroupId(groupId);
+        List<Moment> moments = momentRepository.findAllByGroupIdOrderByCreatedAtAsc(groupId);
 
         if (moments.isEmpty()) {
             log.info("그룹 '{}'에 순간이 존재하지 않습니다.", groupId);
